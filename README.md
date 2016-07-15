@@ -1,0 +1,13 @@
+# Kookmin University Bigdata MBA
+ - Lecture Information
+ - Study Information
+ - Spring Semester
+  - Bigdata Management 
+  - Data Modeling and SQL (ORCALE)
+  - R Programming 
+  - Statistics
+ - Fall Semester
+  - Data Mining 
+  - Statistics II
+  - Python Programming 
+  - Hadoop System
