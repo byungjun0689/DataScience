@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<mathscore>
+  <student>
+    <name>Peter</name>
+    <score>100</score>
+  </student>
+  <student>
+    <name>Abel</name>
+    <score>90</score>
+  </student>
+  <student>
+    <name>Elin</name>
+    <score>80</score>
+  </student>
+</mathscore> 
