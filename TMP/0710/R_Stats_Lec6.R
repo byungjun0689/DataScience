@@ -1,150 +1,150 @@
 ####################################################
-#################ºÐ»êºÐ¼® (ANOVA)###################
+#################ë¶„ì‚°ë¶„ì„ (ANOVA)###################
 ####################################################
 
-###ÇöÀç±îÁö ¾çÀû º¯¼ö¸¸ ºñ±³ÇÔ, but ¹üÁÖÇü º¯¼öÀÎ °æ¿ìµµ ¸¹´Ù! 
-## ¼¼ ±×·ì ÀÌ»óÀÇ Æò±ÕÀÌ °°ÀºÁö °ËÁ¤ -> ºÐ»êºÐ¼®
-## R¿¡¼­´Â È¸±ÍºÐ¼®°ú µ¿ÀÏÇÑ ÇüÅÂ
+###í˜„ìž¬ê¹Œì§€ ì–‘ì  ë³€ìˆ˜ë§Œ ë¹„êµí•¨, but ë²”ì£¼í˜• ë³€ìˆ˜ì¸ ê²½ìš°ë„ ë§Žë‹¤! 
+## ì„¸ ê·¸ë£¹ ì´ìƒì˜ í‰ê· ì´ ê°™ì€ì§€ ê²€ì • -> ë¶„ì‚°ë¶„ì„
+## Rì—ì„œëŠ” íšŒê·€ë¶„ì„ê³¼ ë™ì¼í•œ í˜•íƒœ
 
 mov <- read.csv("movie_MBA2.csv")
 summary(mov)
-## ratingÀÌ total_seen¿¡ ¿µÇâÀ» ÁÖ´ÂÁö È®ÀÎÇØ º¸ÀÚ! 
-## Áö³­ ÁÖ¿¡´Â t-test·Î 2°³ Áý´Ü ºñ±³ÇÔ, ¿À´ÃÀº 4°³ÀÇ Áý´ÜÀ» µ¿½Ã¿¡ ºñ±³!
+## ratingì´ total_seenì— ì˜í–¥ì„ ì£¼ëŠ”ì§€ í™•ì¸í•´ ë³´ìž! 
+## ì§€ë‚œ ì£¼ì—ëŠ” t-testë¡œ 2ê°œ ì§‘ë‹¨ ë¹„êµí•¨, ì˜¤ëŠ˜ì€ 4ê°œì˜ ì§‘ë‹¨ì„ ë™ì‹œì— ë¹„êµ!
 
 hist(mov$total_seen)
-## ¿ÞÂÊ¿¡ ¸¹Àº µ¥ÀÌÅÍ°¡ ¸ô·ÁÀÖ´Ù 
+## ì™¼ìª½ì— ë§Žì€ ë°ì´í„°ê°€ ëª°ë ¤ìžˆë‹¤ 
 hist(log(mov$total_seen))
-## ·Î±× º¯È¯ ÈÄ »ç¿ëÇÏÀÚ!
+## ë¡œê·¸ ë³€í™˜ í›„ ì‚¬ìš©í•˜ìž!
 
-out21 <- lm(log(total_seen)~rating, mov)   #ÀÌ·¸°Ô¸¸ º¸¸é ºÐ»êºÐ¼®ÀÎÁö~ ´ÙÁßÀÎÁö~ ¸ð¸§! 
+out21 <- lm(log(total_seen)~rating, mov)   #ì´ë ‡ê²Œë§Œ ë³´ë©´ ë¶„ì‚°ë¶„ì„ì¸ì§€~ ë‹¤ì¤‘ì¸ì§€~ ëª¨ë¦„! 
 summary(out21)
-## ¼³¸í º¯¼ö´Â 1°³, rating Áï xº¯¼ö´Â 3°³ as dummy º¯¼ö 
-## º£Å¸0: 12¼¼ °ü¶÷°¡ÀÇ Æò±Õ 
-## º£Å¸1: 15¼¼ Æò±Õ - 12¼¼ Æò±Õ
+## ì„¤ëª… ë³€ìˆ˜ëŠ” 1ê°œ, rating ì¦‰ xë³€ìˆ˜ëŠ” 3ê°œ as dummy ë³€ìˆ˜ 
+## ë² íƒ€0: 12ì„¸ ê´€ëžŒê°€ì˜ í‰ê·  
+## ë² íƒ€1: 15ì„¸ í‰ê·  - 12ì„¸ í‰ê· 
 
-## Ã»¼Ò³â°ú 12ÀÇ Â÷ÀÌ¸¦ ºÃÀ» ¶§, º£Å¸3Àº º°·Î À¯ÀÇÇÏÁö ¾Ê´Ù (0.093)
-## ÀüÃ¼¿Í 12ÀÇ Â÷ÀÌ¸¦ ºÃÀ» ¶§, º£Å¸2Àº ¸Å¿ì À¯ÀÇÇÏ´Ù.  
+## ì²­ì†Œë…„ê³¼ 12ì˜ ì°¨ì´ë¥¼ ë´¤ì„ ë•Œ, ë² íƒ€3ì€ ë³„ë¡œ ìœ ì˜í•˜ì§€ ì•Šë‹¤ (0.093)
+## ì „ì²´ì™€ 12ì˜ ì°¨ì´ë¥¼ ë´¤ì„ ë•Œ, ë² íƒ€2ì€ ë§¤ìš° ìœ ì˜í•˜ë‹¤.  
 
-### F-test : Æò±Õ Â÷ÀÌÀÇ °ËÁ¤
+### F-test : í‰ê·  ì°¨ì´ì˜ ê²€ì •
 summary(out21)
-# P-value = 0.001601 <- ´Ù ´Ù¸¥Áö´Â ¸ð¸£°ÚÁö¸¸, Àû¾îµµ ÇÏ³ªÀÇ µî±ÞÀº Á» Æò±ÕÀÌ ´Ù¸£´Ù 
-# but ¾î´À µî±Þ³¢¸® ´Ù¸¥Áö ¸ð¸¥´Ù! => ´ÙÁßºñ±³ ÇÊ¿ä
-# ¾î¸²Àâ¾Æ ±âÁ¸ summaryÀÇ Pr(>|t|)·Î ¾ê±âÇÒ ¼ö ÀÖÁö¸¸ °¢°¢ÀÇ testµµ ÇÊ¿äÇÏ´Ù
-# º¯¼ö°¡ ´Ã¾î³ª°Ô µÇ¸é¼­ °¢°¢ÀÇ t-testÁøÇà ½Ã, 0.95 * 0.95 .... ½Å·Ú±¸°£ÀÌ ÀÛ¾ÆÁø´Ù 
+# P-value = 0.001601 <- ë‹¤ ë‹¤ë¥¸ì§€ëŠ” ëª¨ë¥´ê² ì§€ë§Œ, ì ì–´ë„ í•˜ë‚˜ì˜ ë“±ê¸‰ì€ ì¢€ í‰ê· ì´ ë‹¤ë¥´ë‹¤ 
+# but ì–´ëŠ ë“±ê¸‰ë¼ë¦¬ ë‹¤ë¥¸ì§€ ëª¨ë¥¸ë‹¤! => ë‹¤ì¤‘ë¹„êµ í•„ìš”
+# ì–´ë¦¼ìž¡ì•„ ê¸°ì¡´ summaryì˜ Pr(>|t|)ë¡œ ì–˜ê¸°í•  ìˆ˜ ìžˆì§€ë§Œ ê°ê°ì˜ testë„ í•„ìš”í•˜ë‹¤
+# ë³€ìˆ˜ê°€ ëŠ˜ì–´ë‚˜ê²Œ ë˜ë©´ì„œ ê°ê°ì˜ t-testì§„í–‰ ì‹œ, 0.95 * 0.95 .... ì‹ ë¢°êµ¬ê°„ì´ ìž‘ì•„ì§„ë‹¤ 
 
 
-### ´ÙÁßºñ±³
-## Dunnett Method : reference level(±âÁØ)ÀÌ ÀÖ´Ù 
-## Tukey Method : °¡´ÉÇÑ ¸ðµç ¹üÁÖ·Î ÇÑ´Ù 
+### ë‹¤ì¤‘ë¹„êµ
+## Dunnett Method : reference level(ê¸°ì¤€)ì´ ìžˆë‹¤ 
+## Tukey Method : ê°€ëŠ¥í•œ ëª¨ë“  ë²”ì£¼ë¡œ í•œë‹¤ 
 
 install.packages("multcomp")
 library(multcomp)
 
 dunnett <- glht(out21, linfct=mcp(rating="Dunnett"))
 summary(dunnett)
-## reference level : 12¼¼ °ü¶÷°¡ 
-# ÀüÃ¼¿Í´Â À¯°üÇÏÁö¸¸, Ã»¼Ò³â°ú´Â º°·Î À¯ÀÇÇÏÁö ¾Ê´Ù / 15¼¼¿Í´Â Æ¯È÷ ´õ!
+## reference level : 12ì„¸ ê´€ëžŒê°€ 
+# ì „ì²´ì™€ëŠ” ìœ ê´€í•˜ì§€ë§Œ, ì²­ì†Œë…„ê³¼ëŠ” ë³„ë¡œ ìœ ì˜í•˜ì§€ ì•Šë‹¤ / 15ì„¸ì™€ëŠ” íŠ¹ížˆ ë”!
 
 tukey <- glht(out21, linfct=mcp(rating="Tukey"))
 summary(tukey)
 
 
-### ¹üÁÖÇü º¯¼öÀÇ º¯È¯
-## ±»ÀÌ ´Ù ±Ã±ÝÇÑ °ÍÀÌ ¾Æ´Ï¶ó, ºÎºÐº°·Î ¹­¾î¼­ º¸°í ½ÍÀº °æ¿ì? 
-## ¿¹) 12¼¼¿Í 15¼¼¸¦ ÇÏ³ªÀÇ ±×·ìÀ¸·Î ¹­¾î¼­ º¸ÀÚ
+### ë²”ì£¼í˜• ë³€ìˆ˜ì˜ ë³€í™˜
+## êµ³ì´ ë‹¤ ê¶ê¸ˆí•œ ê²ƒì´ ì•„ë‹ˆë¼, ë¶€ë¶„ë³„ë¡œ ë¬¶ì–´ì„œ ë³´ê³  ì‹¶ì€ ê²½ìš°? 
+## ì˜ˆ) 12ì„¸ì™€ 15ì„¸ë¥¼ í•˜ë‚˜ì˜ ê·¸ë£¹ìœ¼ë¡œ ë¬¶ì–´ì„œ ë³´ìž
 mov$rating2 <- mov$rating
 levels(mov$rating2)
-levels(mov$rating2)=c(2,2,1,3)  #ÇÕÄ¡±â ÀÛ¾÷ (°°Àº ±×·ì¿¡ °°Àº ¼ýÀÚ ºÎ¿©)
+levels(mov$rating2)=c(2,2,1,3)  #í•©ì¹˜ê¸° ìž‘ì—… (ê°™ì€ ê·¸ë£¹ì— ê°™ì€ ìˆ«ìž ë¶€ì—¬)
 summary(mov$rating2)
 
 out22 <- lm(log(total_seen)~rating2, mov)
 summary(out22)
-## reference groupÀÌ ÀÚµ¿À¸·Î 2·Î µÊ (°¡Àå ¾ÕÀÇ ±×·ìÀÎµí), ¾Æ·¡·Î È®ÀÎ!
+## reference groupì´ ìžë™ìœ¼ë¡œ 2ë¡œ ë¨ (ê°€ìž¥ ì•žì˜ ê·¸ë£¹ì¸ë“¯), ì•„ëž˜ë¡œ í™•ì¸!
 levels(mov$rating2)
 
-## 1¹øÀ» reference groupÀ¸·Î ´Ù.½Ã. Àâ´Â´Ù
+## 1ë²ˆì„ reference groupìœ¼ë¡œ ë‹¤.ì‹œ. ìž¡ëŠ”ë‹¤
 mov$rating2 <- relevel(mov$rating2, ref="1")  
 out22 <- lm(log(total_seen)~rating2, mov)
 summary(out22)
-# ÀüÃ¼ °í³ª¶÷°¡¿¡ ºñÇØ Ã»¼Ò³â°ü¶÷ºÒ°¡°¡ À¯ÀÇÇÏ°Ô Å©Áö ¾Ê´Ù (rating23)
+# ì „ì²´ ê³ ë‚˜ëžŒê°€ì— ë¹„í•´ ì²­ì†Œë…„ê´€ëžŒë¶ˆê°€ê°€ ìœ ì˜í•˜ê²Œ í¬ì§€ ì•Šë‹¤ (rating23)
 
 
 
 ####################################################
-###############°øºÐ»êºÐ¼® (ANCOVA)##################
+###############ê³µë¶„ì‚°ë¶„ì„ (ANCOVA)##################
 ####################################################
 
-### ¹üÁÖÇüº¯¼ö... ºÐ»êºÐ¼® + È¸±ÍºÐ¼®
-### ¾çÀûº¯¼ö ÁúÀûº¯¼ö µÑ´Ù ÀÖ´Ù -> ¿À´ÃÀº ¸Àº¸±â¸¸! 
+### ë²”ì£¼í˜•ë³€ìˆ˜... ë¶„ì‚°ë¶„ì„ + íšŒê·€ë¶„ì„
+### ì–‘ì ë³€ìˆ˜ ì§ˆì ë³€ìˆ˜ ë‘˜ë‹¤ ìžˆë‹¤ -> ì˜¤ëŠ˜ì€ ë§›ë³´ê¸°ë§Œ! 
 
-## ¿¹) °Å½ÄÁõÄ¡·áÁ¦
-# Á¾¼Óº¯¼ö¿¡ ÀÌ¹Ì Ä¡·áÀüÈÄ ¸ö¹«°Ô°¡ µé¾î°¡ ÀÖÁö¸¸,
-# Ä¡·áÀü ¸ö¹«°Ô´Â Á¤¸» Å« ÀÇ¹Ì¸¦ °¡Áö±â¿¡ ¼³¸íº¯¼ö¿¡µµ µé¾î°£´Ù 
+## ì˜ˆ) ê±°ì‹ì¦ì¹˜ë£Œì œ
+# ì¢…ì†ë³€ìˆ˜ì— ì´ë¯¸ ì¹˜ë£Œì „í›„ ëª¸ë¬´ê²Œê°€ ë“¤ì–´ê°€ ìžˆì§€ë§Œ,
+# ì¹˜ë£Œì „ ëª¸ë¬´ê²ŒëŠ” ì •ë§ í° ì˜ë¯¸ë¥¼ ê°€ì§€ê¸°ì— ì„¤ëª…ë³€ìˆ˜ì—ë„ ë“¤ì–´ê°„ë‹¤ 
 
 anx <- read.csv("anorexia.csv")
 summary(anx)
-str(anx)   # È¯ÀÚ 72¸í, Prewt / Postwt / TreatÁ¾·ù(3°³±×·ì)
+str(anx)   # í™˜ìž 72ëª…, Prewt / Postwt / Treatì¢…ë¥˜(3ê°œê·¸ë£¹)
 
 out31 <- lm(Postwt-Prewt~Treat, anx)
 summary(out31)
 
 out32 <- lm(Postwt-Prewt~Prewt+Treat, anx)
 summary(out32)
-# 3°³ ¸ðµÎ À¯ÀÇÇÏ´Ù
+# 3ê°œ ëª¨ë‘ ìœ ì˜í•˜ë‹¤
 # reference level : CBT
-### PrewtÀÌ ³ôÀ»¼ö·Ï º¯È­°¡ Àû´Ù. (-0.5655)
-### TreatCont : PrewtÀÌ µ¿ÀÏÇÑ ¼öÁØÀÏ ¶§, Control GroupÀÌ -4.0971¸¸Å­ Â÷ÀÌ³­´Ù)
-                # Control GroupÀÇ ¸ö¹«°Ô º¯È­°¡ Àû¾ú´Ù
-### TreatFT : µ¿ÀÏÇÑ »ç¶÷µé ³õ°í ºÃÀ» ¶§, CBT ¾à¿¡ ºñÇØ FTÀÇ ¸ö¹«°Ô º¯È­°¡ ´õ ÄÇ´Ù
+### Prewtì´ ë†’ì„ìˆ˜ë¡ ë³€í™”ê°€ ì ë‹¤. (-0.5655)
+### TreatCont : Prewtì´ ë™ì¼í•œ ìˆ˜ì¤€ì¼ ë•Œ, Control Groupì´ -4.0971ë§Œí¼ ì°¨ì´ë‚œë‹¤)
+# Control Groupì˜ ëª¸ë¬´ê²Œ ë³€í™”ê°€ ì ì—ˆë‹¤
+### TreatFT : ë™ì¼í•œ ì‚¬ëžŒë“¤ ë†“ê³  ë´¤ì„ ë•Œ, CBT ì•½ì— ë¹„í•´ FTì˜ ëª¸ë¬´ê²Œ ë³€í™”ê°€ ë” ì»¸ë‹¤
 
 boxplot(Prewt~Treat, anx)
 
 
-## ¿©±â¼­ ANOVA°¡ Áß¿äÇÏ´Ù!
+## ì—¬ê¸°ì„œ ANOVAê°€ ì¤‘ìš”í•˜ë‹¤!
 anova(out32)
-# ÇÏ³ªÀÇ º¯¼ö·Î ³ª¿Í¼­, Treat¶ó´Â º¯¼ö°¡ ¼³¸íÇØÁÖ´Â È¿°ú, º¯µ¿¼ºÀÇ Á¤µµÀÇ ÀÇ¹Ì
-# Treat°¡ À¯ÀÇÇÏ´Ù´Â ¾ê±â´Â, PrewtÀ» Á¦¾îÇßÀ» ¶§, Treat 3°³ ±×·ìÀÇ Æò±ÕÀÇ Â÷ÀÌ°¡ À¯ÀÇÇÏ´Ù
-    # 0.0008438 ±âÁØ
-    # df = 2ÀÎ ÀÌÀ¯°¡ treatment Á¾·ù°¡ 3ÀÌ¶ó¼­! 
+# í•˜ë‚˜ì˜ ë³€ìˆ˜ë¡œ ë‚˜ì™€ì„œ, Treatë¼ëŠ” ë³€ìˆ˜ê°€ ì„¤ëª…í•´ì£¼ëŠ” íš¨ê³¼, ë³€ë™ì„±ì˜ ì •ë„ì˜ ì˜ë¯¸
+# Treatê°€ ìœ ì˜í•˜ë‹¤ëŠ” ì–˜ê¸°ëŠ”, Prewtì„ ì œì–´í–ˆì„ ë•Œ, Treat 3ê°œ ê·¸ë£¹ì˜ í‰ê· ì˜ ì°¨ì´ê°€ ìœ ì˜í•˜ë‹¤
+# 0.0008438 ê¸°ì¤€
+# df = 2ì¸ ì´ìœ ê°€ treatment ì¢…ë¥˜ê°€ 3ì´ë¼ì„œ! 
 
 
 
-############ PRACTICE ############## (Practice5 ÆÄÀÏ)
+############ PRACTICE ############## (Practice5 íŒŒì¼)
 forb <- read.csv("Forbes500.csv")
 str(forb)
 summary(forb)
 
 boxplot(Sales~sector, forb)
 boxplot(log(Sales)~sector, forb)
-## log(Sales)·Î ºÐ»ê ºÐ¼® ½ÇÇà!
+## log(Sales)ë¡œ ë¶„ì‚° ë¶„ì„ ì‹¤í–‰!
 
 # Q1. ANOVA
 forb$sector <- factor(forb$sector)
-forb$sector <- relevel(forb$sector, ref="HiTech")   #reference levelÀÌ ¿ø·¡ Communication
-                          #Á¤±ÔÈ­ ¶§¹®¿¡ ¹Ù²Ù¾ú´Ù. ±×·¡ÇÁ ¸ÕÀú È®ÀÎÇÑ´Ù.
+forb$sector <- relevel(forb$sector, ref="HiTech")   #reference levelì´ ì›ëž˜ Communication
+#ì •ê·œí™” ë•Œë¬¸ì— ë°”ê¾¸ì—ˆë‹¤. ê·¸ëž˜í”„ ë¨¼ì € í™•ì¸í•œë‹¤.
 
 out41 <- lm(log(Sales)~sector, forb)
 summary(out41)
 boxplot(log(Sales)~sector, forb)
-## Hi-tech°¡ Á¦ÀÏ ³ô´Ù 
+## Hi-techê°€ ì œì¼ ë†’ë‹¤ 
 
-# Q2. ºÐ»êºÐ¼®, dunnett test
+# Q2. ë¶„ì‚°ë¶„ì„, dunnett test
 dunnett2 <- glht(out41, linfct=mcp(sector="Dunnett"))
 summary(dunnett2)
-## Hi-tech¸¦ ±âÁØÀ¸·Î, Energy, Finance, Medical¿¡ À¯ÀÇÇÏ°Ô Â÷ÀÌ³­´Ù
+## Hi-techë¥¼ ê¸°ì¤€ìœ¼ë¡œ, Energy, Finance, Medicalì— ìœ ì˜í•˜ê²Œ ì°¨ì´ë‚œë‹¤
 
-# Q3. Sales~Asset, »êÁ¡µµ, logº¯È¯
+# Q3. Sales~Asset, ì‚°ì ë„, logë³€í™˜
 out42 <- lm(Sales~Assets, forb)
 plot(Sales~Assets, forb)
 out43 <- lm(log(Sales)~log(Assets), forb)
 plot(out43)
 
-# Q4. log(Assets), sector -> log(Sales) °øºÐ»êºÐ¼®
+# Q4. log(Assets), sector -> log(Sales) ê³µë¶„ì‚°ë¶„ì„
 out44 <- lm(log(Sales)~Assets+sector, forb)
 summary(out44)
-## sector°£ÀÇ Â÷ÀÌ : Assets´Â ¸Å¿ì À¯ÀÇÇÏ´Ù 
+## sectorê°„ì˜ ì°¨ì´ : AssetsëŠ” ë§¤ìš° ìœ ì˜í•˜ë‹¤ 
 
-# Q5. log(Assets)ÀÌ µ¿ÀÏ, sector°£¿¡ log(sales)ÀÇ Â÷ÀÌ by dunnett test
+# Q5. log(Assets)ì´ ë™ì¼, sectorê°„ì— log(sales)ì˜ ì°¨ì´ by dunnett test
 dunnett3 <- glht(out44, linfct=mcp(sector="Dunnett"))
 summary(dunnett3)
-## energy°¡ ¹Ù²î¾ú´Ù! 
+## energyê°€ ë°”ë€Œì—ˆë‹¤! 
