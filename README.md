@@ -1,17 +1,17 @@
 # Kookmin University Bigdata MBA
  - Lecture Information
  - Study Information
- - I. Spring Semester
+ - I. 2016 03. Spring Semester 
   - Bigdata Management 
   - Data Modeling and SQL (ORCALE)
   - R Programming 
   - Statistics
- - I. Fall Semester
+ - Ⅱ. 2016 09. Fall Semester
   - Data Mining 
   - Statistics II
   - Python Programming 
   - Hadoop System
- - Ⅱ. Spring Semester
+ - Ⅲ. 2017 03. Spring Semester
   - Visualization. 
   - Data Distributed computing : Spark
   - Machine Learning & Deep Learning 
