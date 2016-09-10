@@ -13,7 +13,6 @@ data("USairpollution")
 pairs(USairpollution)
 str(USairpollution)
 
-
 ## 공분산.
 x <- 1:100
 x1 <- 101:200
