@@ -41,3 +41,32 @@ TmpCrime <- TmpCrime[,-1]
 TmpCrime <- as.matrix(TmpCrime)
 head(TmpCrime)
 heatmap(TmpCrime[,-8], scale="column", col=brewer.pal(9,"Blues"))
+
+summary(Crime)
+install.packages("outliers")
+library(outliers)
+out <- outlier(Crime[,-1])
+pairs.panels(Crime[,-1])
+out <- as.data.frame(out)
+
+# 2. Baseball_201509.csv는 2015년 9월 현재 한국 프로야구 각 팀의 
+# 성적을 보여준다. 이 자료를 이용해 별그림, 나이팅게일 차트를 적절한 
+# label을 포함하여 그리고 비슷한 패턴을 가지는 그룹으로 나누어 
+# 각 그룹이 어떤 변수적 특징을 가지는지 서술하여라.
+
+bball <- read.csv("http://datasets.flowingdata.com/ppg2008.csv")
+rownames(bball) <- bball[,1]
+bball <- bball[,-1]
+# 1) Nightingale's Chart
+star <- stars(bball,cex=0.7, draw.segments = TRUE)
+star
+sapply(star, max) # 16.1 18.4
+stars(bball,cex=0.7, key.loc=c(19.5,2),draw.segments = TRUE)
+stars(bball,cex=0.7, key.loc=c(19.5,2))
+
+bball2 <- bball[,2:20]
+bball2 <- as.matrix(bball2)
+bball2 <- bball2[order(bball2[,3], decreasing = F),]
+heatmap(bball2,scale = "column",margins = c(5,10),col=brewer.pal(9,"Blues"))
+
+
