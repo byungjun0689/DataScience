@@ -1,6 +1,6 @@
 # Data Preparation
 
-setwd("d:/DataScience/KMU/Second Semester/DataMining/0910/")
+getwd()
 
 train <- read.csv("pepTrainSet.csv", stringsAsFactors=F)
 train <- subset(train, select=-c(id))
