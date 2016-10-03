@@ -44,8 +44,6 @@ tmp <- tmp %>% summarise_each(funs(sum),wk_amt,we_amt)
 cs.v5 <- tmp %>% mutate(wk_pat = ifelse(wk_amt>=we_amt*1.5,"주중형",ifelse(we_amt>=wk_amt*1.5,"주말형","유형없음")))  
 head(cs.v5)
 
-ggplot(cs.v5, aes(wk_pat)) + geom_bar(aes(fill=wk_pat))
-
 # 고객의 생일로부터 특정시점의 나이와 연령대의 계산
 cs.v6<-cs %>%
   mutate(age=year('2001-05-01') -year(ymd_hms(birth))) %>%
@@ -70,3 +68,59 @@ cs.v7.12 <-tr%>%
   filter(start_date<=sales_date& sales_date<=end_date) %>%
   group_by(custid) %>%
   summarize(amt12=sum(net_amt), nop12=n())
+
+#===================================================
+#==============과                 제================
+#===================================================
+
+# 1. 가격 선호도 변수
+library(dplyr)
+head(tr)
+str(tr)
+boxplot(tr$net_amt)
+summary(tr[tr$net_amt >0,]$net_amt)
+tmp <- tr[tr$net_amt >0,]
+plot(tmp$net_amt)
+summary(tmp$net_amt)
+cs.v8 <- tr %>% mutate(mountGrp=cut(net_amt, c(0,50000,100000,150000,200000), labels=F)*50000) 
+cs.v8 <- cs.v8 %>% group_by(mountGrp) %>% summarize(cnt=n())
+head(cs.v8)
+sum(cs.v8$cnt)
+nrow(tmp)
+# 2. 시즌 선호도 변수
+summary(ymd_hms(tr$sales_date))
+min(ymd_hms(tr$sales_date))
+max(ymd_hms(tr$sales_date))
+cs.v9 <- tr
+cs.v9$sales_date <- ymd_hms(tr$sales_date)
+cs.v9$month <- month(cs.v9$sales_date)
+head(cs.v9)
+# 봄
+spring <- filter(cs.v9, month >=3 & month <=5)
+spring$month <- 1
+# 여름
+summer <- filter(cs.v9, month >=6 & month <=8)
+table(summer$month)
+summer$month  <- 2
+# 가을 
+fall <- filter(cs.v9, month >=9 & month <=11)
+table(fall$month)
+fall$month <- 3
+# 겨울 
+winter <- filter(cs.v9, month == 12 | month <=2)
+head(winter)
+table(winter$month)
+winter$month <- 4
+tmp <- rbind(spring,summer) %>% rbind(fall) %>% rbind(winter)
+head(tmp)
+cs.v9 <- tmp %>% group_by(month) %>% summarize(Cnt = n())
+head(cs.v9)
+# 3. 구매추세 패턴
+# 4. 상품별 구매 금액/횟수/여부 변수 
+head(tr$goodcd)
+str(tr)
+cs.v10 <- tr %>% filter(net_amt > 0) %>% group_by(goodcd) %>% summarize(amt = sum(net_amt), Cnt = n())
+head(cs.v10)
+# 5. 상품별 구매 순서 
+# 6. 주 구매 상품 변수
+# 7. 휴면/이탈 가망 변수 (Ex) if 평균 구매 주기 < 최종구매경과(현재-마지막 구매 시점) then 이탈
