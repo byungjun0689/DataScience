@@ -76,51 +76,118 @@ cs.v7.12 <-tr%>%
 # 1. 가격 선호도 변수
 library(dplyr)
 head(tr)
-str(tr)
-boxplot(tr$net_amt)
-summary(tr[tr$net_amt >0,]$net_amt)
 tmp <- tr[tr$net_amt >0,]
-plot(tmp$net_amt)
-summary(tmp$net_amt)
-cs.v8 <- tr %>% mutate(mountGrp=cut(net_amt, c(0,50000,100000,150000,200000), labels=F)*50000) 
-cs.v8 <- cs.v8 %>% group_by(mountGrp) %>% summarize(cnt=n())
+tmp <- tmp[!tmp$net_amt>=72000000,]
+# cs.v8 <- tr %>% mutate(mountGrp=cut(net_amt, c(0,50000,100000,150000,200000,), labels=F)) 
+# Version 1
+cs.v8 <- tmp
+cs.v8$mountGrp <- ifelse(cs.v8$net_amt <= 50000,1,
+                         ifelse(cs.v8$net_amt>50000 & cs.v8$net_amt<=100000,2,
+                         ifelse(cs.v8$net_amt>100000 & cs.v8$net_amt<=150000,3,
+                        ifelse(cs.v8$net_amt>150000 & cs.v8$net_amt<=200000,4,5
+                        ))))
+cs.v8 <- cs.v8 %>% group_by(custid) %>% select(custid,mountGrp) %>% summarize(avgPay = sum(mountGrp)/n())
+cs.v8$avgPay <- round(cs.v8$avgPay) * 5
 head(cs.v8)
-sum(cs.v8$cnt)
-nrow(tmp)
+# Version 2
+tmp <- tr[tr$net_amt >0,]
+tmp <- tmp[!tmp$net_amt>=72000000,]
+MGRP <- function(x){
+  if(x <= 50000){
+    result = 1
+  }else if(x > 50000 & x <= 100000){
+    result = 2
+  }else if(x > 100000 & x <= 150000){
+    result = 3
+  }else if(x > 150000 & x <= 200000){
+    result = 4
+  }else{
+    result = 5
+  }
+  return(result)
+}
+head(tmp)
+tmp <- mutate(tmp,avgPay = MGRP(net_amt))
+cs.v8.2 <- tmp %>% rowwise() %>% mutate(avgPay = MGRP(net_amt)) %>% ungroup() %>% 
+  group_by(custid,avgPay) %>% 
+  summarize(Cnt=n()) %>%
+  slice(which.max(Cnt))
+head(cs.v8.2,20)
+
+
 # 2. 시즌 선호도 변수
 summary(ymd_hms(tr$sales_date))
 min(ymd_hms(tr$sales_date))
 max(ymd_hms(tr$sales_date))
 cs.v9 <- tr
-cs.v9$sales_date <- ymd_hms(tr$sales_date)
-cs.v9$month <- month(cs.v9$sales_date)
+cs.v9$month <- month(ymd_hms(tr$sales_date))
+
+cs.v9.3 <- cs.v9 %>% filter(month >= 3 & month <=5) %>% group_by(custid) %>% summarize(Spring = n())
+cs.v9.6 <- cs.v9 %>% filter(month >= 6 & month <=8) %>% group_by(custid) %>% summarize(Summer = n())
+cs.v9.9 <- cs.v9 %>% filter(month >= 9 & month <=11) %>% group_by(custid) %>% summarize(Fall = n())
+cs.v9.12 <- cs.v9 %>% filter(month == 12 | month <=2) %>% group_by(custid) %>% summarize(Winter = n())
+cs.v9 <- left_join(cs.v9.3,cs.v9.6) %>% left_join(cs.v9.9) %>% left_join(cs.v9.12)
+fun <- function(x){
+  SeasonMax <- names(which.max(x))
+  return(SeasonMax)
+}
+cs.v9$Summer <- as.integer(cs.v9$Summer)
+cs.v9$Fall <- as.integer(cs.v9$Fall)
+cs.v9$Winter <- as.integer(cs.v9$Winter)
+cs.v9$Season <- apply(cs.v9[,2:5],1,fun)
+cs.v9 <- select(cs.v9,custid,Season)
 head(cs.v9)
-# 봄
-spring <- filter(cs.v9, month >=3 & month <=5)
-spring$month <- 1
-# 여름
-summer <- filter(cs.v9, month >=6 & month <=8)
-table(summer$month)
-summer$month  <- 2
-# 가을 
-fall <- filter(cs.v9, month >=9 & month <=11)
-table(fall$month)
-fall$month <- 3
-# 겨울 
-winter <- filter(cs.v9, month == 12 | month <=2)
-head(winter)
-table(winter$month)
-winter$month <- 4
-tmp <- rbind(spring,summer) %>% rbind(fall) %>% rbind(winter)
-head(tmp)
-cs.v9 <- tmp %>% group_by(month) %>% summarize(Cnt = n())
+
+#version 2
+Sea <- function(x){
+  if(x >= 3 & x <=5){
+    result = 'Spring'
+  }else if(x >= 6 & x <=8){
+    result = 'Summer'
+  }else if(x >= 9 & x <=11){
+    result = 'Fall'
+  }else{
+    result = 'Winter'
+  }
+  return(result)
+}
+
+cs.v9 <- tr
+cs.v9$month <- month(ymd_hms(tr$sales_date))
+cs.v9 <- cs.v9 %>% rowwise() %>% mutate(season = Sea(month)) %>% ungroup()
+cs.v9 <- cs.v9 %>% group_by(custid,season) %>% summarize(cnt = n()) %>% slice(which.max(cnt))
 head(cs.v9)
 # 3. 구매추세 패턴
+cs.v11 <- tr
+cs.v11$month <- ym(ymd_hms(tr$sales_date))
+cs.v11$year <- year(ymd_hms(tr$sales_date))
+head(ymd(ymd_hms(tr$sales_date)))
+?lubridate
+cs.v11 <- cs.v11 %>% group_by(custid,month) %>% summarize(sum_amt=sum(net_amt))
+head(cs.v11)
+
+ggplot(cs.v11[cs.v11$custid == 1,], aes(month, sum_amt)) + 
+  geom_line()
+summary(cs.v11[cs.v11$custid = 1,])
+
+
 # 4. 상품별 구매 금액/횟수/여부 변수 
 head(tr$goodcd)
 str(tr)
 cs.v10 <- tr %>% filter(net_amt > 0) %>% group_by(goodcd) %>% summarize(amt = sum(net_amt), Cnt = n())
 head(cs.v10)
 # 5. 상품별 구매 순서 
+install.packages("arulesSequences")
+install.packages("tidyr")
+install.packages("arules")
+library(arulesSequences)
+library(tidyr)
+library(arules)
+
 # 6. 주 구매 상품 변수
+cs.v12 <- tr %>% group_by(custid,goodcd) %>% summarize(cnt = n()) %>% slice(which.max(cnt))
+head(cs.v12)
+
 # 7. 휴면/이탈 가망 변수 (Ex) if 평균 구매 주기 < 최종구매경과(현재-마지막 구매 시점) then 이탈
+
+
