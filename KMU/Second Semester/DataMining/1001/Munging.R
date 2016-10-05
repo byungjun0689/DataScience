@@ -9,6 +9,7 @@ library(ggplot2)
 
 cs <- read.delim("H(TSV)/HDS_Customers.tab",stringsAsFactors = F)
 tr <- read.delim("H(TSV)/HDS_Transactions_MG.tab", stringsAsFactors = F)
+card <- read.table("H(TSV)/HDS_Cards.tab", sep = "\t",header = T)
 str(tr)
 
 # 1. 고객의 환불형태(금액,건수)에 대한 변수 생
@@ -191,3 +192,16 @@ head(cs.v12)
 # 7. 휴면/이탈 가망 변수 (Ex) if 평균 구매 주기 < 최종구매경과(현재-마지막 구매 시점) then 이탈
 
 
+# 8. 주 구매 시간대
+install.packages("Kmisc")
+library(Kmisc)
+library(stringr)
+tmp <- tr
+tmp[tmp$sales_time<=900,'sales_time'] <- round(mean(tmp$sales_time))
+tmp$time <- str_rev(tmp$sales_time)
+tmp$time <- paste0(str_sub(tmp$time,1,2),":",str_sub(tmp$time,3,nchar(tmp$time)))
+tmp$time <- str_rev(tmp$time)
+tmp$time <- hm(tmp$time)
+tmp$timezone <- hour(tmp$time)
+cs.v13 <- tmp %>% group_by(custid,timezone) %>% summarize(cnt=n()) %>% slice(which.max(cnt))
+head(cs.v13)
