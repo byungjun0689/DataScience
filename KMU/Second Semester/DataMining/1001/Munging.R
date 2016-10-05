@@ -175,8 +175,9 @@ summary(cs.v11[cs.v11$custid = 1,])
 # 4. 상품별 구매 금액/횟수/여부 변수 
 head(tr$goodcd)
 str(tr)
-cs.v10 <- tr %>% filter(net_amt > 0) %>% group_by(goodcd) %>% summarize(amt = sum(net_amt), Cnt = n())
+cs.v10 <- tr %>% filter(net_amt > 0) %>% group_by(custid, goodcd) %>% summarize(amt = sum(net_amt), Cnt = n())
 head(cs.v10)
+
 # 5. 상품별 구매 순서 
 install.packages("arulesSequences")
 install.packages("tidyr")
@@ -190,10 +191,28 @@ cs.v12 <- tr %>% group_by(custid,goodcd) %>% summarize(cnt = n()) %>% slice(whic
 head(cs.v12)
 
 # 7. 휴면/이탈 가망 변수 (Ex) if 평균 구매 주기 < 최종구매경과(현재-마지막 구매 시점) then 이탈
+summary(ymd_hms(tr$sales_date))
+sys.date <- as.numeric(gsub("-","",as.character(Sys.Date())))
+sys.date <- 20010630
 
+tr.input <- tr
+tr.input$sales_date <- as.numeric(gsub("-","",substr(tr.input$sales_date,1,10)))
+
+cs.tmp <- tr.input %>% group_by(custid) %>%
+  arrange(sales_date) %>%
+  summarize(avg.date = (mean(diff(sales_date))), last.date = max(sales_date),
+            sys.date) %>%
+  mutate(lost.cust = ifelse(sys.date-last.date > avg.date, "Y", "N"))
+
+cs.v13 <- merge(x = tr.input, y = cs.tmp, by = "custid")
+head(cs.v13)
+head(cs.v13[which(is.na(cs.v13$lost.cust)),])
+nrow(cs.v13[which(cs.v13$lost.cust == "Y"),])
+nrow(cs.v13[which(cs.v13$lost.cust == "N"),])
 
 # 8. 주 구매 시간대
 install.packages("Kmisc")
+
 library(Kmisc)
 library(stringr)
 tmp <- tr
@@ -201,7 +220,42 @@ tmp[tmp$sales_time<=900,'sales_time'] <- round(mean(tmp$sales_time))
 tmp$time <- str_rev(tmp$sales_time)
 tmp$time <- paste0(str_sub(tmp$time,1,2),":",str_sub(tmp$time,3,nchar(tmp$time)))
 tmp$time <- str_rev(tmp$time)
+str(tmp$time)
 tmp$time <- hm(tmp$time)
 tmp$timezone <- hour(tmp$time)
 cs.v13 <- tmp %>% group_by(custid,timezone) %>% summarize(cnt=n()) %>% slice(which.max(cnt))
 head(cs.v13)
+max(tr$sales_time)
+
+# 9. 주 구매 브랜드 
+str(tr)
+tmp <- tr[tr$net_amt>0,]
+cs.v14 <- tmp %>% group_by(custid,brd_nm) %>% summarize(amt = sum(net_amt), cnt = n()) %>% slice(which.min(amt))
+head(cs.v14)
+tr[tr$custid==1 & tr$brd_nm=='게스','net_amt']
+cs.v14[order(cs.v14$amt, decreasing = T),]
+
+
+cs.v15 <- tr %>%filter(net_amt>0) %>% 
+  mutate(Ratio=dis_amt/tot_amt) %>% 
+  group_by(custid) %>% 
+  summarize(avgRatio = mean(Ratio))
+cs.v15$avgRatio <- round(cs.v15$avgRatio,2)
+head(cs.v15)
+summary(cs.v15)
+
+
+# 선호하는 지불형태. ( 할부 )
+head(tr$inst_mon)
+summary(tr$inst_mon)
+cs.v16 <- tr %>% group_by(custid,inst_mon) %>% summarize(cnt = n()) %>% slice(which.max(cnt))
+head(cs.v16)
+nrow(cs.v16[cs.v16$inst_mon==1,])
+
+nrow(cs)
+
+
+
+
+cs.v16 <- tr.input %>% group_by(brd_nm) %>% summarize(amt=mean(net_amt)) 
+
