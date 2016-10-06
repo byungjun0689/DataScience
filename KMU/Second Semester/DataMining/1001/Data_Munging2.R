@@ -241,6 +241,14 @@ cs.v19 <- tr.input %>%
   rename(favorite_part = part_nm, fpart_mean_amt = mean_amt, fpart_cnt = cnt)
 
 
+
+# 20. 그룹사 인지 아닌지.
+
+job <- read.csv("H(TSV)/HDS_Jobs.tab",sep="\t")
+cs.v20 <- cs %>% left_join(job,by="job_stype") %>% 
+  mutate(group_member = ifelse(job_nm_gr=="그룹사",job_nm_gr,"일반회원")) %>% 
+  select(custid,group_member)
+
 # 합칠때는 11,16 ~ 18은 custid별로 되어있지 않으므로 join하지 말것.
 
 custsig<-cs%>%
@@ -257,7 +265,9 @@ custsig<-cs%>%
   left_join(cs.v13) %>%
   left_join(cs.v14) %>%
   left_join(cs.v15) %>%
-  left_join(cs.v19) 
+  left_join(cs.v19) %>%
+  left_join(cs.v20)
+
 
 custsig[is.na(custsig$rf_amt),]$rf_amt <- 0
 custsig[is.na(custsig$rf_cnt),]$rf_cnt <- 0
