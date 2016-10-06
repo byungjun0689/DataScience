@@ -233,7 +233,7 @@ Yu_Gi_Oh.map.cs.v18_2
 
 ############################ 합칠 수 없는 부분 그냥 시연만 END ########################
 
-# 19. ID별 part별 최대 구매part와 평균 구매금액
+# 19. ID별 part별 최대 구매part와 평균 구매금액 ####
 cs.v19 <- tr.input %>% 
   group_by(custid, part_nm) %>% 
   summarize(mean_amt = mean(net_amt), cnt = n()) %>% 
@@ -242,12 +242,28 @@ cs.v19 <- tr.input %>%
 
 
 
-# 20. 그룹사 인지 아닌지.
+# 20. 그룹사 인지 아닌지.####
 
 job <- read.csv("H(TSV)/HDS_Jobs.tab",sep="\t")
 cs.v20 <- cs %>% left_join(job,by="job_stype") %>% 
   mutate(group_member = ifelse(job_nm_gr=="그룹사",job_nm_gr,"일반회원")) %>% 
   select(custid,group_member)
+
+#21. id별 주 이용지점 ####
+cs.v21 <- tr.input %>% 
+  group_by(custid, str_nm) %>% 
+  summarize(cnt=n()) %>% 
+  slice(which.max(cnt)) %>% 
+  rename(main_store=str_nm) %>%
+  select(custid,main_store)
+
+#22. 할인 받은 정도 ####
+cs.v22 <- tr.input %>%
+  mutate(dis_rate = round(dis_amt/tot_amt*100, 2)) %>%
+  group_by(custid) %>%
+  summarize(avg_disc = round(mean(dis_rate)),2) %>%
+  select(custid,avg_disc)
+
 
 # 합칠때는 11,16 ~ 18은 custid별로 되어있지 않으므로 join하지 말것.
 
@@ -266,7 +282,9 @@ custsig<-cs%>%
   left_join(cs.v14) %>%
   left_join(cs.v15) %>%
   left_join(cs.v19) %>%
-  left_join(cs.v20)
+  left_join(cs.v20) %>% 
+  left_join(cs.v21) %>% 
+  left_join(cs.v22) 
 
 
 custsig[is.na(custsig$rf_amt),]$rf_amt <- 0
