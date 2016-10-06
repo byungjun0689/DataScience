@@ -114,7 +114,8 @@ cs.v9 <- tmp %>% mutate(grade1 = ifelse(net_amt < summary.value[[2]], 1,0),
             grade3 = sum(grade3),
             grade4 = sum(grade4),
             grade5 = sum(grade5))
-cs.v9 <- cs.v9 %>% mutate(cust.grd = paste0("grade_",apply(cs.v8.2[,-1],1,which.max)))
+cs.v9 <- cs.v9 %>% mutate(cust.grd = apply(cs.v9[,-1],1,which.max)) %>% select(custid,cust.grd)
+
 # 10. 시즌 선호도 변수 ####
 tmp <- tr.input
 cs.v10 <- tmp %>% mutate(Spring = ifelse(as.numeric(substr(sales_date,6,7)) <= 5 & as.numeric(substr(sales_date,6,7)) >= 3,1,0),
@@ -126,31 +127,33 @@ cs.v10 <- tmp %>% mutate(Spring = ifelse(as.numeric(substr(sales_date,6,7)) <= 5
             Summer = sum(Summer),
             Fall = sum(Fall),
             Winter = sum(Winter)) 
-cs.v10 <- cs.v10 %>% mutate(cust.grd = apply(cs.v8.3[,-1],1,which.max))
+cs.v10 <- cs.v10 %>% mutate(season.grd = apply(cs.v10[,-1],1,which.max)) %>% select(custid,season.grd)
 
 # 11. 상품별 구매 금액/횟수 변수 ####
-cs.v11 <- tr %>% filter(net_amt > 0) %>% 
+cs.v11 <- tr.input %>% filter(net_amt > 0) %>% 
   group_by(goodcd) %>% 
-  summarize(amt = sum(net_amt), Cnt = n())
+  summarize(goodcd_totamt = sum(net_amt), good_Cnt = n())
 
 # 12. 주 구매 상품 변수 ####
 cs.v12 <- tr %>% 
   group_by(custid,goodcd) %>% 
-  summarize(cnt = n()) %>% 
-  slice(which.max(cnt))
+  summarize(main_good_cnt = n()) %>% 
+  slice(which.max(main_good_cnt)) %>% 
+  select(custid,goodcd) %>%
+  rename(favorite_goodcd = goodcd) 
 
 # 13. 휴면/이탈 가망 변수 ####
-sys.date <- as.numeric(gsub("-","",as.character(Sys.Date())))
+#sys.date <- as.numeric(gsub("-","",as.character(Sys.Date())))
 sys.date <- 20010530
-tmp <- tr
+tmp <- tr.input
 tmp$sales_date <- as.numeric(gsub("-","",substr(tr.input$sales_date,1,10)))
-cs.tmp <- tmp %>% group_by(custid) %>%
+cs.v13 <- tmp %>% group_by(custid) %>%
   arrange(sales_date) %>%
   summarize(avg.date = (mean(diff(sales_date))), last.date = max(sales_date),
             sys.date) %>%
-  mutate(lost.cust = ifelse(sys.date-last.date > avg.date, "Y", "N"))
-
-cs.v13 <- merge(x = tr.input, y = cs.tmp, by = "custid")
+  mutate(stay_out = ifelse(sys.date-last.date > avg.date, "Y", "N")) %>%
+  select(custid,stay_out)
+#cs.v13 <- merge(x = tr.input, y = cs.tmp, by = "custid") %>% select(custid,stay_out)
 
 
 # 14. 주 구매 시간대 ####
@@ -160,19 +163,24 @@ library(stringr)
 
 tmp <- tr.input
 tmp[tmp$sales_time<=900,'sales_time'] <- round(mean(tmp$sales_time))
-tmp$time <- str_rev(tmp$sales_time)
-tmp$time <- paste0(str_sub(tmp$time,1,2),":",str_sub(tmp$time,3,nchar(tmp$time)))
-tmp$time <- hour(hm(str_rev(tmp$time)))
+tmp$favorite_time <- str_rev(tmp$sales_time)
+tmp$favorite_time <- paste0(str_sub(tmp$favorite_time,1,2),":",str_sub(tmp$favorite_time,3,nchar(tmp$favorite_time)))
+tmp$favorite_time <- hour(hm(str_rev(tmp$favorite_time)))
 
 cs.v14 <- tmp %>% 
-  group_by(custid,time) %>% 
+  group_by(custid,favorite_time) %>% 
   summarize(cnt=n()) %>% 
-  slice(which.max(cnt))
+  slice(which.max(cnt)) %>%
+  select(custid,favorite_time)
 
 # 15. 선호하는 지불형태. ( 할부 ) ####
-cs.v15 <- tr %>% group_by(custid,inst_mon) %>% 
+cs.v15 <- tr.input %>% group_by(custid,inst_mon) %>% 
   summarize(cnt = n()) %>% 
-  slice(which.max(cnt))
+  slice(which.max(cnt)) %>% 
+  rename(favorite_pay=inst_mon) %>%
+  select(custid,favorite_pay)
+
+############################ 합칠 수 없는 부분 그냥 시연만 ########################
 
 # 16. 같은 우편 번호 안에서의 고객 명수####
 zipcode_xy = read.csv("zipcode.csv", header = TRUE)
@@ -222,3 +230,34 @@ Yu_Gi_Oh.map <- get_map("Seoul", zoom=11, maptype="roadmap")
 Yu_Gi_Oh.map.cs.v18_2 <- ggmap(Yu_Gi_Oh.map) + geom_point(aes(x=long, y=lat, size=nop12, colour=nop12) 
                                                           , data=cs.v18)
 Yu_Gi_Oh.map.cs.v18_2
+
+############################ 합칠 수 없는 부분 그냥 시연만 END ########################
+
+# 19. ID별 part별 최대 구매part와 평균 구매금액
+cs.v19 <- tr.input %>% 
+  group_by(custid, part_nm) %>% 
+  summarize(mean_amt = mean(net_amt), cnt = n()) %>% 
+  slice(which.max(cnt)) %>% 
+  rename(favorite_part = part_nm, fpart_mean_amt = mean_amt, fpart_cnt = cnt)
+
+
+# 합칠때는 11,16 ~ 18은 custid별로 되어있지 않으므로 join하지 말것.
+
+custsig<-cs%>%
+  left_join(cs.v1) %>%
+  left_join(cs.v2) %>%
+  left_join(cs.v3) %>%
+  left_join(cs.v4) %>%
+  left_join(cs.v5) %>%
+  left_join(cs.v6) %>%
+  left_join(cs.v7) %>%
+  left_join(cs.v9) %>%
+  left_join(cs.v10) %>%
+  left_join(cs.v12) %>%
+  left_join(cs.v13) %>%
+  left_join(cs.v14) %>%
+  left_join(cs.v15) %>%
+  left_join(cs.v19) 
+
+custsig[is.na(custsig$rf_amt),]$rf_amt <- 0
+custsig[is.na(custsig$rf_cnt),]$rf_cnt <- 0
