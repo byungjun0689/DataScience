@@ -1,3 +1,6 @@
+options(warn = -1)
+options(echo=F)
+
 library(MASS)
 attach(geyser)
 
@@ -127,4 +130,5 @@ head(hp)
 # pc2는 highjump는 못하고 run800m잘하는 선수들을 분별할 수 있다.  장거리형 선수 
 
 biplot(pca2,cex=0.8,choices = c(1,3)) #원하는 PC 2개를 선택하면 볼 수 있다. 
-
+qqnorm(pca2$x[,1])
+qqline(pca2$x[,1])
