@@ -307,3 +307,7 @@ custid.map.stype
 # custid.cs.v7.2
 
 
+write.csv(cust_sig,"cust_sig.csv")
+mean(diff(tmp$sales_date))
+tmp <- tr
+tmp$sales_date <- as.numeric(gsub("-","",substr(tmp$sales_date,1,10)))
