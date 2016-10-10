@@ -289,3 +289,12 @@ custsig<-cs%>%
 
 custsig[is.na(custsig$rf_amt),]$rf_amt <- 0
 custsig[is.na(custsig$rf_cnt),]$rf_cnt <- 0
+
+install.packages("openxlsx")
+library("openxlsx")
+wb <- createWorkbook()
+sheetName = "1"
+addWorksheet(wb, sheetName)
+writeData(wb, sheet = sheetName, x = cust_sig)
+
+saveWorkbook(wb, file = "cust_fig.xlsx", overwrite = TRUE)

@@ -125,7 +125,7 @@ cs.v9 <- tmp %>% mutate(grade1 = ifelse(net_amt < summary.value[[2]], 1,0),
             grade4 = sum(grade4),
             grade5 = sum(grade5))
 cs.v9 <- cs.v9 %>% 
-  mutate(pr_pref = apply(cs.v9[,-1],1,which.max)) %>% 
+  mutate(pr_pref = paste0(apply(cs.v9[,-1],1,which.max),"-level")) %>% 
   select(custid,pr_pref)
 
 # 10. 시즌 선호도 변수 (Season Preference = sea_pref) ####
@@ -148,18 +148,30 @@ cs.v10 <- cs.v10 %>%
   mutate(sea_pref = apply(cs.v10[,-1],1,which.max)) %>% 
   select(custid,sea_pref)
 
+cs.v10[cs.v10$sea_pref==1,'sea_pref'] <- 'Spring'
+cs.v10[cs.v10$sea_pref==2,'sea_pref'] <- 'Summer'
+cs.v10[cs.v10$sea_pref==3,'sea_pref'] <- 'Fall'
+cs.v10[cs.v10$sea_pref==4,'sea_pref'] <- 'Winter'
+
 # 11. 상품별 구매 금액/횟수 변수 #
-cs.v11 <- tr.input %>% filter(net_amt > 0) %>% 
-  group_by(goodcd) %>% 
+cs.v11 <- tr.input %>% filter(net_amt > 0 & net_amt < 7200000) %>% 
+  group_by(custid,goodcd) %>% 
   summarize(goodcd_totamt = sum(net_amt), goodcd_Cnt = n())
 
 # 12. 주 구매 상품 변수 #
+# cs.v12 <- tr %>% 
+#   group_by(custid,goodcd) %>% 
+#   summarize(main_good_cnt = n()) %>% 
+#   slice(which.max(main_good_cnt)) %>% 
+#   select(custid,goodcd) %>%
+#   rename(fav_goodcd = goodcd) 
+
 cs.v12 <- tr %>% 
-  group_by(custid,goodcd) %>% 
+  group_by(custid,corner_nm) %>% 
   summarize(main_good_cnt = n()) %>% 
   slice(which.max(main_good_cnt)) %>% 
-  select(custid,goodcd) %>%
-  rename(fav_goodcd = goodcd) 
+  select(custid,corner_nm) %>%
+  rename(fav_goodcd = corner_nm) 
 
 # 13. 휴면/이탈 가망 고객 #
 
@@ -173,8 +185,9 @@ cs.v13 <- tmp %>% group_by(custid) %>%
   arrange(sales_date) %>%
   summarize(avg.date = (mean(diff(sales_date))), last.date = max(sales_date),
             sys.date) %>%
-  mutate(stay_out = ifelse(sys.date-last.date > avg.date, "Y", "N")) %>%
+  mutate(stay_out = ifelse(sys.date-last.date > avg.date, "이탈/휴면", "유지")) %>%
   select(custid,stay_out)
+
 # cs.v13 <- merge(x = tr.input, y = cs.tmp, by = "custid") %>% select(custid,stay_out)
 
 # 14. 주 구매 시간대 ####
@@ -194,6 +207,7 @@ cs.v14 <- tmp %>%
   summarize(cnt=n()) %>% 
   slice(which.max(cnt)) %>%
   select(custid,fav_time)
+cs.v14$fav_time <- paste0(cs.v14$fav_time,"시")
 
 # 15. 선호하는 지불형태 (할부 여부) #
 cs.v15 <- tr.input %>% 
@@ -202,6 +216,8 @@ cs.v15 <- tr.input %>%
   slice(which.max(cnt)) %>% 
   rename(fav_paymthd=inst_mon) %>%
   select(custid,fav_paymthd)
+
+cs.v15$fav_paymthd <- paste0(cs.v15$fav_paymthd,"개월")
 
 # 16. Part별 최대 구매 part와 평균 구매액, 구매횟수 ####
 cs.v16 <- tr.input %>% 
@@ -225,6 +241,9 @@ cs.v18 <- tr.input %>%
   summarize(avg_disc = round(mean(dis_rate)),2) %>%
   select(custid,avg_disc)
 
+cs.v18$avg_disc <- paste0(cs.v18$avg_disc,"%")
+
+
 # 19. 그룹사 인지 아닌지 ####
 
 job <- read.csv("H(TSV)/HDS_Jobs.tab",sep="\t")
@@ -232,10 +251,6 @@ cs.v19 <- cs %>%
   left_join(job, by="job_stype") %>% 
   mutate(group_member = ifelse(job_nm_gr=="그룹사", "그룹사", "일반회원")) %>% 
   select(custid,group_member)
-head(cs.v19)
-
-nrow(cs.v19[which(cs.v19$group_member == "일반회원"),])
-nrow(cs.v19[which(cs.v19$group_member == "그룹사"),])
 
 # 합칠때는 11은 custid별로 되어있지 않으므로 join하지 말것.
 
