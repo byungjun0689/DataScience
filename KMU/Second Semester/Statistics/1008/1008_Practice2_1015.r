@@ -9,7 +9,6 @@ str(bulls)
 
 head(bulls,3)
 
-options(repr.plot.width = 6, repr.plot.height = 5)
 pairs.panels(bulls[,-c(1,2)])
 
 bulls_pca <- prcomp(bulls[,-c(1,2)], scale. = TRUE)
