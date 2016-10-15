@@ -1,0 +1,111 @@
+# 주성분 분석 ####
+# 변수 20개의 변수를 5개의 축약된 변수로 바꾸는 방법
+# 차원을 축소가 주된 의미.
+
+# 인자분석(요인분석)
+# 잠재된 변수를 찾아낸다는 것에 의미가 크다. (측정할 수 없는)
+
+
+# 48 applicants for a position in firm
+# • Business ability test with 15 questions (10-point Likert scale)
+# Form of letter of application (FL)
+# Appearance (APP)
+# Academic ability (AA)
+# Likeability (LA)
+# Self-confidence (SC)
+# Lucidity (LC)
+# Honesty (HON)
+# Salesmanship (SMS)
+# Experience (EXP)
+# Drive (DRV)
+# Ambition (AMB)
+# Grasp (GSP)
+# Potential (POT)
+# Keenness to join (KJ)
+# Suitability (SUIT)
+# • Use the maximum likelihood method
+
+library(psych)
+
+applicants <- read.table("Applicant.TXT", header=T)
+applicants <- applicants[,-1]
+summary(applicants)
+describe(applicants)
+
+pairs.panels(applicants)
+
+app_s <- scale(applicants)
+fa1 <- factanal(app_s,4)
+summary(fa1)
+fa1  # 보기가 힘들다 factor1 에 대해 상관관게가 높은 것 부터 보는 것이 좋다.
+
+print(fa1,digits=2,sort=T)
+# factor1에 대해서는 큰 값을 가지고 나머지 factor에 대해서는 작은 값들로 sorting 되어있다. 
+# factor1을 보면 총 7개의 변수에 크게 영향을 미쳤네? 
+# factor2를 보면 총 3개 정도의 변수에 크게 영향을 미쳤네? 
+# 무엇이 영향을 미쳤을까? => 애매함과 주관성이 들어가게 된다. 
+# p.11를 보면 된다 그림으로 나누어져있다. 
+
+# factor값에 -가 있다면 상관관계가 음의 관계가 있다면 그것에 영향을 미치지 않을까 싶다. 
+# factor가 0에 가깝다면 제외시켜준다 ( 빈칸 )
+# loading값들이 l이 된다. l11 l12 l13 l14 
+# fa1$loadings
+
+fa1$uniquenesses # 개별 요인들의 분사 
+# x14.KJ의 경우 거의 0에 가깝다. 즉, 개별 요인들의 영향이 적다.
+# X2.APP의 경우 가장 개별 변수 영향도가 높다. 
+
+# ---- data 전처리 
+# cor 가 상대적으로 낮다고 판단되면 데이터를 제외하고 돌려도된다. 
+# 왜냐 개별 인자의 영향도가 높다. => 즉, 공통 요소가 없다. 
+# 
+#                 Factor1 Factor2 Factor3 Factor4
+# SS loadings      5.570   2.473   2.099   1.013
+# Proportion Var   0.371   0.165   0.140   0.068
+# Cumulative Var   0.371   0.536   0.676   0.744
+
+# 첫번째 factor1가 얼마나 설명해주는가? 밑(Proportion)은 비율. 
+# 전체 분산 합이 1이 안되는 이유는 총 factor의 갯수를 최대치로 올리면 된다. 15개
+
+# Test of the hypothesis that 4 factors are sufficient.
+# The chi square statistic is 84 on 51 degrees of freedom.
+# The p-value is 0.00247 
+# 여기서 귀무가 무엇이냐? H0 : 4개의 factor가 충분하다. => 즉, 기각. 충분하지 않다. 5개로 늘려봐도 된다.
+
+fa1$loadings
+
+load <- fa1$loadings
+plot(load, type="n") # 점을 찍지 않으려고 type="n" none을 함.
+text(load, labels=colnames(app_s),cex=0.7)
+
+# 활용법 
+# 예를 들어 7개의 변수를 마케팅 능력이라고 보면 7개의 변수를 1개의 값으로 변환하여 사용한다는 점에서 
+# 주성분 분석과 비슷하다. 
+
+summary(prcomp(app_s))
+
+# 주성분 분석엣거 PC갯수를 정하는 것에 있어서 Loading값이 변하지는 않는다.
+# 하지만 요인 분석에서는 Factor개수가 늘어난다면 Loading값이 달라진다. 여러가지 요인이 영향을 주기 때문에 
+
+
+# Stock_price.csv는 뉴욕증권시장에 상장된 5개의 주식의 주별 주가수익률 자료이다. 5개 회사의 주가수익률 관계를 통해 주가에 공통적으로 영향을 미치는 잠재적 요소를 찾아내려 한다.
+# 1.	적절한 공통인자의 수를 구하시오. 2개
+# 2.	다양한 Rotation을 적용한 것과 하지 않은 것의 인자적재값을 비교하고 적절하다고 판단되는 결과를 고르시오.
+# 3.	위에서 결정한 방법을 사용해 각 인자의 이름을 정하시오. #factor1 은행 (금융권) #factor2 기름회사(정유)
+# 4.	각 회사 주가수익률의 공통성(communality)를 구하고 공통인자에 의해 가장 잘 설명되는 회사와 가장 잘 설명되지 않는 회사를 찾으시오.
+# # 공통인자에 대해 잘 설명해주는 회사는 RoyalDuchShell 개별인자가 거의 없다. , 개별 인자가 가장 큰 영향을 미치는 회사는 WellsFargo
+# 5.	각 인자가 설명하는 총 분산의 비율을 구하시오.
+# # factor1 : 0.34 factor2 : 0.30 => 65%
+# 6.	위에서 구한 인자를 사용해 해당 인자에 대한 인덱스를 생성하고 인덱스 간의 관계를 산점도를 통해 살피시오. 
+
+stock <- read.csv("stock_price.csv", stringsAsFactors = F)
+pairs.panels(stock[,-1])
+stock <- stock[,-1]
+#
+stock_fa1 <- factanal(stock,2)
+
+stock_fa1$uniquenesses
+
+s_load <- stock_fa1$loadings
+plot(s_load, type="n") # 점을 찍지 않으려고 type="n" none을 함.
+text(s_load, labels=colnames(stock))
