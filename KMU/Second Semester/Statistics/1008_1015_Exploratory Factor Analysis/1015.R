@@ -90,22 +90,76 @@ summary(prcomp(app_s))
 
 # Stock_price.csv는 뉴욕증권시장에 상장된 5개의 주식의 주별 주가수익률 자료이다. 5개 회사의 주가수익률 관계를 통해 주가에 공통적으로 영향을 미치는 잠재적 요소를 찾아내려 한다.
 # 1.	적절한 공통인자의 수를 구하시오. 2개
-# 2.	다양한 Rotation을 적용한 것과 하지 않은 것의 인자적재값을 비교하고 적절하다고 판단되는 결과를 고르시오.
+## 2.	다양한 Rotation을 적용한 것과 하지 않은 것의 인자적재값을 비교하고 적절하다고 판단되는 결과를 고르시오.
 # 3.	위에서 결정한 방법을 사용해 각 인자의 이름을 정하시오. #factor1 은행 (금융권) #factor2 기름회사(정유)
 # 4.	각 회사 주가수익률의 공통성(communality)를 구하고 공통인자에 의해 가장 잘 설명되는 회사와 가장 잘 설명되지 않는 회사를 찾으시오.
 # # 공통인자에 대해 잘 설명해주는 회사는 RoyalDuchShell 개별인자가 거의 없다. , 개별 인자가 가장 큰 영향을 미치는 회사는 WellsFargo
 # 5.	각 인자가 설명하는 총 분산의 비율을 구하시오.
 # # factor1 : 0.34 factor2 : 0.30 => 65%
-# 6.	위에서 구한 인자를 사용해 해당 인자에 대한 인덱스를 생성하고 인덱스 간의 관계를 산점도를 통해 살피시오. 
+## 6.	위에서 구한 인자를 사용해 해당 인자에 대한 인덱스를 생성하고 인덱스 간의 관계를 산점도를 통해 살피시오. 
 
 stock <- read.csv("stock_price.csv", stringsAsFactors = F)
-pairs.panels(stock[,-1])
-stock <- stock[,-1]
+pairs.panels(stock)
 #
+stock <- scale(stock)
 stock_fa1 <- factanal(stock,2)
+
 
 stock_fa1$uniquenesses
 
 s_load <- stock_fa1$loadings
 plot(s_load, type="n") # 점을 찍지 않으려고 type="n" none을 함.
 text(s_load, labels=colnames(stock))
+
+stock_fa2 <- factanal(stock,2,rotation = "quartimax")
+
+#  Loadings: varimax rotation
+#                 Factor1 Factor2
+# JPMorgan        0.76           
+# Citibank        0.82    0.23   
+# WellsFargo      0.67    0.11   
+# RoyalDutchShell 0.11    0.99   
+# ExxonMobil      0.11    0.68
+
+# Loadings: quartimax rotation
+#               Factor1 Factor2
+# JPMorgan        0.76           
+# Citibank        0.82    0.22   
+# WellsFargo      0.67    0.10   
+# RoyalDutchShell 0.12    0.99   
+# ExxonMobil      0.12    0.68   
+
+a <- stock_fa1$loadings[,1] %*% stock
+
+tmp <- as.matrix(stock_fa1$loadings[,1])
+tmp2 <- as.matrix(stock)
+# 
+# Loadings:  none
+#   Factor1 Factor2
+# RoyalDutchShell  1.00          
+# ExxonMobil       0.69          
+# JPMorgan         0.12    0.75  
+# Citibank         0.33    0.79  
+# WellsFargo       0.19    0.65  
+
+
+
+
+
+
+#### 1022 
+fa2 = factanal(app_s,4,rotation = "none")
+print(fa2,digits = 2,sort=T)
+
+library(psych)
+install.packages("GPArotation")
+library(GPArotation)
+
+fa3=fa(app_s,3,rotation = "oblimin")
+print(fa3,digits = 2,sort=T)
+
+
+# MR : Factor Loading
+# h2 : communality
+# u2 : specific factor Var
+
