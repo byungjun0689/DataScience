@@ -145,14 +145,12 @@ tmp2 <- as.matrix(stock)
 
 
 
-
-
 #### 1022 
 fa2 = factanal(app_s,4,rotation = "none")
 print(fa2,digits = 2,sort=T)
 
 library(psych)
-install.packages("GPArotation")
+#install.packages("GPArotation")
 library(GPArotation)
 
 fa3=fa(app_s,3,rotation = "oblimin")

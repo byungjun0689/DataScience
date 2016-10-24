@@ -72,7 +72,7 @@ performance(c5_pred,"auc")@y.values[[1]] # 커브 아래의 면적  면적이 �
 # 괜찮은 그래프 그리기 
 install.packages("Epi")
 library(Epi)
-#ROC(form=cb.test$반품여부~c5_pred_prob[,2],)
+ROC(form=cb.test$반품여부~c5_pred_prob[,2],)
 
 
 library(psych)
