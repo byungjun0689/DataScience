@@ -76,4 +76,51 @@ library(Epi)
 
 
 library(psych)
+library(plyr)
 pairs.panels(cb)
+
+colnames(user_ori)
+
+user <- read.csv("2_group.csv", stringsAsFactors = T)
+user <- user[,-c(3,4)]
+user <- user[,-4]
+
+user_tree <- user[,c(1:8,19,27,34:length(user))]
+
+job <- read.delim("HDS_Jobs.tab",stringsAsFactors = T)
+
+# 0 : 무효 1 : 남성 2: 여
+user_tree = join(user_tree,job,by="job_stype")
+user_tree <- user_tree[,-(length(user_tree)-1)]
+user_tree <- user_tree[,-20]
+user_tree <- user_tree[user_tree$sex!=0,] #무효는 제외 
+
+user_tree$sex <- factor(user_tree$sex)
+user_tree$hobby <- factor(user_tree$hobby)
+user_tree$job_stype <- factor(user_tree$job_stype)
+user_tree$mail_flg <- factor(user_tree$mail_flg)
+user_tree$h_type2 <- factor(user_tree$h_type2)
+user_tree$card_flg1 <- factor(user_tree$card_flg1)
+user_tree$mrg_flg <- factor(user_tree$mrg_flg)
+user_tree$cus_stype <- factor(user_tree$cus_stype)
+user_tree$agegrp <- factor(user_tree$agegrp)
+
+user_tree$wk_pat <- as.character(user_tree$wk_pat)
+user_tree[user_tree$wk_pat=="주말형",]$wk_pat <- "weekend"
+user_tree[user_tree$wk_pat=="주중형",]$wk_pat <- "weekdays"
+user_tree[user_tree$wk_pat=="유형없음",]$wk_pat <- "none"
+user_tree$wk_pat <- factor(user_tree$wk_pat)
+
+set.seed(1)
+inTrain <- createDataPartition(y=user_tree$sex,p=0.6,list=F)
+user.train <- user_tree[inTrain,]
+user.test <- user_tree[-inTrain,]
+dim(user.test)
+dim(user.train)
+
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ mrg_flg+wk_pat+h_type1+h_type2+hobby+cus_stype+fav_time, data=user.train[,-1], control = c5_options, rules=F)
+summary(c5_model) 
+
+user.test$c5_pred <- predict(c5_model,user.test,type="class")
+confusionMatrix(user.test$c5_pred, user.test$sex)
