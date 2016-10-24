@@ -87,7 +87,10 @@ user <- user[,-4]
 
 user_tree <- user[,c(1:8,19,27,34:length(user))]
 
-job <- read.delim("HDS_Jobs.tab",stringsAsFactors = T)
+job <- read.delim("HDept/HDS_Jobs.tab",stringsAsFactors = T)
+
+
+#user_tree <- read.csv("user_tree.csv")
 
 # 0 : 무효 1 : 남성 2: 여
 user_tree = join(user_tree,job,by="job_stype")
@@ -96,20 +99,21 @@ user_tree <- user_tree[,-20]
 user_tree <- user_tree[user_tree$sex!=0,] #무효는 제외 
 
 user_tree$sex <- factor(user_tree$sex)
-user_tree$hobby <- factor(user_tree$hobby)
-user_tree$job_stype <- factor(user_tree$job_stype)
-user_tree$mail_flg <- factor(user_tree$mail_flg)
-user_tree$h_type2 <- factor(user_tree$h_type2)
-user_tree$card_flg1 <- factor(user_tree$card_flg1)
-user_tree$mrg_flg <- factor(user_tree$mrg_flg)
-user_tree$cus_stype <- factor(user_tree$cus_stype)
-user_tree$agegrp <- factor(user_tree$agegrp)
+#user_tree$hobby <- factor(user_tree$hobby)
+#user_tree$job_stype <- factor(user_tree$job_stype)
+#user_tree$mail_flg <- factor(user_tree$mail_flg)
+# user_tree$h_type2 <- factor(user_tree$h_type2)
+# user_tree$card_flg1 <- factor(user_tree$card_flg1)
+# user_tree$mrg_flg <- factor(user_tree$mrg_flg)
+# user_tree$cus_stype <- factor(user_tree$cus_stype)
+# user_tree$agegrp <- factor(user_tree$agegrp)
 
 user_tree$wk_pat <- as.character(user_tree$wk_pat)
 user_tree[user_tree$wk_pat=="주말형",]$wk_pat <- "weekend"
 user_tree[user_tree$wk_pat=="주중형",]$wk_pat <- "weekdays"
 user_tree[user_tree$wk_pat=="유형없음",]$wk_pat <- "none"
-user_tree$wk_pat <- factor(user_tree$wk_pat)
+#user_tree$wk_pat <- factor(user_tree$wk_pat)
+
 
 set.seed(1)
 inTrain <- createDataPartition(y=user_tree$sex,p=0.6,list=F)
@@ -118,9 +122,40 @@ user.test <- user_tree[-inTrain,]
 dim(user.test)
 dim(user.train)
 
-c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
-c5_model <- C5.0(sex ~ mrg_flg+wk_pat+h_type1+h_type2+hobby+cus_stype+fav_time, data=user.train[,-1], control = c5_options, rules=F)
-summary(c5_model) 
+# 73.57%
+#c5_options_1 <- C5.0Control(winnow = T, noGlobalPruning = T)
+#c5_mode_1 <- C5.0(sex ~ mrg_flg+wk_pat+h_type1+h_type2+hobby+cus_stype+fav_time+mail_flg, data=user.train[,-1], control = c5_options_1, rules=F)
+
+
+
+c5_options_1 <- C5.0Control(winnow = T, noGlobalPruning = T,CF = 0.50)
+c5_mode_1 <- C5.0(sex ~ mrg_flg+wk_pat+h_type1+h_type2+hobby+cus_stype+mail_flg+amt3, data=user.train[,-1], control = c5_options_1, rules=T, trials =10)
+
+# c5_model_1 <- C5.0(sex ~ mrg_flg+wk_pat+h_type1+h_type2+hobby+cus_stype+fav_time, data=user.train[,-1], control = c5_options, rules=F)
+summary(c5_model_1) 
+user.test_1 <- user.test
+user.test_1$c5_pred <- predict(c5_model_1,user.test_1,type="class")
+#user.test_1$c5_pred_prob <- round(predict(c5_model_1,user.test_1,type="prob"),2)
+confusionMatrix(user.test_1$c5_pred, user.test_1$sex)
+
+
+
 
 user.test$c5_pred <- predict(c5_model,user.test,type="class")
 confusionMatrix(user.test$c5_pred, user.test$sex)
+
+
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ fav_time+hobby+h_type1+h_type2+mrg_flg, data=user.train[,-1], control = c5_options, rules=T, )
+#summary(c5_model) 
+user.test$c5_pred <- predict(c5_model,user.test,type="class")
+#user.test_1$c5_pred_prob <- round(predict(c5_model_1,user.test_1,type="prob"),2)
+confusionMatrix(user.test$c5_pred, user.test$sex)
+
+?C5.0
+
+
+
+
+
+
