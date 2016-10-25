@@ -56,24 +56,19 @@ user_tree[user_tree$stay_out=="유지",]$stay_out <- "stay"
 user_tree$stay_out <- factor(user_tree$stay_out)
 
 # favorite part Korean to index number
+df <- data.frame(fav_part_index = 1:length(unique(user_tree$fav_part)), fav_part =unique(user_tree$fav_part))
 user_tree <- join(user_tree,df,by="fav_part")
 user_tree$fav_part_index <- factor(user_tree$fav_part_index)
 
-df <- data.frame(fav_part_index = 1:length(unique(user_tree$fav_part)), fav_part =unique(user_tree$fav_part))
-df2 <- data.frame(fav_good_index = 1:length(unique(user_tree$fav_goodcd)), fav_goodcd =unique(user_tree$fav_goodcd))
 
+df2 <- data.frame(fav_good_index = 1:length(unique(user_tree$fav_goodcd)), fav_goodcd =unique(user_tree$fav_goodcd))
 user_tree <- join(user_tree,df2,by="fav_goodcd")
 user_tree$fav_good_index <- factor(user_tree$fav_good_index)
 
-write.csv(user_tree,"user_tree2.csv")
-
-tmp <- user_tree
-
-
-
+#write.csv(user_tree,"user_tree2.csv")
 #user_tree$wk_pat <- factor(user_tree$wk_pat)
 
-
+user_tree <- user_tree[,-c(29,33,39)]
 set.seed(1)
 inTrain <- createDataPartition(y=user_tree$sex,p=0.6,list=F)
 user.train <- user_tree[inTrain,]
@@ -97,10 +92,50 @@ c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member, data=user.t
 c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
 c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member, data=user.train[,-1], control = c5_options, rules=T)
 
+#75.88% T T
 c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
-c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member, data=user.train[,-1], control = c5_options, rules=T, trials = 20)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member+agegrp, data=user.train[,-1], control = c5_options, rules=T)
 
-plot(c5_model)
+#76% T F
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member+agegrp, data=user.train[,-1], control = c5_options, rules=T)
+
+#76.15%
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = F, CF=0.4)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+cus_stype+group_member+agegrp, data=user.train[,-1], control = c5_options, rules=T)
+
+#76.14%
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+group_member+agegrp+h_type1, data=user.train[,-1], control = c5_options, rules=F)
+
+#76.17%
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+group_member+agegrp+h_type1, data=user.train[,-1], control = c5_options, rules=F)
+
+#76.19%
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+group_member+agegrp+h_type1+main_store, data=user.train[,-1], control = c5_options, rules=T)
+
+#76.22%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = T)
+c5_model <- C5.0(sex ~ mrg_flg+h_type2+hobby+group_member+agegrp+h_type1+main_store, data=user.train[,-1], control = c5_options, rules=F)
+
+#77.44%
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
+c5_model <- C5.0(sex ~ ., data=user.train[,-1], control = c5_options, rules=F)
+
+#77.53%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ ., data=user.train[,-1], control = c5_options, rules=T)
+
+#77.57%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T)
+
+
+c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T)
+
 
 summary(c5_model)
 user.test$c5_pred <- predict(c5_model,user.test,type="class")
