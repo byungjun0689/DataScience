@@ -76,12 +76,18 @@ user_tree$fav_good_index <- factor(user_tree$fav_good_index)
 #user_tree$wk_pat <- factor(user_tree$wk_pat)
 
 user_tree <- user_tree[,-c(29,33,39)]
+cust_6 <- read.csv("6custsig.csv", stringsAsFactors = F)
+tmp_cust <- cust_6[,c("custid","instCnt","instMonth","instRatio")]
+user_tree <- join(user_tree,tmp_cust,by="custid")
+
 set.seed(1)
 inTrain <- createDataPartition(y=user_tree$sex,p=0.6,list=F)
 user.train <- user_tree[inTrain,]
 user.test <- user_tree[-inTrain,]
 dim(user.test)
 dim(user.train)
+
+
 
 # 73.57%
 #c5_options_1 <- C5.0Control(winnow = T, noGlobalPruning = T)
@@ -151,7 +157,7 @@ c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_s
 c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
 c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=10)
 
-# 78.88%
+# 78.97%
 c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
 c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=20)
 
@@ -159,8 +165,22 @@ c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_s
 #c5_options <- C5.0Control(winnow = T, noGlobalPruning = T, CF=0.4)
 #c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=10)
 
+# 79.07%
 c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
-c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=20)
+c5_model <- C5.0(sex ~ instRatio+mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=20)
+
+# 79.18%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ instRatio+mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=30)
+
+# 79.22%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ instMonth+mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=30)
+
+# 79.19%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ instMonth+mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=40)
+
 
 summary(c5_model)
 user.test$c5_pred <- predict(c5_model,user.test,type="class")
