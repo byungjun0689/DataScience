@@ -1,8 +1,15 @@
 library(psych)
 library(plyr)
+library(dplyr)
 library(C50)
 library(caret)
 library(ROCR)
+
+tr <- read.delim("HDept/HDS_Transactions_MG.tab",stringsAsFactors = F)
+tmp <- tr %>% 
+  group_by(custid, corner_nm) %>% 
+  summarize(corner_cnt=n()) %>% 
+  slice(which.max(corner_cnt)) 
 
 user <- read.csv("2_group.csv", stringsAsFactors = T)
 user <- user[,-c(3,4)]
@@ -132,10 +139,28 @@ c5_model <- C5.0(sex ~ ., data=user.train[,-1], control = c5_options, rules=T)
 c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
 c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T)
 
-
-c5_options <- C5.0Control(winnow = T, noGlobalPruning = T)
+# 77.61%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
 c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T)
 
+# 78.27%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=10)
+
+# 78.8%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=10)
+
+# 78.88%
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=20)
+
+
+#c5_options <- C5.0Control(winnow = T, noGlobalPruning = T, CF=0.4)
+#c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=10)
+
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F, CF=0.3)
+c5_model <- C5.0(sex ~ mrg_flg+hobby+h_type2+group_member+agegrp+card_flg1+job_stype+fav_part_mean_amt+NPPV+mail_flg+we_amt+cus_stype+visits, data=user.train[,-1], control = c5_options, rules=T, trials=20)
 
 summary(c5_model)
 user.test$c5_pred <- predict(c5_model,user.test,type="class")
