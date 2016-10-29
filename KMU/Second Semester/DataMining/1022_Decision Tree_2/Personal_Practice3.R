@@ -185,7 +185,7 @@ cnt <- c(seq(0,40,10))
 train_data <- user.train[,-1]
 test_data <- user.test
 
-str <- c("pr_pref","sea_pref","API","amt12","instMonth","avg_disc","fav_part_index","fav_time","nop6","fav_good_index","buy_brd","main_store","visits")
+str <- c("pr_pref","sea_pref","API","amt12","instMonth","avg_disc","fav_part_index","fav_time","nop6","fav_good_index","buy_brd","main_store")
 str <- c("sea_pref","API","amt12","avg_disc","fav_part_index","fav_time")
 str <- c("fav_time","buy_brd","avg_disc","amt12")
 str <- c("wk_amt","we_amt","visits")
@@ -202,6 +202,7 @@ result8 <- make2(user.train[,-1],user.test,str,sub,count)
 result9 <- make2(user.train[,-1],user.test,str,sub,count,0.3)
 
 result10 <- make(user.train[,-1],user.test,str,sub,count)
+result11 <- make2(user.train[,-1],user.test,str,sub,count)
 
 write.csv(result6, "result6.csv")
 
@@ -210,3 +211,21 @@ df2 <- data.frame(Accur = 0.25, Param = "x ~ a+b", Sub = toString(s[1,]))
 df2
 df <- rbind(df,df2)
 df
+str <- c("pr_pref","sea_pref","API","amt12","instMonth","avg_disc","fav_part_index","fav_time","nop6","fav_good_index","buy_brd","main_store")
+param <- paste(str,collapse = "+")
+params <- as.formula(gsub("\\\"","",paste("sex",param, sep=" ~ ")))
+c5_options <- C5.0Control(winnow = F, noGlobalPruning = F)
+c5_model <- C5.0(params, data=train_data, control = c5_options, rules=T, trials=20)
+test_data$c5_pred <- predict(c5_model,test_data,type="class")
+test_data$c5_pred_prob <- round(predict(c5_model,test_data,type="prob"),2)
+confusionMatrix(test_data$c5_pred, test_data$sex)
+
+
+c5_pred <- prediction(test_data$c5_pred_prob[,2], test_data$sex)
+c5_model.perf1 <- performance(c5_pred,"tpr","fpr") # Roc curve
+c5_model.perf2 <- performance(c5_pred,"lift","rpp") # Lift chart
+par(mfrow=c(1,2))
+plot(c5_model.perf1,colorize=T)
+plot(c5_model.perf2,colorize=T)
+
+performance(c5_pred,"auc")@y.values[[1]] 
