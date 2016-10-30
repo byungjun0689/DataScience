@@ -56,7 +56,7 @@ user_tree[user_tree$stay_out=="이탈/휴면",]$stay_out <- "out"
 user_tree[user_tree$stay_out=="유지",]$stay_out <- "stay"
 user_tree$stay_out <- factor(user_tree$stay_out)
 
-user_tree$fav_paymthd <- as.character(user_tree$stay_out)
+user_tree$fav_paymthd <- as.character(user_tree$fav_paymthd)
 user_tree$fav_paymthd <- gsub(pattern = "개월",replacement = "",user_tree$fav_paymthd)
 user_tree$fav_paymthd <- factor(user_tree$fav_paymthd)
 
