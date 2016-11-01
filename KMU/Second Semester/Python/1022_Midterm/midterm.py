@@ -19,15 +19,17 @@ def ua_string(browser):
     import re
     browser = browser.lower()
     explorer = re.compile("msie")
+    explorer2 = re.compile("trident")
     chrome = re.compile("chrome")
     safari = re.compile("safari")
     firefox = re.compile("firefox")
     resultOfexplorer = re.search(explorer, browser)
+    resultOfexplorer2 = re.search(explorer2, browser)
     resultOfchrome = re.search(chrome, browser)
     resultOfsafari = re.search(safari, browser)
     resultOffirefox = re.search(firefox, browser)
 
-    if resultOfexplorer:
+    if resultOfexplorer or resultOfexplorer2:
         return "I"
     if resultOffirefox:
         return "F"
@@ -40,7 +42,7 @@ def ua_string(browser):
 def ua_string2(browser):
     from collections import OrderedDict
     browserContext = browser.lower()
-    listOfbrowser = OrderedDict([('msie', 'I'), ('chrome', 'C'),('safari','S'),('firefox','F')])
+    listOfbrowser = OrderedDict([('msie', 'I'), ('chrome', 'C'),('safari','S'),('firefox','F'),('trident','I')])
     for browser,Init in listOfbrowser.items():
         if browser in browserContext:
             return Init
