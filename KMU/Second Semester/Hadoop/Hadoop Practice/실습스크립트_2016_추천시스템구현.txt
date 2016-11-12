@@ -1,0 +1,498 @@
+﻿putty : IP : 192.168.56.101 또는 102
+Local IP : 10.0.2.15
+root/hadoop
+
+
+[NOTE] root로 하둡 서비스를 시작하면 절대 안됩니다.
+$ passwd  hadoop
+// 하둡 계정으로 로그인
+$ su  -  hadoop
+$ whoami
+$ pwd
+//  다음과 같은  Prompt가 보여야 함
+[hadoop@hadoop01 ~]$
+// 하둡 및 관련 서비스 시작(현재 위치는  /home/hadoop/)
+$ hadoop/bin/start-all.sh
+$ jps
+//  하둡 서비스 중지
+$ hadoop/bin/stop-all.sh
+//  하둡 서비스 확인하기
+$ jps
+- HDFS  : 
+$ hadoop/bin/start-dfs.sh  
+$ jps
+ # 중단은 stop-dfs.sh
+ 1.Namenode : 여기서 실행해야 함.
+ 2.Datanode
+ 3.SecondaryNamenode
+- MapReduce  : 
+$ hadoop/bin/start-mapred.sh  
+$ jps
+ # 중단은 stop-mapred.sh
+ 1.JobTracker : 여기서 실행해야 함.
+ 2.TaskTracker
+
+웹브라우저에서 확인(하둡 데몬은 zetty 웹서버를 내장)
+네임노드 :  http://192.168.56.101:50070/
+잡트래커 :  http://192.168.56.101:50030/
+
+# 기본적인 하둡 사용법 익히기
+
+1.HDFS : FTP 명령어와 동일( $ hadoop  fs )
+$ hadoop  fs  -ls   /
+$ hadoop  fs  -lsr  /
+
+$ hadoop  fs  -put   [로컬파일]  [HDFS디렉토리/파일]
+$ hadoop  fs  -put   pig.txt  . 
+$ hadoop  fs  -ls    -- 뒤에 아무것도 없습니다. 
+
+$ hadoop  fs  -get   [HDFS디렉토리/파일]  [로컬파일]  
+$ hadoop  fs  -get   pig.txt  piglocal.txt
+
+
+
+# 분석 실습
+
+# Pig로 A+B 상품 조합의 빈도수 계산
+
+- 1.분산모드  2.로컬모드(개발용)
+
+- 이번 실습은 피그 로컬 모드 : 데몬(서비스) 필요 없음, 개발용
+ 
+$ cd   source
+$ pig   -x    local
+ 
+# 피그 로컬 모드 : HDFS->Local File, MapReduce:데몬없이
+
+1.데이터 : hadoop.txt
+
+grunt>  cat   hadoop.txt
+-> 목적은 분리자 찾기 : ','  즉  CSV형식
+-> 연관규칙은 트랜잭션 수가 상수값 : N(T) -> 8
+
+2.(A->B) 상품 조합의 빈도수 구하기 Pig 스크립트
+
+
+- 피그 스크립트 파일 실행하기 
+grunt>  cat step1.pig
+
+grunt>   run   [파일명:step1.pig]
+결과값은 one_count/에 저장됨
+
+grunt>   cat  one_count
+
+- 본격적으로 분석하기
+
+select **,count(*) as cnt
+
+-- step2.pig : 두 번째 스크립트
+hadoop = LOAD 'hadoop.txt'
+         USING PigStorage(',')
+         AS( no, echosystem );
+illustrate  hadoop
+dump hadoop
+
+groups = GROUP hadoop BY no;
+illustrate  groups
+dump groups
+
+itemAB = FOREACH groups
+         GENERATE group,
+                  hadoop.echosystem AS a,
+                  hadoop.echosystem AS b;
+illustrate itemAB
+
+tempAB = FOREACH itemAB
+         GENERATE 
+              FLATTEN(a) AS a,
+              FLATTEN(b) AS b;
+tempAB2 = FOREACH itemAB
+          GENERATE group, 
+              FLATTEN(a) AS a,
+              FLATTEN(b) AS b;
+
+illustrate tempAB2;
+
+combineAB = FILTER tempAB BY a != b;
+
+combineAB2 = FILTER tempAB2 BY a != b;
+dump combineAB2;
+
+-------------------------
+groups = GROUP hadoop BY no;
+com1 = FOREACH groups GENERATE 
+		COUNT(hadoop)*COUNT(hadoop) as cnt;
+com2 = GROUP com1 ALL;
+com3 = FOREACH com2 GENERATE SUM(com1.cnt);
+
+dump com3
+
+
+row1 = GROUP hadoop ALL;
+row2 = FOREACH row1 GENERATE COUNT(hadoop);
+
+dump row2
+
+RECORD 수 <-> 순열(조합)의 수
+26 ->  92
+
+[뒤에 실습하는 무비렌스 데이터의 경우]
+100,000개  ->  20,000,000개
+------------------------- 
+
+groupAB = GROUP combineAB BY (a,b);
+countAB = FOREACH groupAB
+          GENERATE FLATTEN(group) AS (A,B),
+                   COUNT(combineAB) AS counts;
+illustrate countAB
+
+STORE countAB INTO 'two_count';
+grunt> cat two_count
+
+grunt> quit
+
+$ cd
+$ pwd
+$ hadoop/bin/stop-all.sh
+$ su -
+$ shutdown -h now
+
+11-12
+# 미니 프로젝트 : 하둡으로 추천시스템 구현하기 
+
+root/hadoop
+whoami
+pwd
+su - hadoop
+cd source
+pwd
+
+1.데이터 : u.data
+$ wc    u.data
+ 100000  400000 1979173 u.data
+ 라인수  단어수  파일크기 => 컬럼 4개
+$ head  u.data
+-> 컬럼 분리자 : '\t'
+-> 사용자, 아이템, 평점, 시간
+
+
+ - first : Select Columns and Change shape of data
+2.전처리 : php 쉘스크립트(웹 아님)
+- step1_convert_csv.php 
+  # u.data 4개 컬럼 -> movies.csv 2개 컬럼 
+$ php    step1_convert_csv.php
+$ wc     u.data  movies.csv
+ 100000  400000 1979173 u.data
+ 100000  200000  779173 movies.csv
+$ head   movies.csv
+
+
+// [하루 지나서 실습을 할 경우 ] 
+//   하둡 서비스 시작하세요. # 작업 디렉토리는 /home/hadoop/source 입니다.
+
+$ cd
+$ cd source
+$ ../hadoop/bin/start-all.sh
+$ jps
+
+ 
+# movies.csv 로컬파일을 HDFS에 올리세요.
+
+$ hadoop  fs  -put  movies.csv  .
+$ hadoop  fs  -ls
+
+3.데이터 모델(저장소) : 하이브 저장소
+$ hive
+hive> show   tables;
+CREATE TABLE movies
+( 
+  user STRING,
+  item STRING
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+ 
+LOAD DATA INPATH 'movies.csv' 
+INTO TABLE movies; 
+
+hive> select  *  from  movies  limit  5;
+
+CREATE TABLE movies_one_count
+( 
+  item STRING,
+  counts INT 
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+-- 진짜 쿼리.....
+INSERT OVERWRITE TABLE movies_one_count
+SELECT item, count(*) 
+FROM movies
+GROUP BY item;
+
+select count(*) from movies_one_count;
+
+hive> quit;
+
+hive vs shark 
+hive : 배치성 > java -> compile -> M/R   > 처음 만들때 시간이 걸린다. 
+shark : 대화형  > scala 사용 (dont need complie)
+둘다 mysql 문법과 사용법은 동일하다. 
+
+# 보너스 : 단일 빈도수를 샤크로 실행하기
+// 맵리듀스 서비스만 중단( HDFS는 실행중 )
+$ ../hadoop/bin/stop-mapred.sh
+
+-- 스팍 서비스 시작( Master/Worker )
+$ ../spark/bin/start-all.sh
+-- 샤크 리스너 시작( SharkServer )
+$ ../shark/bin/shark  --service  sharkserver  8083 & 
+$ jps
+-- 샤크 SQL 쉘 접속 
+$ ../shark/bin/shark   -h   localhost   -p   8083
+
+INSERT OVERWRITE TABLE movies_one_count
+SELECT item, count(*) 
+FROM movies
+GROUP BY item;
+
+4.4 샤크 SQL 쿼리
+- 데이터를 보자.
+CREATE TABLE movies_user_items
+( 
+  user STRING,
+  item_counts INT 
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+
+INSERT OVERWRITE TABLE movies_user_items
+SELECT user, count(*) 
+FROM movies
+GROUP BY user;
+ 
+- 조합 레코드수 구하기
+SELECT sum(t.cnts) 
+FROM (
+  SELECT item_counts,item_counts*item_counts as cnts 
+  FROM movies_user_items 
+) t;
+
+
+// 100,000레코드 -> 조합 레코드수는 2천만개
+20M * 4byte * 4배 메모리 = 320 MB   
+// 실습 서버의 한계 메모리(스팍 설정)는 200 MB입니다.
+ 
+SELECT item_counts, count(*) as user_counts
+FROM movies_user_items 
+GROUP BY item_counts
+ORDER BY item_counts desc
+LIMIT 5;
+
+
+SELECT sum(t.cnts), count(*) 
+FROM (
+  SELECT item_counts*item_counts as cnts 
+  FROM movies_user_items 
+  WHERE  item_counts < 100
+) t;
+
+
+CREATE TABLE light_user AS 
+SELECT user 
+FROM movies_user_items
+WHERE item_counts < 100;
+
+select  count(*) from light_user;
+-> 장바구니수 : 상수값 => 579
+
+
+CREATE TABLE movies_new AS
+SELECT t.* 
+FROM movies t
+JOIN light_user a 
+  ON t.user = a.user;
+
+SELECT count(*) FROM movies_new;
+
+
+// 새로운 좋은 데이터셋이 준비되었습니다.
+// 다시 one_count, two_count를 하겠습니다.
+
+CREATE TABLE movies_two_count
+( 
+  item_ab STRING,
+  counts INT 
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+
+INSERT OVERWRITE TABLE movies_two_count 
+SELECT t.ab as item_ab, count(*) as counts  
+FROM (
+  SELECT a.user as user, concat(a.item, ',', b.item) as ab
+  FROM movies_new a
+  JOIN movies_new b 
+    ON a.user=b.user
+) t
+GROUP BY t.ab;
+
+
+SELECT count(*),sum(counts) FROM movies_two_count;
+
+
+INSERT OVERWRITE TABLE movies_one_count
+SELECT item, count(*) 
+FROM movies_new
+GROUP BY item;
+
+SELECT count(*) FROM movies_one_count;
+
+4.5. 비지니스 로직 구현( 분석 중간 단계 )
+
+shark> quit;
+
+- movies_two_count 데이터를 로컬파일로 내리기
+$ hadoop fs -getmerge /user/hive/warehouse/movies_two_count ./movies_two_count.dat 
+
+$ head  movies_two_count.dat
+
+# A,B가 동일한것 삭제,  ','->'\t'으로 변환,  빈도수가 1인것 삭제
+파일 : step4_movies_two_count.php
+$ php step4_movies_two_count.php
+$ wc  movies_two*
+ 190582  571746 1902840 movies_two_count.csv
+ 387851  775702 3905168 movies_two_count.dat
+
+$ history
+$ ../shark/bin/shark   -h   localhost   -p   8083
+
+// 테이블을 삭제하고 다시 생성합니다.
+DROP TABLE movies_two_count;
+CREATE TABLE movies_two_count
+( 
+  item_a STRING,
+  item_b STRING,
+  counts INT 
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+// 로컬에서 처리한 파일을 로드
+// [NOTE] 파일의 경로에 유의하세요.
+LOAD DATA LOCAL INPATH 'movies_two_count.csv' 
+INTO TABLE movies_two_count; 
+
+select * from movies_two_count limit 5;
+
+CREATE TABLE movies_association
+(
+ item_a  int
+,item_b  int
+,n_ab    bigint
+,n_a     bigint
+,n_b     bigint
+,s_ab    double
+,s_a     double
+,s_b     double
+,confidence      double
+,lift    double
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+
+INSERT OVERWRITE TABLE movies_association 
+SELECT t.item_a                as item_a, 
+       t.item_b                as item_b, 
+       SUM(t.n_ab)             as n_ab,
+       SUM(t.n_a )             as n_a, 
+       SUM(b.counts)           as n_b, 
+       SUM(t.n_ab/579.0)       as s_ab, 
+       SUM(t.n_a/579.0)        as s_a, 
+       SUM(b.counts/579.0)     as s_b, 
+       SUM((t.n_ab/579.0)/( t.n_a/579.0))                  as confidence,
+       SUM((t.n_ab/579.0)/((t.n_a/579.0)*(b.counts/579.0))) as lift
+FROM (
+   SELECT two.item_a as item_a, 
+          two.item_b as item_b,
+          SUM(two.counts) as n_ab,
+          SUM(one.counts) as n_a 
+  FROM movies_two_count two
+  JOIN movies_one_count one
+       ON two.item_a = one.item 
+  GROUP BY two.item_a, two.item_b
+) t
+JOIN movies_one_count b
+     ON t.item_b=b.item
+GROUP By t.item_a, t.item_b;
+
+
+SELECT count(*) FROM movies_association;
+
+shark> quit;
+
+
+4.6 데이터 내보내기 :  sqoop( SQL - Hadoop )
+
+$ mysql   hivedb  -uhiveuser -phivepw
+mysql> show  tables;
+
+-- MYSQL 쉘에서 실행하세요.
+CREATE TABLE movies_association
+(
+ item_a  int
+,item_b  int
+,n_ab    bigint(20)
+,n_a     bigint(20)
+,n_b     bigint(20)
+,s_ab    double
+,s_a     double
+,s_b     double
+,confidence      double
+,lift    double
+);
+
+mysql > show tables;
+...
+| TYPE_FIELDS        |
+| movies_association |
++--------------------+
+32 rows in set (0.01 sec)
+// 총 32개의 테이블이 있어야 합니다.
+
+mysql > quit;
+$ jps
+$ ../hadoop/bin/start-mapred.sh
+
+$ sqoop export --connect jdbc:mysql://localhost/hivedb --table movies_association --username hiveuser -P   --export-dir /user/hive/warehouse/movies_association  -m 1
+
+[NOTE] 비밀번호를 물어보면 hivepw 를 입력하세요.
+
+4.7 웹서비스 : APM / apache , php , mysql
+
+$ su  -
+$ apachectl  start
+
+웹브라우저 : http://192.168.56.101/ass.php
+
+
+* 서비스 종료
+
+1. Shark Server : kill  -9  [PID]
+$ jps
+6468 StandaloneExecutorBackend
+6393 SharkServer
+$ kill -9 6393
+
+2. Spark 서비스 중지
+$ ../spark/bin/stop-all.sh
+
+3. 하둡 서비스 중지
+$ ../hadoop/bin/stop-all.sh
+$ jps
+
+4. 리눅스 shutdown
+root로 로그인 
+$ su -
+$ shutdown  -h   now
+
+
+

@@ -1,0 +1,779 @@
+
+# R 통계분석 코드 
+
+# 1장. R기초
+
+1.기본 R 구문
+
+ x <- rnorm(5)
+
+2.기본 예제
+
+ age <- c(1,3,5,2,11,9,3,9,12,3)
+
+ weight <- c(4.4,5.3,7.2,5.2,8.5,7.3,6.0,10.4,10.2,6.1)
+
+ mean(weight)
+
+ sd(weight)
+
+ cor(age,weight)
+ 
+ plot(age,weight)
+
+ q()
+
+3.데모 : 그래픽스
+
+demo(graphics)
+
+demo(Hershey)  
+
+demo(persp) 
+
+demo(image)
+
+4.WorkSpace
+
+getwd()
+
+options()
+
+options(digits=3)
+
+x <- runif(20)
+
+summary(x)
+
+hist(x)
+
+savehistory()
+
+save.image()
+
+5.패키지
+
+help.start()
+
+install.packages("vcd")
+
+help(package="vcd")
+
+library(vcd)
+
+help(Arthritis)
+
+Arthritis
+
+example(Arthritis)
+
+q()
+
+
+# 1장. R 기초 끝... 수고하셨습니다.
+
+-----------------------------------------------------
+
+# 2장. R 데이터 모델
+
+1.leadership 데이터셋 만들기
+
+manager <- c(1, 2, 3, 4, 5)
+date <- c("10/24/08", "10/28/08", "10/1/08", "10/12/08", "5/1/09")
+country <- c("US", "US", "UK", "UK", "UK")
+gender <- c("M", "F", "F", "M", "F")
+age <- c(32, 45, 25, 39, 99)
+
+q1 <- c(5, 3, 3, 3, 2)
+q2 <- c(4, 5, 5, 3, 2)
+q3 <- c(5, 2, 5, 4, 1)
+q4 <- c(5, 5, 5, NA, 2)
+q5 <- c(5, 5, 2, NA, 1)
+
+leadership <- data.frame(manager, date, country, gender, age,
+                        q1, q2, q3, q4, q5, stringsAsFactors=FALSE)
+
+2.새로운 변수 추가하기
+
+mydata<-data.frame(x1 = c(2, 2, 6, 4),
+                   x2 = c(3, 4, 2, 8))
+
+mydata$sumx <- mydata$x1 + mydata$x2
+mydata$meanx <- (mydata$x1 + mydata$x2)/2
+
+attach(mydata)
+mydata$sumx <- x1 + x2
+mydata$meanx <- (x1 + x2)/2
+detach(mydata)
+
+mydata <- transform(mydata,
+                    sumx = x1 + x2,
+                    meanx = (x1 + x2)/2)
+
+3.카테고리화 
+
+# age의 값이 99일 경우 NA로 간주
+
+leadership$age[leadership$age == 99] <- NA
+
+# 카테고리화 1안
+ 
+leadership$agecat[leadership$age > 75] <- "Elder"
+leadership$agecat[leadership$age >= 55 &
+                  leadership$age <= 75] <- "Middle Aged"
+leadership$agecat[leadership$age < 55] <- "Young"
+
+# 카테고리화 2안
+ 
+leadership <- within(leadership,{
+                     agecat <- NA
+                     agecat[age > 75] <- "Elder"
+                     agecat[age >= 55 & age <= 75] <- "Middle Aged"
+                     agecat[age < 55] <- "Young" })
+
+4.컬럼의 Name을 변경
+
+# 1안
+
+library(reshape)
+leadership <- rename(leadership,
+                     c(manager="managerID", date="Date2")
+)
+
+# 2안
+
+names(leadership)
+ 
+names(leadership)[2] <- "testDate"
+
+leadership
+ 
+
+# 2장. R 데이터 모델. 끝 수고하셨습니다.
+
+-----------------------------------------------------
+
+
+# 3장. R 데이터 처리
+
+
+
+1.Missing Value
+
+y <- c(1, 2, 3, NA)
+ 
+is.na(y)
+
+# NA 처리 : na.rm  
+
+x <- c(1, 2, NA, 3)
+y <- x[1] + x[2] + x[3] + x[4]
+z <- sum(x)
+
+x <- c(1, 2, NA, 3)
+y <- sum(x, na.rm=TRUE)
+
+# NA 처리 :   na.omit
+
+leadership
+  
+newdata <- na.omit(leadership)
+ 
+newdata
+
+2.Date 처리
+
+mydates <- as.Date(c("2007-06-22", "2004-02-13"))
+
+strDates <- c("01/05/1965", "08/16/1975")
+dates <- as.Date(strDates, "%m/%d/%Y")
+ 
+myformat <- "%m/%d/%y"
+leadership$date <- as.Date(leadership$date, myformat)
+ 
+ 
+ Sys.Date()
+ 
+ date()
+ 
+ today <- Sys.Date()
+ format(today, format="%B %d %Y")
+ 
+ format(today, format="%A")
+
+# date 비교 연산
+ 
+ startdate <- as.Date("2004-02-13")
+ enddate <- as.Date("2011-01-22")
+
+ days <- enddate - startdate
+ days
+
+ 
+ today <- Sys.Date()
+ dob <- as.Date("1956-10-12")
+ difftime(today, dob, units="weeks")
+
+3.형 변환
+
+  a <- c(1,2,3)
+  a
+ 
+  is.numeric(a)
+ 
+  is.vector(a)
+ 
+  a <- as.character(a)
+  a
+ 
+  is.numeric(a)
+ 
+  is.vector(a)
+ 
+  is.character(a)
+ 
+4.정렬하기
+
+newdata <- leadership[order(leadership$age),]
+
+newdata
+
+ 
+attach(leadership)
+newdata <- leadership[order(gender, age),]
+
+newdata
+detach(leadership)
+
+attach(leadership)
+newdata <-leadership[order(gender, -age),]
+
+newdata
+detach(leadership)
+
+6.Subset
+
+# 1안
+
+newdata <- leadership[, c(6:10)]
+
+# 2안
+
+myvars <- c("q1", "q2", "q3", "q4", "q5")
+newdata <-leadership[myvars]
+
+newdata
+
+# 3안
+
+myvars <- paste("q", 1:5, sep="")
+newdata <- leadership[myvars]
+
+# 특정 컬럼 제외
+
+myvars <- names(leadership) %in% c("q3", "q4")
+newdata <- leadership[!myvars]
+
+newdata
+
+# 특정 로우만 선택
+
+# 1안
+
+newdata <- leadership[1:3,]
+newdata <- leadership[which(leadership$gender=="M" &
+                            leadership$age > 30),]
+# 2안
+
+attach(leadership)
+newdata <- leadership[which(gender=='M' & age > 30),]
+
+newdata
+
+detach(leadership)
+
+# 특정 기간의 로우만 선택
+
+leadership$date <- as.Date(leadership$date, "%m/%d/%y")
+startdate <- as.Date("2009-01-01")
+enddate <- as.Date("2009-10-31")
+
+newdata <- leadership[which(leadership$date >= startdate &
+                            leadership$date <= enddate),]
+
+newdata
+
+# subset 함수로 처리하기
+
+newdata <- subset(leadership, age >= 35 | age < 24,
+                              select=c(q1, q2, q3, q4))
+
+newdata <- subset(leadership, gender=="M" & age > 25,
+                              select=gender:q4)
+
+7.sqldf : SQL 쿼리
+
+ install.packages("sqldf")
+
+ library(sqldf)
+ newdf <- sqldf("select * from mtcars where carb=1 order by mpg",
+                row.names=TRUE)
+ newdf
+
+sqldf("select avg(mpg) as avg_mpg, avg(disp) as avg_disp, gear
+              from mtcars where cyl in (4, 6) group by gear")
+
+
+
+# 3장. R 데이터 처리. 끝.... 수고하셨습니다.
+
+
+
+-----------------------------------------------------
+
+
+# 4장.분석 시각화
+
+
+# 필요한 패키지 설치하기
+
+install.packages("vcd")
+install.packages("plotrix")
+install.packages("sm")
+install.packages("vioplot")
+
+
+1.R Graph 기초
+
+## 그래프 그리기 
+
+attach(mtcars)
+plot(wt, mpg)
+abline(lm(mpg~wt))
+title("Regression of MPG on Weight")
+detach(mtcars)
+
+## 그래프를 PDF로 저장하기(소스레벨)
+
+dev.set()
+pdf("mygraph.pdf")
+attach(mtcars)
+plot(wt, mpg)
+abline(lm(mpg~wt))
+title("Regression of MPG on Weight")
+detach(mtcars)
+dev.off()
+
+## plot( ) 예제
+
+dose <- c(20, 30, 40, 45, 60)
+drugA <- c(16, 20, 27, 40, 60)
+drugB <- c(15, 18, 25, 31, 40)
+
+## 약A에 대한 투여량과 반응의 관계에 대한 간단한 라인 그래프
+##  --   형식 :  plot(x, y, type="b")   
+##  --                x축, y축, b="포인트+연결라인"
+
+plot(dose, drugA, type="b")
+
+
+2.그래픽 매개변수
+
+##  --   1번째 : 기존 매개변수 보존하기
+opar <- par(no.readonly=TRUE)
+par(lty=2, pch=17)
+plot(dose, drugA, type="b")
+par(opar)
+
+##  --   2번째 : par 따로쓰기
+par(lty=3)
+par(pch=15)
+plot(dose, drugA, type="b")
+
+##  --   3번째 : 해당 그래프에만 매개변수가 적용됨
+plot(dose, drugA, type="b", lty=2, pch=17)
+
+##  --   크게
+plot(dose, drugA, type="b", lty=3, lwd=3, pch=15, cex=2)
+
+##  R의 색상
+
+n <- 10
+mycolors <- rainbow(n)
+pie(rep(1, n), labels=mycolors, col=mycolors)
+
+mygrays <- gray(0:n/n)
+pie(rep(1, n), labels=mygrays, col=mygrays)
+
+##  R의 색상표
+##  http://research.stowers-institute.org/efg/R/Color/Char
+##  rainbow(), heat.colors(), terrain.colors()
+##  topo.colors(), cm.colors()
+
+
+3. Bar Plot 그리기
+
+3.1. 기본 Bar Plot
+
+# -- 단일 카테고리의 빈도수
+
+# --  vcd 패키지 로딩하고 데이터셋 보기
+library(vcd)
+Arthritis
+
+# --  Bar Plot을 그리기 위한 집계 데이터셋 만들고 확인하기
+counts <- table(Arthritis$Improved)
+counts
+
+# --  기본 Bar Plot 그리기( 세로 )
+barplot(counts,
+	main="기본 Bar Plot",
+	xlab="약효 구분", ylab="빈도수")
+
+# --  가로 Bar Plot 그리기
+barplot(counts,
+	main="가로 Bar Plot",
+	xlab="빈도수", ylab="약효 구분",
+	horiz=TRUE)
+
+[개별 과제] Bar의 색을 "yellow"로 변경하세요.
+
+Hint) help( barplot )
+
+
+# --  table()을 사용하지 않고 Bar plot 그리기
+
+plot(Arthritis$Improved, main="기본 Bar Plot - 2",
+	xlab="약효 구분", ylab="빈도수")
+
+plot(Arthritis$Improved, horiz=TRUE, main="가로 Bar Plot - 2",
+	xlab="빈도수", ylab="약효 구분")
+
+
+
+3.2. Stacked and Grouped Bar Plots
+
+## 다중 카테고리의 빈도수
+
+# --  table() 함수를 이용하여 2-카테고리 데이터셋을 생성
+
+counts2 <- table(Arthritis$Improved, Arthritis$Treatment)
+counts2
+
+# --  Stacked Bar : 누적
+
+barplot(counts2,
+	main="Stacked Bar Plot",
+	xlab="처방구분", ylab="빈도수",
+	col=c("red", "yellow","green"),
+	legend=rownames(counts))
+
+# --  Grouped Bar : 개별
+
+barplot(counts2,
+	main="Grouped Bar Plot",
+	xlab="처방구분", ylab="빈도수",
+	col=c("red", "yellow", "green"),
+	legend=rownames(counts), beside=TRUE)
+
+
+[개별 실습 과제]
+1. 색상을 변경해보세요.
+2. Y축의 좌표값 기준을 변경해서 범례가 겹치지 않도록 하세요.
+
+[힌트]
+n <- 10
+mycolors <- heat.colors(n)
+mycolors <- terrain.colors(n)
+mycolors <- topo.colors(n)
+mycolors <- cm.colors(n)
+mycolors <- rainbow(n)
+ylim=c(0,70)
+xlim=c(0,50)
+
+
+3.3. Mean bar plots
+
+## 융합하기 : 정렬
+
+# --  데이터셋 만들기(기본 패키지)
+states <- data.frame(state.region, state.x77)
+means <- aggregate(states$Illiteracy, by=list(state.region), FUN=mean)
+means
+
+# --  정렬하기
+means <- means[order(means$x),]
+means
+
+# --  Bar plot 그리기
+barplot(means$x, names.arg=means$Group.1, col=c("red","yellow","green","blue") )
+title("지역별 문맹률(%)")
+
+3.4. Tweaking bar plots
+
+## 세로 바를 가로 바로
+
+# --  데이터셋 만들기
+par(mar=c(5,8,4,2))
+par(las=2)
+counts <- table(Arthritis$Improved)
+counts
+
+# --  bar plot 그리기
+barplot(counts,
+	main="처방 결과표",
+	horiz=TRUE, cex.names=0.8,
+	names.arg=c("효능 없음", "약간","상당한 효능"))
+
+3.5. Spinograms
+
+## 100% 를 기준으로
+
+attach(Arthritis)
+counts2 <- table(Treatment, Improved)
+spine(counts2, main="Spinogram 예제")
+detach(Arthritis)
+
+# --  spine()의 단점은 바로 color 
+
+
+
+
+
+4. Pie Charts 그리기
+
+# --  캔버스를 4등분( 2 X 2 )
+par(mfrow=c(2, 2))
+
+# --  데이터셋 만들기
+slices <- c(10, 12,4, 16, 8)
+lbls <- c("미국", "영국", "호주", "독일", "한국")  
+
+# --  기본 파이 차트 그리기
+pie( slices, labels = lbls,
+	main="기본 파이 차트")
+
+# --  100%를 기준으로( 카테고리 이름 + XX% )
+pct    <- round(slices/sum(slices)*100)
+lbls2  <- paste(lbls, " ", pct, "%", sep="")
+pie(slices, labels=lbls2, col=rainbow(length(lbls2)),
+	main="파이 차트(비율)")
+
+
+# --  3차원 파이 차트 그리기
+library(plotrix)
+pie3D(slices, labels=lbls,explode=0.1,
+	main="3D 파이 차트 ")
+
+# --  카테고리 이름 + 빈도수
+mytable <- table(state.region)
+lbls3 <- paste(names(mytable), "\n", mytable, sep="") 
+pie(mytable, labels = lbls3,
+	main="파이 차트(빈도수)")
+
+# Fan Plot 그리기
+
+# --  캔버스를 하나로 다시 변경
+par(mfrow=c(1, 1))
+
+# --  파이 차트 대신 Fan Plot으로 그리기
+slices <- c(10, 12, 4, 16, 18)
+lbls <- c("미국", "영국", "호주", "독일", "한국")  
+fan.plot(slices, labels = lbls, main="Fan Plot")
+
+
+
+
+
+
+5. Histograms 그리기
+
+# 구간별 빈도수 그래프 : Histogram
+# --  형태는 Bar Chart와 같습니다.
+
+# --  2 X 2로 캔버스를 나눔니다. 
+par(mfrow=c(2,2))
+
+# --  기본 Histogram 그리기
+hist(mtcars$mpg)  
+
+# --  색상을 추가하고, 12단계로 구간을 분할 합니다.
+hist(mtcars$mpg,
+	breaks=12, 
+	col="red",
+	xlab="Miles/Gallon",ylab="빈도수",
+	main="Histogram(색상,12분할)")
+
+# --  개별과제 : 색상을 변경해보세요. Hint) mycolors
+
+hist(mtcars$mpg,
+	freq=FALSE, 
+	breaks=12,
+	col="red",
+	xlab="Miles/Gallon",ylab="비율",
+	main="Histogram(Rug-띠, 밀도 곡선)")
+
+# --  Rug Plot을 추가합니다.
+rug(jitter(mtcars$mpg))
+
+# --  Density Curve를 추가합니다.
+lines(density(mtcars$mpg), col="blue", lwd=2)
+
+x <- mtcars$mpg
+h<-hist(x,
+	breaks=12,
+	col="red",
+	xlab="Miles/Gallon",ylab="빈도수",
+	main="Histogram(정규곡선,테두리)")
+
+# --  정규 곡선을 그립니다.
+xfit<-seq(min(x), max(x), length=40)
+yfit<-dnorm(xfit, mean=mean(x), sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="blue", lwd=2)
+
+# --  테두리를 추가합니다.
+box()
+
+
+6. Kernel density plots 그리기
+
+# 핵밀도 그래프 : Y축은 비율(%)이고 면적의 총 합은 1(100%)
+
+par(mfrow=c(2,1))
+
+# --  기본 밀도 그래프 그리기
+d <- density(mtcars$mpg)
+plot(d)
+
+# --  밀도 그래프 확장하기
+d <- density(mtcars$mpg)
+plot(d, main="핵밀도 그래프")
+
+# --  색칠하기
+polygon(d, col="green", border="blue")
+
+# --  rug() 1차원 띠로 각 점을 표시 
+rug(mtcars$mpg, col="brown", lwd=1.5)
+
+# 카테고리별 밀도 비교 그래프 : 비교 목적으로 사용
+
+par(lwd=2)
+library(sm)   
+attach(mtcars)
+par(mfrow=c(1,1))
+
+# --  실린더별(4,6,8기통) 밀도 비교 그래프 그리기
+
+cyl.f <- factor(cyl, levels= c(4,6,8),
+		labels = c("4기통", "6기통",  "8기통"))
+sm.density.compare(mpg, cyl, xlab="Miles/Gallon") 
+title(main="실린더별 MPG 분포")
+
+colfill<-c(2:(1+length(levels(cyl.f))))
+
+# --  범례를 그리는데 마우스로 클릭한 곳에 표시됩니다.
+legend(locator(1), levels(cyl.f), fill=colfill)  
+
+detach(mtcars)
+
+
+
+7.Box plots 그리기
+
+# 분포를 박스 형태로 표시하기
+   # --  박스 하나가 하나의 분포
+   # --  Y축은 빈도수
+
+# --  기본 Box 그래프 그리기
+par(mfrow=c(1,1))
+boxplot(mtcars$mpg, main="Box plot", ylab="Miles/Gallon")
+
+# --  카테고리별 Box 그래프
+boxplot(mpg ~ cyl, data=mtcars,
+	main="차량 연비 비교",
+	xlab="실린더 수",
+	ylab="Miles/Gallon")
+
+# --  [과제] Outlier를 찾아 보세요.
+
+
+# Notched Box 그래프 그리기
+# ( Notch - 가위집 내기 )
+boxplot(mpg ~ cyl, data=mtcars,
+	notch=TRUE,
+	varwidth=TRUE,
+	col=heat.colors(5),
+	main="차량 연비 비교",
+	xlab="실린더 수",
+	ylab="Miles/Gallon")
+
+
+
+# 데이터셋을 바꾸어서 Box 그래프 확장하기
+
+mtcars$cyl.f <- factor(mtcars$cyl,
+		levels=c(4,6,8),
+		labels=c("4","6","8"))
+mtcars$am.f <- factor(mtcars$am,
+		levels=c(0,1),
+		labels=c("자동", "수동"))
+boxplot(mpg ~ am.f * cyl.f,
+	data=mtcars,
+	varwidth=TRUE,
+	col=c("gold","darkgreen"),
+	main="수동/자동 변속기 구분에 따른 분포",
+	xlab="변속기 구분")
+
+# Violin plots
+
+# --  박스 그래프 + 밀도 그래프 -> 바이올린 그래프
+
+library(vioplot)
+
+x1 <- mtcars$mpg[mtcars$cyl==4]
+x2 <- mtcars$mpg[mtcars$cyl==6]
+x3 <- mtcars$mpg[mtcars$cyl==8]
+
+vioplot(x1, x2, x3,
+	names=c("4기통", "6기통", "8기통"),
+	col="gold")
+
+title("바이올린 그래프 - 실린더별 연비")
+
+
+
+8.Dot plots 그리기
+
+# --  기본 점 그래프 그리기
+
+dotchart(mtcars$mpg, 
+	labels=row.names(mtcars), cex=.7,
+	main="차량 모델별 연비",
+	xlab="Miles/Gallon")
+
+# --  융합하기 : 정렬 + 그룹별로 색을 달리하기
+
+x <- mtcars[order(mtcars$mpg),]
+
+x$cyl <- factor(x$cyl,
+		levels=c(4,6,8),
+		labels=c("4기통","6기통","8기통"))
+x$color[x$cyl=="4기통"] <- "red"
+x$color[x$cyl=="6기통"] <- "blue"
+x$color[x$cyl=="8기통"] <- "darkgreen"
+
+dotchart(x$mpg,
+	labels = row.names(x),	
+	cex=.7,
+	groups = x$cyl,
+	gcolor = "black",
+	color = x$color,	pch=19,
+	main = "차량 모델별 연비 - 실린더 구분",
+	xlab = "Miles/Gallon")
+ 
+
+
+## 오늘도 수고하셨습니다.
+
+
