@@ -16,8 +16,6 @@ hc3=hclust(dist(USArrests),method="average")
 windows()
 plot(hc3)
 
-
-
 hc4=hclust(dist(USArrests),method="ward.D")
 windows()
 plot(hc4)
@@ -38,3 +36,5 @@ boxplot(USArrests[,i]~hc3_result,main=names(USArrests)[i])
 
 library(psych)
 describeBy(USArrests,group=hc3_result)
+
+data.frame()
