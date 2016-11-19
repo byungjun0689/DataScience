@@ -1,0 +1,78 @@
+# 1119_Classification ####
+install.packages("ISLR")
+library(ISLR)
+
+# 이 데이터에서의 Balance 는 카드 를 100마넌 썻고 50마넌 갚았다면 50만원이 Balance이다.
+
+# lm 우리가 쓰는 선형모형은 General Linear Regession 이다. ????????? 뭐징 이것도 general?
+# log(P) 를 사용하는 것은 로짓 링크를 사용하여 만든 함수 glm 을 사용 Generalized Linear Models
+
+boxplot(balance~default, data = Default)
+model = glm(default~balance,data=Default,family = binomial)
+summary(model)
+
+# log(p/(1-p)) = -10.65 + 0.005balance
+
+exp(5.499e-03) # 1.005 카드 사용금액이 1불 증가할때 0.5프로 0.005배 증가한다. 
+exp(model$coefficients[[2]])
+exp(5.499e-03*100) # 1.73308 카드 사용금액이 100불 증가할때 73% 증가한다.
+exp(model$coefficients[[2]]*100)
+
+
+predict(model,data.frame(balance=1000))
+exp(predict(model,data.frame(balance=1000))) / (1+exp(predict(model,data.frame(balance=1000))))
+
+predict(model,data.frame(balance=1000),type="response") # P값을 계산해준다. 
+
+
+# multiple logistic ####
+
+model1 = glm(default ~ balance + income + student, data=Default, family = binomial)
+summary(model1)
+str(Default)
+
+exp(model1$coefficients[[4]]) 
+# 학생일때 0.52배 감소 즉 48% 감소 한다. 
+# 똑같은 카드 잔고일 경우 학생일 경우 조금 더 믿을 만하다.
+# 밑에 정보와 비교해보면 Multiple 의 특성이 나온다. 
+# 다른 조건은 다 동일하고 학생이냐 아니냐 에 따라서 모형의 coef가 달라진다.
+
+model2 = glm(default ~ student, data=Default, family = binomial)
+summary(model2)
+
+boxplot(balance ~ student, Default)
+# 학생들이 학생장고가 많다 => 벨런스가 높다 => 파산가능성이 높아진다. 
+# 하지만 Multiple Linear에서는 끊어준다. 
+
+
+# Practice 5 #### 
+# 1.	Smarket dataset in ISLR library
+# S&P500 지수의 수익률을 1250일간 기록한 데이터이다. Lag1-Lag5는 1일에서 5일 전의 수익률을
+# 나타내고 Volume은 전일 거래량(in billions), Today는 오늘의 수익률, 
+# Direction은 오늘 시장의 상승(up)과 하락(down)을 나타낸다. 
+# 로지스틱 회귀분석을 이용하여 아래의 질문에 답하시오.
+# # A.	Lag변수들과 Volume을 사용하여 시장의 상승 하락을 예측하는 모형을 추정하고 추정된 모형을 기술하시오.
+# # B.	추정된 회귀계수를 해석하시오.
+# # C.	Cutoff를 0.5로 설정하여 분할표를 출력하고 민감도, 특이도, 오분류율을 계산하시오.
+# # D .	ROC curve를 그리고 모형의 적절성을 판단하시오.
+# E.	오분류율과 cutoff 관계를 나타내는 그래프를 그리고 오분류율을 최소화 하는 cutoff를 찾으시오.
+
+Smarket <- Smarket
+str(Smarket)
+s_model <- glm(Direction ~ Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Smarket, family = binomial)
+summary(s_model)
+
+# P-value가 맞지 않지만은 진행.
+
+exp(s_model$coefficients[[2]]) # 1증가하면 다음날 증가 할 가능성이 7% 떨어진다. 0.92배. 
+
+# 하루 이틀간은 음의 관계. 감소할 가능성이 높다. 
+# 3,4,5일 전에 증가를 했다면 오늘 주가가 증가할 가능성이 높아진다, 
+
+exp(s_model$coefficients[[4]])
+exp(s_model$coefficients[[5]])
+exp(s_model$coefficients[[6]])
+
+# Valume 이 1이 높아지면 15% 상승.
+exp(s_model$coefficients[[7]])
+
