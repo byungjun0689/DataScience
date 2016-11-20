@@ -9,6 +9,7 @@ import gzip
 import os
 import urllib
 import numpy
+import urllib.request
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
 def maybe_download(filename, work_directory):
   """Download the data from Yann's website, unless it's already here."""
