@@ -1,0 +1,75 @@
+##### Mine Associations using arules package
+
+install.packages("arules")
+library(arules)
+library(dplyr)
+
+tr <- read.delim("dataTransactions.tab", stringsAsFactors=FALSE)
+head(tr)
+
+tr.filter <- tr %>%
+  filter(!(corner %in% c("일반식품","화장품"))) %>%
+  distinct(custid, corner)
+
+# custid별로 corner를 자른다. 
+trans <- as(split(tr.filter$corner, tr.filter$custid), "transactions") #transactions 메소드 
+trans 
+
+#내부를 볼 수 없다.
+
+# trans <- read.transactions("dataTransactions.tab", format = "single", sep="\t", cols = c(2,6), skip=1)
+
+inspect(trans[1:2])
+transactionInfo(trans[size(trans) > 15])
+# size(trans) each transaction length
+transactionInfo(trans[size(trans) > 20])
+
+
+
+image(trans[1:5])
+image(sample(trans, 100, replace = FALSE), main = "matrix diagram")
+
+itemFrequency(trans, type="absolute") # table과 동일한결과가 나온다. 
+itemFrequency(trans)[order(itemFrequency(trans), decreasing = TRUE)]
+
+itemFrequencyPlot(trans, support=0.2, cex.names=0.8)
+itemFrequencyPlot(trans, topN = 20, main = "support top 20 items")
+
+rules <- apriori(trans, parameter=list(support=0.2, confidence=0.8))
+# rules <- apriori(trans, parameter=list(support=0.2, confidence=0.8), appearance=list(rhs="스포츠",default="lhs"))
+summary(rules)
+
+
+inspect(rules)
+inspect(sort(rules, by = "lift")[1:30])
+
+rules.target <- subset(rules, rhs %in% "스포츠" & lift > 1.4)
+inspect(sort(rules.target, by="confidence"))
+rule.interest <- subset(rules, items %in% c("장신구", "섬유"))
+inspect(rule.interest[1:10])
+
+write(rules.target, file="arules.csv", sep=",", row.name=F)
+
+install.packages("pmml") 
+library(pmml)
+write.PMML(rules.target, file = "arules.xml")
+
+# rule_df <- as(rules, "data.frame")
+# head(rule_df)
+
+
+##### Visualize Association Rules using arulesViz package
+
+install.packages("arulesViz") 
+library(arulesViz)
+
+plot(rules)
+plot(sort(rules, by = "lift")[1:20], method = "grouped")
+plot(rules, method = "graph", control = list(type="items"))
+
+
+##### Exercise
+
+data <- read.delim("shoppingmall.txt", stringsAsFactors=FALSE)
+st <- as.matrix(data[,-1])
+trans <- as(st, "transactions")

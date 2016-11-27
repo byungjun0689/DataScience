@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<PMML version="4.1" xmlns="http://www.dmg.org/PMML-4_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_1 http://www.dmg.org/v4-1/pmml-4-1.xsd">
+ <Header copyright="Copyright (c) 2016 BYUNGJUN" description="arules association rules model">
+  <Extension name="user" value="BYUNGJUN" extender="Rattle/PMML"/>
+  <Application name="Rattle/PMML" version="1.4"/>
+  <Timestamp>2016-11-26 14:28:07</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="2">
+  <DataField name="transaction" optype="categorical" dataType="string"/>
+  <DataField name="item" optype="categorical" dataType="string"/>
+ </DataDictionary>
+ <AssociationModel functionName="associationRules" numberOfTransactions="487" numberOfItems="24" minimumSupport="0.2" minimumConfidence="0.8" numberOfItemsets="11" numberOfRules="10">
+  <MiningSchema>
+   <MiningField name="transaction" usageType="group"/>
+   <MiningField name="item" usageType="active"/>
+  </MiningSchema>
+  <Item id="1" value="가구"/>
+  <Item id="2" value="가전"/>
+  <Item id="3" value="기타"/>
+  <Item id="4" value="니트단품"/>
+  <Item id="5" value="도자기크리스탈"/>
+  <Item id="6" value="디자이너부띠끄"/>
+  <Item id="7" value="문화완구"/>
+  <Item id="8" value="생활용품"/>
+  <Item id="9" value="섬유"/>
+  <Item id="10" value="수입명품"/>
+  <Item id="11" value="스포츠"/>
+  <Item id="12" value="엘레강스캐주얼"/>
+  <Item id="13" value="영캐주얼"/>
+  <Item id="14" value="유니캐주얼"/>
+  <Item id="15" value="유아동복"/>
+  <Item id="16" value="장신구"/>
+  <Item id="17" value="정장셔츠"/>
+  <Item id="18" value="조리욕실"/>
+  <Item id="19" value="침구수예"/>
+  <Item id="20" value="캐릭터캐주얼"/>
+  <Item id="21" value="타운모피"/>
+  <Item id="22" value="트래디셔널캐주얼"/>
+  <Item id="23" value="피혁"/>
+  <Item id="24" value="행사장"/>
+  <Itemset id="1" numberOfItems="2">
+   <ItemRef itemRef="18"/>
+   <ItemRef itemRef="23"/>
+  </Itemset>
+  <Itemset id="2" numberOfItems="2">
+   <ItemRef itemRef="13"/>
+   <ItemRef itemRef="22"/>
+  </Itemset>
+  <Itemset id="3" numberOfItems="2">
+   <ItemRef itemRef="14"/>
+   <ItemRef itemRef="22"/>
+  </Itemset>
+  <Itemset id="4" numberOfItems="2">
+   <ItemRef itemRef="4"/>
+   <ItemRef itemRef="22"/>
+  </Itemset>
+  <Itemset id="5" numberOfItems="3">
+   <ItemRef itemRef="14"/>
+   <ItemRef itemRef="22"/>
+   <ItemRef itemRef="23"/>
+  </Itemset>
+  <Itemset id="6" numberOfItems="3">
+   <ItemRef itemRef="4"/>
+   <ItemRef itemRef="13"/>
+   <ItemRef itemRef="14"/>
+  </Itemset>
+  <Itemset id="7" numberOfItems="3">
+   <ItemRef itemRef="9"/>
+   <ItemRef itemRef="13"/>
+   <ItemRef itemRef="14"/>
+  </Itemset>
+  <Itemset id="8" numberOfItems="3">
+   <ItemRef itemRef="9"/>
+   <ItemRef itemRef="13"/>
+   <ItemRef itemRef="23"/>
+  </Itemset>
+  <Itemset id="9" numberOfItems="3">
+   <ItemRef itemRef="4"/>
+   <ItemRef itemRef="14"/>
+   <ItemRef itemRef="23"/>
+  </Itemset>
+  <Itemset id="10" numberOfItems="3">
+   <ItemRef itemRef="9"/>
+   <ItemRef itemRef="14"/>
+   <ItemRef itemRef="23"/>
+  </Itemset>
+  <Itemset id="11" numberOfItems="1">
+   <ItemRef itemRef="11"/>
+  </Itemset>
+  <AssociationRule support="0.205338809034908" confidence="0.819672131147541" lift="1.42057056181086" antecedent="1" consequent="11"/>
+  <AssociationRule support="0.205338809034908" confidence="0.826446280991736" lift="1.43231081438781" antecedent="2" consequent="11"/>
+  <AssociationRule support="0.229979466119097" confidence="0.811594202898551" lift="1.40657073598432" antecedent="3" consequent="11"/>
+  <AssociationRule support="0.215605749486653" confidence="0.813953488372093" lift="1.41065960440288" antecedent="4" consequent="11"/>
+  <AssociationRule support="0.209445585215606" confidence="0.85" lift="1.47313167259786" antecedent="5" consequent="11"/>
+  <AssociationRule support="0.211498973305955" confidence="0.824" lift="1.42807117437722" antecedent="6" consequent="11"/>
+  <AssociationRule support="0.203285420944559" confidence="0.825" lift="1.42980427046263" antecedent="7" consequent="11"/>
+  <AssociationRule support="0.219712525667351" confidence="0.816793893129771" lift="1.41558229876939" antecedent="8" consequent="11"/>
+  <AssociationRule support="0.227926078028747" confidence="0.81021897810219" lift="1.40418733927319" antecedent="9" consequent="11"/>
+  <AssociationRule support="0.236139630390144" confidence="0.815602836879433" lift="1.41351808384443" antecedent="10" consequent="11"/>
+ </AssociationModel>
+</PMML>

@@ -1,5 +1,5 @@
 # 1119_Classification ####
-install.packages("ISLR")
+#install.packages("ISLR")
 library(ISLR)
 
 # 이 데이터에서의 Balance 는 카드 를 100마넌 썻고 50마넌 갚았다면 50만원이 Balance이다.
@@ -76,3 +76,50 @@ exp(s_model$coefficients[[6]])
 # Valume 이 1이 높아지면 15% 상승.
 exp(s_model$coefficients[[7]])
 
+
+
+# 1026 Deviance goodness of fit test ####
+# 두개 모델을 사용할 수도있지만 하나만 사용할 수도 있다, 
+
+summary(model1)
+# Null deviance : 파라미터 없이 intercept 만 있을때 자유도 
+# Residual deivance : 입력한 파라미터 전부와 intercept 를 포함 했을때 자유도.
+
+anova(model1, test = 'Chisq')
+# 각 변수가 설명해주는 설명력. 
+
+
+Price_reduc = c(5,10,15,20,30)
+N = rep(200,5)
+N_redeemed = c(30,55,70,100,137)
+
+Coupon <- data.frame(Price_reduc=Price_reduc,N=N,N_redeemed=N_redeemed)
+Coupon <- read.csv("coupon.csv")
+
+model4 <- glm(cbind(N_redeemed,N-N_redeemed)~Price_reduc,data=Coupon,family = binomial)
+summary(model4)
+# 5불에 대해 10불짜리가 사용될 odds ?
+# 1불 증가할때마다 exp(0.096834)배 올라간다. 
+exp(model4$coefficients[[2]])
+exp(model4$coefficients[[2]]*5)
+
+
+head(model1$fitted.values) # 파산할 확률.
+
+pred = data.frame(default=Default$default,fit = model1$fitted.values)
+head(pred)
+table(pred$default)
+
+# 우선 0.5에서 Cutoff
+
+xtabs(~ default + (fit>0.5), data=pred)
+# error 
+print(paste0("error:",(40+288) / 10000))
+print(paste0("sensitivity:",(105) / (228+105))) 
+print(paste0("Specificity:",(9627) / (9627+40)))
+
+
+library(ROCR)
+predob = prediction(pred$fit,pred$default)
+plot(performance(predob,"tpr","fpr")) # true positive rate # false positive rate
+plot(performance(predob,"err")) # 그래프를 보고 cutoff를 선정할 수 있다. 
