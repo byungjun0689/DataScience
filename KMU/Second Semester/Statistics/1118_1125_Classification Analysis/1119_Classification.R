@@ -1,11 +1,17 @@
 # 1119_Classification ####
-#install.packages("ISLR")
+install.packages("ISLR")
 library(ISLR)
 
 # 이 데이터에서의 Balance 는 카드 를 100마넌 썻고 50마넌 갚았다면 50만원이 Balance이다.
 
 # lm 우리가 쓰는 선형모형은 General Linear Regession 이다. ????????? 뭐징 이것도 general?
 # log(P) 를 사용하는 것은 로짓 링크를 사용하여 만든 함수 glm 을 사용 Generalized Linear Models
+
+
+# 일반화 선형 모형은 종속변수가 정규분포하지 않는 경우를 포함하는 선형모형의 확장이며 glm()함수를 사용
+# GLM(generalized linear model)은 선형 모델이 종속변수에 링크 함수를 통해서 대응하도록 하고, 
+# 각 측정 변수의 크기를 예측된 값의 함수에 대응되도록 함으로써 선형 회귀를 만들수 있다. 
+# 이것은 선형 회귀, 로지스틱 회귀, 그리고 푸아송 회귀를 포함하는 다양한 통계적 모델을 통합했다.
 
 boxplot(balance~default, data = Default)
 model = glm(default~balance,data=Default,family = binomial)
@@ -30,7 +36,7 @@ predict(model,data.frame(balance=1000),type="response") # P값을 계산해준�
 model1 = glm(default ~ balance + income + student, data=Default, family = binomial)
 summary(model1)
 str(Default)
-
+data(Default)
 exp(model1$coefficients[[4]]) 
 # 학생일때 0.52배 감소 즉 48% 감소 한다. 
 # 똑같은 카드 잔고일 경우 학생일 경우 조금 더 믿을 만하다.
@@ -114,7 +120,7 @@ table(pred$default)
 
 xtabs(~ default + (fit>0.5), data=pred)
 # error 
-print(paste0("error:",(40+288) / 10000))
+print(paste0("error:",(40+228) / 10000))
 print(paste0("sensitivity:",(105) / (228+105))) 
 print(paste0("Specificity:",(9627) / (9627+40)))
 

@@ -73,3 +73,8 @@ plot(rules, method = "graph", control = list(type="items"))
 data <- read.delim("shoppingmall.txt", stringsAsFactors=FALSE)
 st <- as.matrix(data[,-1])
 trans <- as(st, "transactions")
+
+
+
+library(extrafont)
+font_import() 
