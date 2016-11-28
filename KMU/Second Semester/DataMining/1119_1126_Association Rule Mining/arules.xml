@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <PMML version="4.1" xmlns="http://www.dmg.org/PMML-4_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_1 http://www.dmg.org/v4-1/pmml-4-1.xsd">
- <Header copyright="Copyright (c) 2016 MCR007" description="arules association rules model">
-  <Extension name="user" value="MCR007" extender="Rattle/PMML"/>
+ <Header copyright="Copyright (c) 2016 byung" description="arules association rules model">
+  <Extension name="user" value="byung" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2016-11-28 08:42:50</Timestamp>
+  <Timestamp>2016-11-28 20:31:44</Timestamp>
  </Header>
  <DataDictionary numberOfFields="2">
   <DataField name="transaction" optype="categorical" dataType="string"/>
