@@ -1,3 +1,5 @@
+install.packages("fields")
+
 library(kohonen)
 library(RColorBrewer) # to use brewer.pal
 library(fields) # to use designer.colors
