@@ -51,5 +51,6 @@ if __name__ == "__main__":
 	print(sys.argv[:])
 	if sys.argv[1] == "help":
 		print("인자 1: 시작 폴더  인자 2: 찾고싶은 문자열 현재는 frm파일만 검색가능.")
+		exit()
 	print("검색시장 15초 정도의 시간소요")
 	search(sys.argv[1],sys.argv[2])
