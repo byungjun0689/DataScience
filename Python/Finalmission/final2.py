@@ -78,7 +78,7 @@ def gbt(x):
     y_gb = gb.predict(X_test)
     return gb,getResult(y_test,y_gb)
 
-for i in range(50,100,5):
+for i in range(500,2000,100):
     print(i)
     result.append(gbt(i))
 

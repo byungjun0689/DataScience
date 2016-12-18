@@ -55,7 +55,7 @@ print('f1:', metrics.f1_score(y_test, y_rf, pos_label='over50k'))
 
 # GradientBoostingClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-gb = GradientBoostingClassifier(n_estimators=15)
+gb = GradientBoostingClassifier(n_estimators=1000)
 gb.fit(X_train,y_train)
 y_gb = gb.predict(X_test)
 print("GradientBoostingClassifier")
