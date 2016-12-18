@@ -21,7 +21,6 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
 
 from sklearn.linear_model import LogisticRegression
-
 from sklearn import metrics
 
 
@@ -41,6 +40,7 @@ def getResult(y_test,y_pred):
     #print('f1:', metrics.f1_score(y_test, y_pred, pos_label='over50k'))
     return metrics.f1_score(y_test, y_pred, pos_label='over50k')
 
+print("Logistics")
 def logi(x,y):
     LR = LogisticRegression(penalty=x,C=y)
     LR.fit(X_train,y_train)
@@ -50,28 +50,28 @@ def logi(x,y):
 result = []
 
 penal = ['l1','l2']
-for i in range(10,20,5):
-    for j in penal:
-        print(i)
-        result.append(logi(j,i))
+#for i in range(10,20,5):
+#    for j in penal:
+#        result.append(logi(j,i))
 
 # # Decision Tree
 # ## Random Forest (랜덤포레스트)
 
 from sklearn.ensemble import RandomForestClassifier
 
+print("RandomForest")
 def randomLoop(x):
     rf = RandomForestClassifier(n_estimators=100)
     rf.fit(X_train,y_train)
     y_rf = rf.predict(X_test)
     return rf,getResult(y_test,y_rf)
 
-for i in range(100,1000,100):
-    result.append(randomLoop(i))
+#for i in range(100,1000,100):
+    #result.append(randomLoop(i))
 
 # ## Gradient Boosting Tree
+print("Gradient Boosting Tree")
 from sklearn.ensemble import GradientBoostingClassifier
-
 def gbt(x):
     gb = GradientBoostingClassifier(n_estimators=x)
     gb.fit(X_train,y_train)
@@ -79,25 +79,23 @@ def gbt(x):
     return gb,getResult(y_test,y_gb)
 
 for i in range(500,2000,100):
-    print(i)
     result.append(gbt(i))
 
 # ## SVM
-
+print("SVM")
 from sklearn.svm import SVC
-
-
-# In[35]:
-
 def run_model(kernel,penalty,cache):
     model = SVC(kernel=kernel, C=penalty,cache_size=cache)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-
     return model,getResult(y_test,y_pred)
 
-for i in range(1,10):
-    result.append(run_model('rbf',i,1000))
+#for i in range(1,10):
+    #result.append(run_model('rbf',i,1000))
 
+print("Result")
 result = pd.DataFrame(result)
 print(result.sort_values([1],ascending=False))
+
+print(result.ix[0,0])
+
