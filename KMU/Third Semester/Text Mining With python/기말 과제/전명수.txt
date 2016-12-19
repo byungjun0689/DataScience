@@ -1,0 +1,94 @@
+import requests
+response = requests.get('http://news.naver.com/main/home.nhn')
+response
+response.text
+response.url
+response = requests.get('http://news.naver.com/main/search/search.nhn?query=%C7%E0%BA%B9&ie=MS949&x=0&y=0')
+response.encoding = 'cp949'
+import lxml.html
+root = lxml.html.fromstring(response.text)
+from __future__ import print_function
+for node in root.xpath('.//a[@class="tit"]'):
+    print(node.text_content(), node.attrib['href'])
+response = requests.get('http://www.yonhapnews.co.kr/bulletin/2016/06/14/0200000000AKR20160614173900017.HTML?input=1195m')
+if response.encoding == 'ISO-8859-1':
+    response.encoding = 'cp949'
+sponse.encoding = 'utf8'   
+root = lxml.html.fromstring(response.text)
+root = lxml.html.fromstring(response.content.decode('utf8'))
+from urllib.parse import urljoin
+urljoin
+for i in range(1,10):
+    print(i)
+board_url = 'http://www.yonhapnews.co.kr/bulletin/2016/06/14/0200000000AKR20160614173900017.HTML?input=1195m'
+with open('clien.csv', 'w', encoding='utf8') as f:
+    w = csv.writer(f)
+    for page in range(1, 3):
+        page_url = board_url + '&page={}'.format(page)
+        for 링크 in extract(page_url, subject_path):
+            제목 = 링크.text_content()
+            url = 링크.attrib['href']
+            절대주소 = urljoin(board_url, url)
+            본문 = extract(절대주소, './/div[@id="resContents"]')[0]
+            w.writerow([제목, 절대주소, 본문.text_content()])
+본문.text_content()
+import csv
+with open('clien.csv', 'w') as f:
+    w = csv.writer(f)
+    w.writerow([1,2,3])
+f.close()
+import requests
+import lxml.html
+import csv
+url = 'http://www.yonhapnews.co.kr/bulletin/2016/06/14/0200000000AKR20160614173900017.HTML?input=1195m'
+with open('news.csv', 'w', encoding='utf8') as f:
+    writer = csv.writer(f)
+    for i in range(1, 21):
+        res = requests.get(url.format(i))  
+        element = lxml.html.fromstring(res.text)
+        for news_link in element.xpath('.//a[@class="renewal2015 msie1 body-up"]'):
+            try:
+                res = requests.get(news_link.attrib['href'])   
+                news = lxml.html.fromstring(res.text)
+                body = news.xpath('.//div[@id="wrap"]')[0]
+                writer.writerow([body.text_content()])
+            except:
+                continue
+news = []
+with open('news.csv', encoding='utf8', newline='\r\n') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        news.append(row[0])
+words = cv.get_feature_names()
+words
+import numpy
+count_mat = tdf.sum(axis=0)
+count = numpy.squeeze(numpy.asarray(count_mat))
+count
+word_count = list(zip(words, count))
+word_count
+import operator
+word_corr = numpy.corrcoef(tdf.todense(), rowvar=0)
+word_corr
+edges = []
+for i in range(len(words)):
+    for j in range(i + 1, len(words)):
+        edges.append((words[i], words[j], word_corr[i, j]))
+import networkx
+G = networkx.Graph()
+
+edge_set = set()
+for word1, word2, weight in edges:
+    G.add_edge(word1, word2, weight=weight)
+    edge_set.add((word1, word2))
+position = networkx.spring_layout(G, iterations=30)
+pyplot.figure(figsize=(12, 9))
+networkx.draw_networkx_nodes(G, position, node_size=0)
+networkx.draw_networkx_edges(G, position, edgelist=edge_list, width=weight_list, edge_color='lightgray')
+networkx.draw_networkx_labels(G, position, font_size=15, font_family='Malgun Gothic')
+pylt.axis('off')
+pyplot.show()
+from operator import itemgetter
+doc_words = [(words[i], n) for i, n in doc]
+sorted(doc_words, key=itemgetter(1), reverse=True)[:10]
+lda.save('2014524.lda')

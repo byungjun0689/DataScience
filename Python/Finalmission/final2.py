@@ -61,7 +61,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 print("RandomForest")
 def randomLoop(x):
-    rf = RandomForestClassifier(n_estimators=100)
+    rf = RandomForestClassifier(n_estimators=x)
     rf.fit(X_train,y_train)
     y_rf = rf.predict(X_test)
     return rf,getResult(y_test,y_rf)
@@ -90,12 +90,12 @@ def run_model(kernel,penalty,cache):
     y_pred = model.predict(X_test)
     return model,getResult(y_test,y_pred)
 
-for i in range(1,30):
-    result.append(run_model('rbf',i,3000 ))
+#for i in range(1,30):
+    #result.append(run_model('rbf',i,3000 ))
 
 print("Result")
 result = pd.DataFrame(result)
 print(result.sort_values([1],ascending=False))
-
+result = result.sort_values([1],ascending=False)
 print(result.ix[0,0])
 
