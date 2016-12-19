@@ -1,25 +1,84 @@
-install.packages("recommenderlab")
-library("recommenderlab")
-library("reshape2")
+if (!require(data.table)) {
+  install.packages("data.table")
+  library(data.table)
+}
 
-movie <- read.csv("train_recomon.csv",stringsAsFactors = F)
-head(movie)
+if (!require(recommenderlab)) {
+  install.packages("recommenderlab")
+  library(recommenderlab)
+  packageVersion("recommenderlab")
+}
 
-movie.matrix<- as(movie,"realRatingMatrix")
+train.dt <- fread("train_recomon.csv", na.strings = "NA", verbose = TRUE,encoding="UTF-8",strip.white = T,showProgress = T)
+head(train.dt)
+str(train.dt)
+nrow(train.dt)
 
-nb_ratings_per_user <-
-  dcast(movie, user ~ ., fun.aggregate=length, value.var='rating')
+memory.size()
+memory.limit()
+memory.size(T)
 
-nb_ratings_per_movie <-
-  dcast(movie, movie ~ ., fun.aggregate=length, value.var='rating')
+training.dt <- train.dt[,c("user","movie","rating"), with=F]
+training.rrm <- as(training.dt,"realRatingMatrix")
+
+head(as(training.rrm, "data.frame"))
+nrow(as(training.rrm, "data.frame"))
 
 
-train_proportion <- .5
-nb_of_given_ratings_per_test_user <- 10
+recommenderRegistry$get_entries(dataType="realRatingMatrix")
 
-evaluation_scheme <- evaluationScheme(
-  movie.matrix, 
-  method='split',
-  train=train_proportion,
-  k=1,
-  given=nb_of_given_ratings_per_test_user)
+recommend_model <-
+  Recommender(
+    training.rrm,
+    # method = "ALS" #0.88460
+    method = "POPULAR" #0.93577
+    # method = "SVD" #0.99534
+    # method = "IBCF" #1.58986
+    # method = "UBCF" #1.00384
+  )
+
+summary(recommend_model)
+print(recommend_model)
+names(getModel(recommend_model))
+str(recommend_model)
+
+predicted <- predict(recommend_model, training.rrm, type = "ratings")
+str(predicted)
+
+predicted.dt <- as.data.table(as(predicted , "data.frame"))
+head(predicted.dt)
+
+test.dt <-
+  fread(
+    "test_recomon.csv",
+    na.strings = "NA",
+    colClasses = c(ID = "character", user = "character", movie = "character"),
+    verbose = TRUE,
+    encoding = 'UTF-8',
+    strip.white = TRUE,
+    showProgress = TRUE
+  )
+
+test_predicted.dt <- merge(
+  x = test.dt,
+  y = predicted.dt,
+  by.x = c("user", "movie"),
+  by.y = c("user", "item"),
+  all.x = TRUE
+)
+head(test_predicted.dt)
+
+submission_recomon <- test_predicted.dt[, c("ID", "rating"), with = FALSE]
+
+setDT(submission_recomon)[rating <= 0, rating := 0.01]
+setDT(submission_recomon)[is.na(rating), rating := 0.01]
+
+nrow(submission_recomon)
+
+write.table(
+  submission_recomon,
+  "result/sample_submission_recomon.csv",
+  sep = ",",
+  row.names = FALSE,
+  col.names = TRUE
+)

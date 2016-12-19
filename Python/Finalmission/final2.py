@@ -66,8 +66,8 @@ def randomLoop(x):
     y_rf = rf.predict(X_test)
     return rf,getResult(y_test,y_rf)
 
-#for i in range(100,1000,100):
-    #result.append(randomLoop(i))
+for i in range(1000,4000,100):
+    result.append(randomLoop(i))
 
 # ## Gradient Boosting Tree
 print("Gradient Boosting Tree")
@@ -78,7 +78,7 @@ def gbt(x):
     y_gb = gb.predict(X_test)
     return gb,getResult(y_test,y_gb)
 
-for i in range(500,2000,100):
+for i in range(1500,4000,100):
     result.append(gbt(i))
 
 # ## SVM
@@ -90,8 +90,8 @@ def run_model(kernel,penalty,cache):
     y_pred = model.predict(X_test)
     return model,getResult(y_test,y_pred)
 
-#for i in range(1,10):
-    #result.append(run_model('rbf',i,1000))
+for i in range(1,30):
+    result.append(run_model('rbf',i,3000 ))
 
 print("Result")
 result = pd.DataFrame(result)
