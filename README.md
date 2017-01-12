@@ -12,7 +12,8 @@
   - Python Programming (Basic & Machine Learning) 
   - Hadoop System (Ecosystem & Hive, HDFS)
  - Ⅲ. 2017 03. Spring Semester
-  - Visualization. (Tableau)
-  - Data Distributed computing : Spark
-  - Machine Learning & Deep Learning 
+  - Visualization. (Tableau + GIS Data)
+  - CRM
+  - BigData Analysis and strategy 
   - Unstructured Data Analysis with Python 
+  - Data Science with Real Business 
