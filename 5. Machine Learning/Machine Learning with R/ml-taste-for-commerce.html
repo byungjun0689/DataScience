@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기계학습 (고객용) 맛보기</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="신용카드-기계학습-목표"><span class="glyphicon glyphicon-check"></span>신용카드 기계학습 목표</h3>
+</div>
+<div class="panel-body">
+<p>은행입장에서 <strong>수익을 극대화</strong> 하고, <strong>신용위험을 최소화</strong> 한다.</p>
+</div>
+</section>
+<h3 id="신용평가-모형-ml-credit-scoring-sharma">1. 신용평가 모형 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>대한민국에서 이영애 누님께서 IMF를 극복하고 2000년대 초반에 신용카드로 행복한 삶을 사는 모습을 러닝머신을 타면서 보여주면서 신용카드의 전성기가 도래했지만, 소수의 사람을 빼고 신용카드가 결국 미래 소비를 현재로 앞당겨서 돈을 쓰는 것에 불과하다는 것은 그로부터 몇년 뒤에 명확해졌고, 이를 신용대란이라고 불렀다. 이후 기업금융과 마찬가지로 소매금융도 위험관리가 중요해졌으며, 소매금융에 있어 위험관리 기법으로 신용평점에 따라 엄격하게 관리하는 것이 필요해졌고, 이에 신용평가모형(Credit Scoring Model)과 더불어 이를 자동화한 금융시스템이 각광을 받기 시작했다.</p>
+<p>파이썬은 과학컴퓨팅에 많은 경험과 라이브러리가 구축되어 있는 반면, R은 상대적으로 통계학기반이라 통계학이 많이 사용되는 금융위험관리 분야에 구축된 블로그, 논문, 기고문, 라이브러리가 많다. 현실과 밀접한 신용할당문제를 기계학습에서 대규모 적용할 경우 풀어가는 방식을 R로 살펴보고, 추후 파이썬으로 확장을 고려해 본다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></p>
+<h4 id="신용평가-모형-전처리">1.1. 신용평가 모형 전처리</h4>
+<p>범주형 데이터를 요인변수로 처리해야 하거나, 숫자형 <code>as.numeric</code> 혹은 <code>as.double</code>로 처리한다. 특히, 연속형 변수를 범주형으로 처리하면 성능향상이 된다는 연구결과도 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 변수 --&gt; 요인(factor)</span>
+data$property &lt;-<span class="kw">as.factor</span>(data$<span class="st"> </span>property)
+<span class="co"># 변수 --&gt; 숫자</span>
+data$age &lt;-<span class="kw">as.numeric</span>(data$age)
+<span class="co"># 변수 --&gt; 숫자(double)</span>
+data$amount&lt;-<span class="kw">as.double</span>(data$amount)
+
+<span class="co"># 연속형 변수 --&gt; 범주형 (구간 쪼갬)</span>
+data$amount&lt;-<span class="kw">as.factor</span>(<span class="kw">ifelse</span>(data$amount&lt;=<span class="dv">2500</span>,<span class="st">&#39;0-</span>
+<span class="st">2500&#39;</span>,<span class="kw">ifelse</span>(data$amount&lt;=<span class="dv">5000</span>,<span class="st">&#39;2600-5000&#39;</span>,<span class="st">&#39;5000+&#39;</span>)))</code></pre></div>
+<h4 id="컷오프-결정">1.2. 컷오프 결정</h4>
+<p>컷오프 결정, 신용카드를 발급할 것인지 말것인지 결정하는데 산업계에서 KS(Kolmogorov-Smirnov) 통계량이 많이 사용되지만, Hand가 KS를 사용하는 것은 잘못되었다는 것을 보였고, 컷오프 결정에 유일한 통계량은 <strong>신용카드 발급이 결정된 상태에서 조건부 부실율</strong> 이 되어야 한다는 것을 보였다. <a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a></p>
+<h4 id="신용평점에-영향을-주는-변수-식별">1.3 신용평점에 영향을 주는 변수 식별</h4>
+<p>신용카드 발급이 되지 않는 경우 어떤 사유로 카드발급이 되지 않았는지 이유를 제시하여야 한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 신용점수함수에 가장 영향을 주는 변수 3개 추출
+g &lt;-<span class="st"> </span><span class="kw">predict</span>(m, <span class="dt">type=</span><span class="st">&#39;terms&#39;</span>, test)
+
+ftopk&lt;-<span class="st"> </span>function(x,<span class="dt">top=</span><span class="dv">3</span>){
+  res &lt;-<span class="st"> </span><span class="kw">names</span>(x)[<span class="kw">order</span>(x, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)][<span class="dv">1</span>:top]
+  <span class="kw">paste</span>(res, <span class="dt">collapse=</span><span class="st">&quot;;&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+}
+<span class="co"># 상위 변수 3개를 추출</span>
+topk &lt;-<span class="st"> </span><span class="kw">apply</span>(g, <span class="dv">1</span>, ftopk, <span class="dt">top=</span><span class="dv">3</span>)
+<span class="co"># 테스트 테스트 데이터에 사유가 되는 변수를 부착</span>
+test &lt;-<span class="st"> </span><span class="kw">cbind</span>(test, topk)</code></pre></div>
+<h3 id="비용함수행렬수익함수행렬">2. 비용함수(행렬)/수익함수(행렬)</h3>
+<p>저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 이를 비용함수 혹은 비용행렬이라고 부른다. 아래 <strong>비용함수(Cost Function)</strong> 를 마케팅 캠페인등에 사용하면 <strong>수익함수(Profit Function)</strong> 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">1</th>
+<th align="left">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">5</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<p>기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">정상(예측)</th>
+<th align="center">신용불량(예측)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">정상(실제)</td>
+<td align="center">0.4</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="left">신용불량(실제)</td>
+<td align="center">-1</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<h4 id="독일신용-데이터를-통한-사례분석-profit-analysis-sas">2.1. 독일신용 데이터를 통한 사례분석 <a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a></h4>
+<p>독일신용 데이터에는 1,000명의 고객이 있다. 700명이 정상이고, 300명이 신용불량자로 등록되어 있다. 이럴 경우 신용불량으로 인한 대손이 발생하지 않을 경우 35% 수익이 예상되고, 신용불량으로 확정될 경우 100% 손실이 불가피하다. 신용불량이 전혀 없다고 가정하고 대출을 진행할 경우 모의시험을 수행하면 다음과 같다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">정상(예측)</th>
+<th align="center">신용불량(예측)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">정상(실제)</td>
+<td align="center">0.35</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="left">신용불량(실제)</td>
+<td align="center">-1</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>1,000명에게 모두 1원씩 한단위 제공한다면, <span class="math inline">\(\frac{700 \times 0.35 - 300 \times 1}{1000} = \frac{-55}{1000} = -0.055\)</span> 만큼 손실이 불가피하다.</p>
+<p>좀더 현실적으로 고객당 천만원을 신용카드를 통해 대출을 준다면, <span class="math inline">\(-0.055 \times 10,000,000 * 1000 = -5.5\)</span> 억원 손실이 난다.</p>
+<h4 id="신용평가-알고리듬을-구축한-경우">2.2. 신용평가 알고리듬을 구축한 경우</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">정상(예측)</th>
+<th align="center">신용불량(예측)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">정상(실제)</td>
+<td align="center">608</td>
+<td align="center">46</td>
+</tr>
+<tr class="even">
+<td align="left">신용불량(실제)</td>
+<td align="center">192</td>
+<td align="center">154</td>
+</tr>
+</tbody>
+</table>
+<p>신용평가 알고리듬을 개발하여 다음과 같이 구축했다고 가정하면, 다음과 같은 결과가 예상된다. 신용불량이라고 예측한 경우 신용카드발급을 통한 대출을 주지 않아 정상적인 고객이 신용카드를 활용하지 못해 손실(+35% 이자수익)이 발생하고, 정상이라고 예측했지만, 신용카드를 발급해서 생기는 손실(-100%)도 있다. 하지만, 정상이라고 예측해서 정상으로 사용되는 경우 생기는 수익이 608명으로부터 나오고, 신용불량으로 예측해서 실제 신용불량을 맞춤으로써 생기는 이익도 함께 존재한다.</p>
+<p>이를 정리하여 합치게 되면 다음과 같은 수익이 예상된다.</p>
+<p><span class="math display">\[ 608 \times 10,000,000 \times 0.35 - 192 \times 10,000 = 2.08억\]</span></p>
+<p>신용평가 모형을 갖는 것과 갖지않는 전체적인 효과는 <span class="math inline">\(2.08억 - (-5.5억) = 7.58억\)</span> 으로 추산할 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================
+## 04. 비용함수/행렬
+##================================================================
+matrix_dimensions &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">c</span>(<span class="st">&quot;good&quot;</span>, <span class="st">&quot;bad&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;good&quot;</span>, <span class="st">&quot;bad&quot;</span>))
+<span class="kw">names</span>(matrix_dimensions) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;acutual&quot;</span>, <span class="st">&quot;predicted&quot;</span>)
+
+error_cost &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="fl">0.35</span>, -<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="dt">nrow =</span> <span class="dv">2</span>,
+                     <span class="dt">dimnames =</span> matrix_dimensions)
+<span class="co">#       predicted</span>
+<span class="co">#acutual  good bad</span>
+<span class="co">#   good  0.35   0</span>
+<span class="co">#   bad  -1.00   0</span>
+
+##================================================================
+## 05. 모형 개발
+##================================================================
+<span class="kw">library</span>(c50)
+c50.cost.m &lt;-<span class="st"> </span><span class="kw">C5.0</span>(train[,-<span class="dv">1</span>], train$Creditability, <span class="dt">costs =</span> error_cost)
+
+##================================================================
+## 05. 모형 성능평가
+##================================================================
+credit_cost_pred &lt;-<span class="st"> </span><span class="kw">predict</span>(c50.cost.m, test)
+<span class="kw">CrossTable</span>(test$Creditability, credit_cost_pred,
+             <span class="dt">prop.chisq =</span> <span class="ot">FALSE</span>, <span class="dt">prop.c =</span> <span class="ot">FALSE</span>, <span class="dt">prop.r =</span> <span class="ot">FALSE</span>,
+             <span class="dt">dnn =</span> <span class="kw">c</span>(<span class="st">&#39;actual default&#39;</span>, <span class="st">&#39;predicted default&#39;</span>))</code></pre></div>
+<h3 id="신용평가-모형-배포">3. 신용평가 모형 배포</h3>
+<p>최적의 성능을 자랑하는 기계학습 신용평가 알고리듬 구축이 완료되었으면, 다음 단계로 실운영 시스템(production)으로 이관하는 것이다. 통상 규칙엔진(Rule Engine)을 사용하거나, SQL 문장으로 작성하여 실운영 시스템에 내장되어 활용된다. <a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> 학습된 나무모형을 SQL 혹은 규칙엔진으로 전환하면 다음과 같은 결과를 실운영 시스템에서 사용하게 된다.</p>
+<pre class="output"><code>Rule number: 16 [yval=bad cover=220 N=121 Y=99 (37%) prob=0.04]
+     checking&lt; 2.5
+     afford&lt; 54
+     history&lt; 3.5
+     coapp&lt; 2.5
+
+Rule number: 34 [yval=bad cover=7 N=3 Y=4 (1%) prob=0.06]
+     checking&lt; 2.5
+     afford&lt; 54
+     history&lt; 3.5
+     coapp&gt;=2.5
+     age&lt; 27</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">list.rules.rpart</span>(rpart.fit)
+
+list.rules.rpart &lt;-<span class="st"> </span>function(model)
+{
+  if (!<span class="kw">inherits</span>(model, <span class="st">&quot;rpart&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Not a legitimate rpart tree&quot;</span>)
+  <span class="co">#</span>
+  <span class="co"># Get some information.</span>
+  <span class="co">#</span>
+  frm     &lt;-<span class="st"> </span>model$frame
+  names   &lt;-<span class="st"> </span><span class="kw">row.names</span>(frm)
+  ylevels &lt;-<span class="st"> </span><span class="kw">attr</span>(model, <span class="st">&quot;ylevels&quot;</span>)
+  ds.size &lt;-<span class="st"> </span>model$frame[<span class="dv">1</span>,]$n
+  <span class="co">#</span>
+  <span class="co"># Print each leaf node as a rule.</span>
+  <span class="co">#</span>
+  for (i in <span class="dv">1</span>:<span class="kw">nrow</span>(frm))
+  {
+    if (frm[i,<span class="dv">1</span>] ==<span class="st"> &quot;&lt;leaf&gt;&quot;</span>)
+    {
+      <span class="co"># The following [,5] is hardwired - needs work!</span>
+      <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot; Rule number: %s &quot;</span>, names[i]))
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;[yval=%s cover=%d (%.0f%%) prob=%0.2f]</span><span class="ch">\n</span><span class="st">&quot;</span>,
+                  ylevels[frm[i,]$yval], frm[i,]$n,
+                  <span class="kw">round</span>(<span class="dv">100</span>*frm[i,]$n/ds.size), frm[i,]$yval2[,<span class="dv">5</span>]))
+      pth &lt;-<span class="st"> </span><span class="kw">path.rpart</span>(model, <span class="dt">nodes=</span><span class="kw">as.numeric</span>(names[i]), <span class="dt">print.it=</span><span class="ot">FALSE</span>)
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;   %s</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="kw">unlist</span>(pth)[-<span class="dv">1</span>]), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+    }
+  }
+}</code></pre></div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/doc/contrib/Sharma-CreditScoring.pdf">Guide to Credit Scoring in R</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.r-bloggers.com/credit-scoring-in-r-101/">Credit Scoring in R 101</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://www.r-bloggers.com/r-credit-scoring-woe-information-value-in-woe-package/">R Credit Scoring – WoE &amp; Information Value in woe Package</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://www.r-bloggers.com/r-package-smbinning-optimal-binning-for-scoring-modeling/">R Package ‘smbinning’: Optimal Binning for Scoring Modeling</a><a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p>Hand, D. J. (2005). Good practice in retail credit score-card assessment. Journal of the Operational Research Society, 56, 1109–1117.<a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p><a href="http://www.sas.com/technologies/analytics/datamining/miner/trial/german-credit-data.pdf">Profit Analysis of the German Credit Data Using SAS® Enterprise MinerTM 5.3</a><a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p><a href="http://www.togaware.com/datamining/survivor/Convert_Tree.html">DATA MINING Desktop Survival Guide by Graham Williams, Convert Tree to Rules</a><a href="#fnref7">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

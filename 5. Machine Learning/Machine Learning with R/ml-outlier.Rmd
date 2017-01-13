@@ -1,0 +1,148 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 이상점(Outlier) 검출
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * 
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+library(ggplot2)
+library(rapportools)
+library(outliers)
+library(nycflights13)
+library(dplyr)
+library(readr)
+```
+
+
+## 1. 이상점 탐지 방법론
+
+- 모형기반 (Model-based) 
+    - 통계검증 (Statistical Tests)
+    - 깊이 기반 접근법(Depth-based Approaches)
+    - 편차 기반 접근법(Deviation-based Approaches)
+- 근접기반 (Proximity-based)
+    - 거리 기반(Distance-based Approaches)
+    - 밀도 기반(Density-based Approaches)
+- 고차원 접근법 (High dimensional Approaches)
+
+
+## 2. 이상점 추출 및 처리 연습문제 [^r-exercise-outlier] [^outlier-detection-techniques]
+
+[^r-exercise-outlier]: [Descriptive Analytics-Part 3 : Outlier treatment](http://r-exercises.com/2016/11/10/descriptive-analytics-part-3-outlier-treatment/)
+[^outlier-detection-techniques]: [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf)
+
+``` {r, setup}
+# 1. 환경설정-------------------------------------------
+#install.packages('rapportools')
+#library(rapportools)
+#install.packages('outliers')
+#library(outliers)
+
+# 2. 데이터 가져오기-------------------------------------------
+#install.packages("nycflights13")
+#library(nycflights13)
+flights <- read_csv("~/Dropbox/02_data_family/01-outlier/data/flights_1_pcnt.csv")
+```
+
+1. 연습문제 : 분석할 데이터(`flights`)에 대한 자료구조와 요약통계량을 확인한다.
+
+``` {r, ex-01}
+glimpse(flights)
+summary(flights)
+```
+
+2. 연습문제 : 범주형 변수의 경우 이상점은 10% 보다 빈도가 적은 경우 해당된다. 
+`flights$UniqueCarrier`, `flights$CancellationCode` 변수에 대한 막대그래프를 도식화한다.
+
+``` {r, ex-02}
+# UniqueCarrier
+carrier_tbl <- flights %>% count(UniqueCarrier)
+ggplot(carrier_tbl, aes(x=UniqueCarrier, y=n)) + 
+  geom_bar(stat="identity")
+
+# CancellationCode
+cancel_tbl <- flights %>% count(CancellationCode)
+ggplot(cancel_tbl, aes(x=CancellationCode, y=n)) + 
+  geom_bar(stat="identity")
+```
+
+3. 연습문제 : 2번 연습문제에서 맞닥드린 이상점을 제거하라. `subset` 혹은 `filter` 함수를 사용한다.
+
+``` {r, ex-03}
+flights <- flights %>% 
+  dplyr::filter(UniqueCarrier != 'AQ')
+
+flights <- flights %>% 
+  dplyr::filter(CancellationCode != 'D')
+```
+
+4. 연습문제 : 숫자형 변수의 경우 이상점을 탐지하는데 권장되는 방식은 `boxplot`을 활용하는 것이다.
+`flights$ActualElapsedTime` 변수에 대해서 상자그림을 도식화하시오.
+
+``` {r, ex-04}
+ggplot(flights, aes(x=1, y=ActualElapsedTime)) +
+  geom_boxplot() + coord_flip()
+```
+
+5. 연습문제 : `boxplot()` 함수를 사용한 경우 `boxplot.stats`을 사용해서 `flights$ActualElapsedTime` 변수 이상점을 제거한다.
+
+``` {r, ex-05}
+flights <- flights %>% 
+  dplyr::filter(!(ActualElapsedTime %in% boxplot.stats(flights$ActualElapsedTime)$out))
+
+ggplot(flights, aes(x=1, y=ActualElapsedTime)) +
+  geom_boxplot() + coord_flip()
+```
+
+6. 연습문제 : `subset` 혹은 `filter` 함수를 사용해서 `TaxiIn` 변수가 0보다 크고 120보다 적은 범위를 벗어난 이상점을 제거하시오.
+
+``` {r, ex-06}
+flights_exp <- flights %>% 
+  dplyr::filter(TaxiIn > 0 & TaxiIn < 120)
+```
+
+7. 연습문제 : `subset` 혹은 `filter` 함수를 사용해서 `TaxiOut` 변수가 0보다 크고 50보다 적은 범위를 벗어난 이상점을 제거하시오.
+
+``` {r, ex-07}
+flights <- flights %>% 
+  dplyr::filter(TaxiOut > 0 & TaxiIn < 50)
+```
+
+8. 연습문제 : `flights_exp$ArrDelay` 변수에 `ifelse` 함수를 사용해서 이상점으로 판정되면 `NA` 값을 대입하시오.
+
+``` {r, ex-08}
+summary(flights$ArrDelay)
+flights <- flights %>% mutate(ArrDelay = ifelse(ArrDelay == outlier(ArrDelay), NA, ArrDelay))
+summary(flights$ArrDelay)
+```
+
+9. 연습문제 : `flights_exp$Distance` 변수에서 이상점을 제거하는데 `Lund Test` 통계적 방법을 `rp.outlier` 함수를 사용해서 실행하시오.
+이번에는 `rapportools` 팩키지를 사용한다.
+
+``` {r, ex-09}
+dim(flights)
+flights <- flights %>% 
+  dplyr::filter(!(Distance %in% rp.outlier(Distance)))
+dim(flights)
+```
+
+10. 연습문제 : `flights$CRSElapsedTime` 변수에 대해 2% 극단치를 찾아내는데 카이제곱 방법, `scores`를 사용하시오.
+
+``` {r, ex-10}
+outliers <- outliers::scores(flights$CRSElapsedTime, type="chisq", prob=0.98)
+table(outliers)
+```
+
+
+

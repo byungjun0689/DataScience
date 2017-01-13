@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: </title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <h1 class="title"></h1>
+          <h1 id="데이터-전처리-및-정제의-중요성">데이터 전처리 및 정제의 중요성</h1>
+<p>기계학습 알고리즘이 학습을 얼마나 잘 하느냐는 전적으로 <strong>데이터의 품질</strong> 과 <strong>데이터에 담긴 정보량</strong> 에 달려있다. 따라서, 가능하면 정보를 잃지 않으면서 기계학습 알고리즘이 학습할 환경을 구비하는 것이 핵심이다.</p>
+<ul>
+<li>데이터에서 결측값을 제거하고, 결측값을 <strong>대치(impute)</strong> 한다.</li>
+<li>범주형 데이터를 기계학습 알고리즘이 소화할 수 있는 형태로 변형한다.</li>
+</ul>
+<h2 id="결측값">1. 결측값</h2>
+<p>결측값(missing value)은 보통 빈칸으로 내버려두거나, <code>NaN</code>(Not a Number) 혹은 <code>NA</code> (Not Applicable, Not Available)로 표기하여 자리를 차지해 둔다. 결측값을 자동으로 알아서 학습하는 기계학습 알고리즘은 아직 존재하지 않기 때문에 통상 결측값을 제거하거나, EM 알고리즘 등을 통해 대치하는 기법을 많이 사용한다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> sys
+<span class="bu">reload</span>(sys)
+sys.setdefaultencoding(<span class="st">&quot;utf-8&quot;</span>)</code></pre></div>
+<p>한글을 <code>pandas</code>에서 처리하는데… <code>sys.setdefaultencoding(&quot;utf-8&quot;)</code> 설정을 사전에 하고 들어간다. <code>csv_dat</code> 변수에 결측값이 들어간 데이터를 생성하고, 판다스에 넣어 데이터프레임을 생성하고 작업을 진행한다. 결측값은 <code>NaN</code>으로 파이썬에서 표시된다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> pandas <span class="im">as</span> pd
+<span class="im">from</span> io <span class="im">import</span> StringIO
+csv_dat <span class="op">=</span> <span class="st">&#39;&#39;&#39;가열,나열,다열,라열,마열</span>
+<span class="st">1.0,2.0,3.0,4.0,3.0</span>
+<span class="st">5.0,6.0,,8.0, 4.0</span>
+<span class="st">0.0,11.0,12.0,,7.0</span>
+<span class="st">1.0,7.5,3.0,7.0,3.0&#39;&#39;&#39;</span>
+csv_dat <span class="op">=</span> <span class="bu">unicode</span>(csv_dat) <span class="co"># 파이썬 2.7 계열인 경우 필요하다.</span>
+df <span class="op">=</span> pd.read_csv(StringIO(csv_dat))
+df</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;가열&lt;/th&gt;
+  &lt;th&gt;나열&lt;/th&gt;
+  &lt;th&gt;다열&lt;/th&gt;
+  &lt;th&gt;라열&lt;/th&gt;
+  &lt;th&gt;마열&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;2.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+  &lt;td&gt;4.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;5.0&lt;/td&gt;
+  &lt;td&gt;6.0&lt;/td&gt;
+  &lt;td&gt;NaN&lt;/td&gt;
+  &lt;td&gt;8.0&lt;/td&gt;
+  &lt;td&gt;4.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;11.0&lt;/td&gt;
+  &lt;td&gt;12.0&lt;/td&gt;
+  &lt;td&gt;NaN&lt;/td&gt;
+  &lt;td&gt;7.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;3&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;7.5&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+  &lt;td&gt;7.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<h3 id="결측값-제거">1.1. 결측값 제거</h3>
+<p>데이터프레임에 들어있는 값의 현황을 파악하려면, <code>df.values</code> 명령어를 사용하고, 결측값 갯수는 <code>df.isnull().sum()</code> 명령어로 확인한다.</p>
+<p>결측값을 제거하는 메쏘드는 <code>df.dropna()</code>가 있고, 행방향 혹은 열방향 기준으로 결측값을 제거할 경우 인자로 <code>axis=0</code>, <code>axis=1</code>를 <code>df.dropna(axis=1)</code>와 같이 넣어준다.</p>
+<p><code>.dropna()</code> 메쏘드 인자로 <code>thresh=3</code>, <code>subset=['나열']</code>, <code>how='all'</code>과 같이 추가적인 설정을 통해 결측값 개수와 상황에 따라 제어를 한다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">df.dropna()</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;가열&lt;/th&gt;
+  &lt;th&gt;나열&lt;/th&gt;
+  &lt;th&gt;다열&lt;/th&gt;
+  &lt;th&gt;라열&lt;/th&gt;
+  &lt;th&gt;마열&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;2.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+  &lt;td&gt;4.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;3&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;7.5&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+  &lt;td&gt;7.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">df.dropna(axis<span class="op">=</span><span class="dv">1</span>)</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;가열&lt;/th&gt;
+  &lt;th&gt;나열&lt;/th&gt;
+  &lt;th&gt;마열&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;2.0&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;5.0&lt;/td&gt;
+  &lt;td&gt;6.0&lt;/td&gt;
+  &lt;td&gt;4.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;11.0&lt;/td&gt;
+  &lt;td&gt;7.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;3&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;7.5&lt;/td&gt;
+  &lt;td&gt;3.0&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<h3 id="결측값-대치">1.2. 결측값 대치</h3>
+<p>결측값이 있을 때마다 날려버리게 되면 깔끔하지만, 댓가가 따른다. 결측값 제거에 따라 남아있는 관측점 혹은 변수가 줄어들게 되어 데이터를 통해 수집한 정보가 모두 사라지는 문제점이 있다. 결측값을 대치함으로써 정보를 잃지 않으면서 가능하면 많은 관측점과 변수를 통해 통상 기계학습 알고리즘을 개발한다.</p>
+<p><code>sklearn.preprocessing</code> 라이브러리에서 <code>Imputer</code> 함수를 사용해서 결측값을 대치하는데, 인자로 <code>missing_values=</code>에 결측값 대상을 정의하고, <code>strategy=</code>에 평균으로 대치하면 <code>mean</code>, 중위값으로 대치하면 <code>median</code>, 범주형 자료의 경우는 가장 많은 최빈치로 <code>most_frequent</code>를 넣어주고, 행기준이면, <code>axis=0</code>, 열기준이면 <code>axis=1</code>로 설정한다.</p>
+<p>Imputer 클래스는 중요한 두가지 메쏘드를 갖는데, 첫번째 메쏘드가 <code>.fit</code> 메쏘드로 데이터프레임을 입력받아 결측값을 채워넣을 적합모형을 생성한다. 이번 경우에는 단순하지만, 평균이 이곳에 해당된다. 두번째 메쏘드는 <code>.transform</code> 으로 생성된 적합모형을 적용할 데이터프레임으로 여기서는 결측값이 들어있는 데이터프레임이다. 물론 <code>.fit</code>과 <code>.transform</code>은 동일한 모양을 가져야만 한다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> Imputer
+imp_mean <span class="op">=</span> Imputer(missing_values<span class="op">=</span><span class="st">&#39;NaN&#39;</span>, strategy<span class="op">=</span><span class="st">&#39;mean&#39;</span>, axis<span class="op">=</span><span class="dv">0</span>)
+imp_mean <span class="op">=</span> imp_mean.fit(df)
+imp_mean_dat <span class="op">=</span> imp_mean.transform(df.values)
+imp_mean_dat</code></pre></div>
+<pre><code>array([[  1.        ,   2.        ,   3.        ,   4.        ,   3.        ],
+       [  5.        ,   6.        ,   6.        ,   8.        ,   4.        ],
+       [  0.        ,  11.        ,  12.        ,   6.33333333,   7.        ],
+       [  1.        ,   7.5       ,   3.        ,   7.        ,   3.        ]])</code></pre>
+<h2 id="범주형-자료-처리">2. 범주형 자료 처리</h2>
+<p>숫자형 데이터 말고도, 범주형 데이터도 중요한 자료형이다. 범주형자료에는 순서가 있는 범주형 자료와 순서가 없는 범주형자료로 구분된다. <strong>명목형(Nominal)</strong> 으로 불리는 순서가 없는 범주형 자료는 남자, 여자와 같은 자료형이 포함되고, <strong>순서형(Ordinal)</strong> 으로 불리는 순서가 있는 범주형 자료는 군대 계급같은 자료형이 포함된다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> pandas <span class="im">as</span> pd
+df <span class="op">=</span> pd.DataFrame([
+        [<span class="st">&#39;서울&#39;</span>,<span class="st">&#39;대위&#39;</span>,<span class="st">&#39;175&#39;</span>,<span class="st">&#39;75&#39;</span>,<span class="st">&#39;1중대&#39;</span>],
+        [<span class="st">&#39;부산&#39;</span>,<span class="st">&#39;중위&#39;</span>,<span class="st">&#39;165&#39;</span>,<span class="st">&#39;85&#39;</span>,<span class="st">&#39;2중대&#39;</span>],
+        [<span class="st">&#39;성남&#39;</span>,<span class="st">&#39;소위&#39;</span>,<span class="st">&#39;180&#39;</span>,<span class="st">&#39;70&#39;</span>,<span class="st">&#39;1중대&#39;</span>]        
+    ])
+df.columns <span class="op">=</span> [<span class="st">&#39;고향&#39;</span>,<span class="st">&#39;계급&#39;</span>,<span class="st">&#39;키&#39;</span>, <span class="st">&#39;몸무게&#39;</span>,<span class="st">&#39;소속&#39;</span>]
+df</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;고향&lt;/th&gt;
+  &lt;th&gt;계급&lt;/th&gt;
+  &lt;th&gt;키&lt;/th&gt;
+  &lt;th&gt;몸무게&lt;/th&gt;
+  &lt;th&gt;소속&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;서울&lt;/td&gt;
+  &lt;td&gt;대위&lt;/td&gt;
+  &lt;td&gt;175&lt;/td&gt;
+  &lt;td&gt;75&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;부산&lt;/td&gt;
+  &lt;td&gt;중위&lt;/td&gt;
+  &lt;td&gt;165&lt;/td&gt;
+  &lt;td&gt;85&lt;/td&gt;
+  &lt;td&gt;2중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;성남&lt;/td&gt;
+  &lt;td&gt;소위&lt;/td&gt;
+  &lt;td&gt;180&lt;/td&gt;
+  &lt;td&gt;70&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<p>판다스 데이터프레임에 변수가 4개 있고, <code>고향</code>변수는 명목형으로 순서가 없고, <code>계급</code>변수는 순서를 갖는 범주형 자료다. <code>키</code>, <code>몸무게</code>는 숫자형 변수로 다양한 자료형을 담을 수 있는 자료구조가 데이터프레임이기도 하다.</p>
+<h3 id="범주형-자료에-정수-매핑">2.1. 범주형 자료에 정수 매핑</h3>
+<p>계급을 기계학습 알고리즘을 적용시킬 수 있도록 자동으로 변환하는 방식은 없기 때문에 매핑규칙을 부여해야한다. 예를 들어, <span class="math inline">\(소위+2=중위+1=대위\)</span> 라는 규칙을 적용해 본다. 여기서 소위를 <code>1</code>로 기본값으로 둔다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">rank_mapping <span class="op">=</span> {
+    <span class="st">&#39;소위&#39;</span> : <span class="dv">1</span>,
+    <span class="co">&#39;중위&#39;</span> : <span class="dv">2</span>,
+    <span class="co">&#39;대위&#39;</span> : <span class="dv">3</span>
+}
+df[<span class="st">&#39;계급&#39;</span>] <span class="op">=</span> df[<span class="st">&#39;계급&#39;</span>].<span class="bu">map</span>(rank_mapping)
+df</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;고향&lt;/th&gt;
+  &lt;th&gt;계급&lt;/th&gt;
+  &lt;th&gt;키&lt;/th&gt;
+  &lt;th&gt;몸무게&lt;/th&gt;
+  &lt;th&gt;소속&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;서울&lt;/td&gt;
+  &lt;td&gt;3&lt;/td&gt;
+  &lt;td&gt;175&lt;/td&gt;
+  &lt;td&gt;75&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;부산&lt;/td&gt;
+  &lt;td&gt;2&lt;/td&gt;
+  &lt;td&gt;165&lt;/td&gt;
+  &lt;td&gt;85&lt;/td&gt;
+  &lt;td&gt;2중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;성남&lt;/td&gt;
+  &lt;td&gt;1&lt;/td&gt;
+  &lt;td&gt;180&lt;/td&gt;
+  &lt;td&gt;70&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<p>원래대로 되돌릴 경우 키와 값을 바꿔 다시 적용시키면 원래 값으로 환원된다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">inv_rank_mapping <span class="op">=</span> {v: k <span class="cf">for</span> k, v <span class="op">in</span> rank_mapping.items()}
+df[<span class="st">&#39;계급&#39;</span>] <span class="op">=</span> df[<span class="st">&#39;계급&#39;</span>].<span class="bu">map</span>(inv_rank_mapping)
+df</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;고향&lt;/th&gt;
+  &lt;th&gt;계급&lt;/th&gt;
+  &lt;th&gt;키&lt;/th&gt;
+  &lt;th&gt;몸무게&lt;/th&gt;
+  &lt;th&gt;소속&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;서울&lt;/td&gt;
+  &lt;td&gt;대위&lt;/td&gt;
+  &lt;td&gt;175&lt;/td&gt;
+  &lt;td&gt;75&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;부산&lt;/td&gt;
+  &lt;td&gt;중위&lt;/td&gt;
+  &lt;td&gt;165&lt;/td&gt;
+  &lt;td&gt;85&lt;/td&gt;
+  &lt;td&gt;2중대&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;성남&lt;/td&gt;
+  &lt;td&gt;소위&lt;/td&gt;
+  &lt;td&gt;180&lt;/td&gt;
+  &lt;td&gt;70&lt;/td&gt;
+  &lt;td&gt;1중대&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<h3 id="범주에-자동-표식">2.2. 범주에 자동 표식</h3>
+<p>범주형 자료에 정수를 매핑하여 표식을 하는 기법이 기계학습 알고리즘 개발에 흔히 사용된다. 대부분의 기계학습 알고리즘이 범주형 자료를 처음 마주하게 되면 자동으로 정수를 내부적으로 할당하게 되지만, 명시적으로 데이터 전처리과정에서 확실히 해두는 것이 향후 있을지도 모를 문제를 방지시키는 역할을 한다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
+company_mapping <span class="op">=</span> {label:idx <span class="cf">for</span> idx, label <span class="op">in</span> 
+                  <span class="bu">enumerate</span>(np.unique(df[<span class="st">&#39;소속&#39;</span>]))}
+company_mapping</code></pre></div>
+<pre><code>{0: 0, 1: 1}</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">df[<span class="st">&#39;소속&#39;</span>] <span class="op">=</span> df[<span class="st">&#39;소속&#39;</span>].<span class="bu">map</span>(company_mapping)
+df</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;고향&lt;/th&gt;
+  &lt;th&gt;계급&lt;/th&gt;
+  &lt;th&gt;키&lt;/th&gt;
+  &lt;th&gt;몸무게&lt;/th&gt;
+  &lt;th&gt;소속&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;서울&lt;/td&gt;
+  &lt;td&gt;대위&lt;/td&gt;
+  &lt;td&gt;175&lt;/td&gt;
+  &lt;td&gt;75&lt;/td&gt;
+  &lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;부산&lt;/td&gt;
+  &lt;td&gt;중위&lt;/td&gt;
+  &lt;td&gt;165&lt;/td&gt;
+  &lt;td&gt;85&lt;/td&gt;
+  &lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;성남&lt;/td&gt;
+  &lt;td&gt;소위&lt;/td&gt;
+  &lt;td&gt;180&lt;/td&gt;
+  &lt;td&gt;70&lt;/td&gt;
+  &lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<p>많이 사용되는 기능이기 때문에, <code>LabelEncoder</code>라는 클래스를 활용하여 범주에 표식을 쉽게 할 수 있다. R에서는 이런 기능이 <strong>요인(factor)</strong>에 상응하고 정말 통계 및 기계학습에 많이 사용된다.</p>
+<p><code>.fit_transform</code> 메쏘드는 앞에서 <code>.fit</code>, <code>.transform</code> 각각 실행한 것으로 한번에 묶어서 실행하는 일종의 단축키 역할을 한다. <code>company_lbl.inverse_transform(orig_y)</code> 메쏘드는 역으로 원래 표식으로 되돌릴 때 사용한다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder
+company_lbl <span class="op">=</span> LabelEncoder()
+orig_y <span class="op">=</span> company_lbl.fit_transform(df[<span class="st">&#39;소속&#39;</span>].values)
+orig_y</code></pre></div>
+<pre><code>array([0, 1, 0], dtype=int64)</code></pre>
+<h3 id="명목형-변수-one-hot-인코딩">2.3. 명목형 변수 One-hot 인코딩</h3>
+<p>통계학에서 실험계획법 혹은 고급 회귀분석에서 범주형 변수를 가변수를 설정한 경험이 있다면 친숙한 개념일 수 있다. 기계학습 알고리즘 개발에서는 이를 <strong>One-Hot 인코딩</strong> 이라고 부른다.</p>
+<p><code>고향</code>변수에는 개념적으로 정수같은 순서가 존재하지 않는다. 따라서, <code>LabelEncoder</code>를 사용할 경우 말도 안되는 변수가 생성될 수 있다. 이것을 회피하는 것이 통계학에서 가변수(Dummy Variable)를 도입하면 그런 문제를 피할 수 있다.</p>
+<p><code>OneHotEncoder</code> 클래스를 사용해도 되고, 판다스에서 제공하는 <code>.get_dummier</code> 메소드를 사용해도 좋다.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># from sklearn.preprocessing import OneHotEncoder</span>
+<span class="co"># ht_ohe = OneHotEncoder(categorical_features=[0])</span>
+<span class="co"># ht_ohe.fit_transform(df).toarray()</span>
+
+<span class="im">import</span> pandas <span class="im">as</span> pd
+pd.get_dummies(df[[<span class="st">&#39;고향&#39;</span>]])</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;고향_부산&lt;/th&gt;
+  &lt;th&gt;고향_서울&lt;/th&gt;
+  &lt;th&gt;고향_성남&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;0&lt;/th&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;1&lt;/th&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;2&lt;/th&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;0.0&lt;/td&gt;
+  &lt;td&gt;1.0&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<h2 id="변수-표준화">변수 표준화</h2>
+<p>측정단위에 따라 기계학습 알고리즘이 왜곡되는 현상을 방지하고자 변수를 정규화, 표준화, 척도를 조정한다. 예를 들어, 온도를 섭씨와 화씨로 측정하는 경우 이를 보정하지 않으면 변수의 중요도가 아닌 측정단위에 따라 기계학습이 원하지 않는 학습을 할 수 있다. 이를 “<strong><a href="https://en.wikipedia.org/wiki/Feature_scaling">피쳐 척도조정(Feature Scaling)</a></strong>” 이라고 부른다. 최소최대 척도조정은 다음과 같다.</p>
+<p><span class="math display">\[x_{최소-최대}&#39; = \frac{x - x_{min}}{x_{max} - x_{min}}\]</span></p>
+<p>최소최대 척도조정결과는 <span class="math inline">\([0,1]\)</span>의 값을 갖게 된다. 하지만, 이항회귀모형, SVM 등 많은 기계학습 모형이 중심이 0, 표준편차가 1인 정규분포를 따르게 변수를 갖추면, 알고리즘의 학습 수렴속도를 높이고, 수렴에 걸리는 시간을 줄이는 등 기계학습에 도움이 되고, 특히, 이상점에 대한 정보도 갖게 되는 장점도 있다.</p>
+<p><span class="math display">\[x_{표준정규}&#39; = \frac{x&#39; -\mu_x}{\sigma_x}\]</span></p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># 최소-최대 척도조정</span>
+<span class="im">from</span> sklearn.preprocessing <span class="im">import</span> MinMaxScaler
+mmscaler <span class="op">=</span> MinMaxScaler()
+x_dat_scaling <span class="op">=</span> mmscaler.fit_transform(x_dat)
+
+<span class="co"># 정규 표준화 척도조정</span>
+<span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler
+stdscaler <span class="op">=</span> StandardScaler()
+x_dat_std <span class="op">=</span> stdscaler.fit_transform(x_dat)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"></code></pre></div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">마케팅 반응 예측모형</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>의류회사에 적용된 할인쿠폰 반응모형을 살펴본다.</li>
+<li>범주형 모형평가 및 활용에 대해 이해한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="범주형-예측-모형-활용-data-mining-larose">1. 범주형 예측 모형 활용 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>범주형 예측모형이 사업적으로 많이 활용되는 사례를 살펴보자. 2006년 출간된 “Data Mining Methods and Models” 책에 의류회사가 직접 우편을 보내 제품 구매를 유도하는 사례가 포함되어 있다. 아마도, 누구나 ‘만원’ 할인쿠폰이 들어 있는 전단지나 우편을 받아봤을 것이고, 이것이 어떤 로직으로 돌아가는지 이해하는 것은 그 자체로 흥미로울 수 있다.</p>
+<h3 id="의류회사-할인쿠폰-반응모형">1.1. 의류회사 할인쿠폰 반응모형</h3>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="예측모형-개발목적"><span class="glyphicon glyphicon-pushpin"></span>예측모형 개발목적</h3>
+</div>
+<div class="panel-body">
+<p>예측모형을 통해 의류회사 제품을 구매하는 구매율 신장을 통한 <strong>매출증대</strong> 와 무분별한 마케팅 자제와 쿠폰 축소를 통한 <strong>비용절감</strong></p>
+</div>
+</aside>
+<p>예측모형을 개발할 경우 행과 열에 대해 적절한 작업이 필요하다. 의류회사 할인쿠폰 반응모형의 경우 28,799 고객정보와 51개 변수가 포함된 지금으로 보면 그다지 크지 않는 데이터셋으로 구성되어 있어, 28,799명 고객을 군집화하고, 51개 변수에 대해 적절한 차원 축소작업을 진행한다. 이러한 예측모형의 경우 반응율이 2% 심지어 0.1%도 나오지 않을 경우도 비일비재하다. 이런 경우 과대표집, 과소표집등의 방법을 통해 불균형된 데이터에 대한 조정이 필요하다.</p>
+<ul>
+<li>예측모형 개발전략
+<ul>
+<li>데이터 전처리 작업
+<ul>
+<li>주성분 분석을 통한 예측변수 축소 → 다공선성 방지</li>
+<li>군집분석을 통한 고객 프로파일 구축 → 고객 세분화</li>
+<li>데이터 불균형 축소 → 과대표집, 과소표집</li>
+</ul></li>
+<li>예측모형 개발
+<ul>
+<li>예측모형 적용 → 이항회귀분석부터 SVM, 신경망, 나무모형 등 예측모형 적용</li>
+</ul></li>
+<li>예측모형 평가
+<ul>
+<li>검증데이터를 통한 예측모형 평가</li>
+</ul></li>
+<li>예측모형 사업성
+<ul>
+<li>예측모형 성능 기준점 설정 → 예측모형 없는 경우 사업성과</li>
+<li>예측모형에 대한 사업적 평가</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="예측모형-사업적-함의-검토">1.2. 예측모형 사업적 함의 검토</h3>
+<p>예측모형에 대한 결과를 정리하면 다음과 같은 표로 요약될 수 있다.</p>
+<ol style="list-style-type: decimal">
+<li>실제로 구매를 하지 않을 고객에게 예측모형이 구매를 않는 것으로 예측하면 접촉비용도 없고, 매출손실도 없음</li>
+<li>실제로 구매를 할 고객이지만, 접촉을 하지 않는 경우 예상매출 누락되어 손실, 접촉비용이 발생하지 않아 이익</li>
+<li>실제로 구매를 할 고객이지만 예측모형에서 구매를 하지 않는 것으로 예상하면 예상매출 손실이 발생</li>
+<li>예측모형에서 구매를 할 것으로 예측했지만, 실제로 구매를 하지 않을 경우 접촉비용만큼 손실 발생</li>
+</ol>
+<table>
+<thead>
+<tr class="header">
+<th align="center">결과</th>
+<th align="center">예측모형</th>
+<th align="center">실제</th>
+<th align="center">소요비용</th>
+<th align="center">사업적 함의</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">참 음성(TN)</td>
+<td align="center">NO</td>
+<td align="center">NO</td>
+<td align="center">0원</td>
+<td align="center">접촉없음 → 매출 손실 없음</td>
+</tr>
+<tr class="even">
+<td align="center">참 양성(TP)</td>
+<td align="center">YES</td>
+<td align="center">YES</td>
+<td align="center">-26.4원</td>
+<td align="center">예상매출 누락손실 - 접촉비용이익</td>
+</tr>
+<tr class="odd">
+<td align="center">거짓 음성(FN)</td>
+<td align="center">NO</td>
+<td align="center">YES</td>
+<td align="center">+28.4원</td>
+<td align="center">예상매출 손실</td>
+</tr>
+<tr class="even">
+<td align="center">거짓 양성(FP)</td>
+<td align="center">YES</td>
+<td align="center">NO</td>
+<td align="center">+2.0원</td>
+<td align="center">접촉비용</td>
+</tr>
+</tbody>
+</table>
+<h3 id="예측모형-성과-지표-개발">1.3. 예측모형 성과 지표 개발</h3>
+<p>예측모형에 대한 성과지표를 개발할 필요가 있다. “모든 고객에게 마케팅행사 할인쿠폰을 보내는 경우”, “아무에게나 마케팅행사 할인쿠폰을 보내지 않는 경우”로 구분을 하여 예측모형 성과지표로 활용한다. 즉,</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">모형</th>
+<th align="center">TN (0원)</th>
+<th align="center">TP (-26.4원)</th>
+<th align="center">FN (28.4원)</th>
+<th align="center">FP(2원)</th>
+<th align="center">총오분류율</th>
+<th align="center">총비용</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">목표고객에만 쿠폰 발송</td>
+<td align="center">5908</td>
+<td align="center">0</td>
+<td align="center">1151</td>
+<td align="center">0</td>
+<td align="center">16.3%</td>
+<td align="center">32,688원(고객당 +4.63원)</td>
+</tr>
+<tr class="even">
+<td align="center">모든 고객에게 쿠폰 발송</td>
+<td align="center">0</td>
+<td align="center">1151</td>
+<td align="center">0</td>
+<td align="center">5908</td>
+<td align="center">83.7%</td>
+<td align="center">-18,570(고객당 -2.63원)</td>
+</tr>
+</tbody>
+</table>
+<p>목표고객에만 쿠폰을 발송할 경우 오분류율이 16.3%로 고객당 4.63원 손실이 발생한다. 반면에 모든 고객에게 쿠폰을 발송하는 경우 오분류율이 크지만, 궁극적으로 고객당 2.63원 이익이 된다.</p>
+<h3 id="예측모형과-사업적-성과">1.4. 예측모형과 사업적 성과</h3>
+<p>의류회사 제품에 관심이 있는 고객과 그렇지 못한 고객을 예측모형을 통해 점수 혹은 확률을 계산하게 되면, 적은 고객을 접촉해도 매출이 신장되는 반면에 많은 고객을 접촉해도 예상 매출이 발생하지 못하는 경우가 발생된다. 또한, 마케팅행사를 진행하면 고객당 적은 비용이지만 비용이 지속적으로 발생되게 된다. 이런 관계가 최적화 문제로 변환되고, 예측모형을 통해 가장 수익이 많이 발생하는 고객을 선별해서 판정할 수 있게 된다.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://as.wiley.com/WileyCDA/WileyTitle/productCd-0471666564.html">Daniel T. Larose (2005), Data Mining Methods and Models, Wiley-IEEE Press</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

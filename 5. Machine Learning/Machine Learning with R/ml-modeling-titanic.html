@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">전통방식 모형개발 - 타이타닉 생존 데이터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>전통방식 모형개발 방식을 타이타닉 생존데이터에 적용한다.</li>
+<li>CMM 3수준에 해당되는 모형개발 방식으로 간주할 수도 있다.</li>
+</ul>
+</div>
+</section>
+<h2 id="타이타닉-생존-데이터-r-bloggers-logistic">1. 타이타닉 생존 데이터 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>타이타닉 생존데이터는 영화로도 만들어지고, 여러가지 에피소드가 많이 들어있는 소재로 데이터 과학과 통계학적인 측면에서 바라보면 범주형 데이터로 생존여부가 종속변수로 녹아져 있어, 예측모형으로 적합시키기도 적절한 데이터이기도 하다.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9xoqXVjBEF8" frameborder="0" allowfullscreen>
+</iframe>
+<h3 id="타이타닉-생존-데이터-가져오기-r-blogger-titanic">1.1. 타이타닉 생존 데이터 가져오기 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h3>
+<p><a href="https://www.kaggle.com/c/titanic/data">캐글 타이타닉 데이터</a>를 다운로드 받아 로컬컴퓨터에서 불러읽어오거나, GitHub 사이트에서 캐글 타이타닉 데이터를 올려놓은 것을 바로 불러온다. 캐글 타이나틱 생존 데이터는 <code>train.csv</code>와 <code>test.csv</code>로 나눠져 있는데 일단 모두 합쳐 하나의 데이터셋으로 만들고 난후에 동일하게 전처리 작업을 하고 전통적 방식으로 예측하는 방법을 전개한다.</p>
+<table style="width:64%;">
+<colgroup>
+<col width="20%" />
+<col width="43%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>변수명</th>
+<th>변수명 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>survival</strong></td>
+<td>Survival (0 = No; 1 = Yes)</td>
+</tr>
+<tr class="even">
+<td>pclass</td>
+<td>Passenger Class (1 = 1st; 2 = 2nd; 3 = 3rd)</td>
+</tr>
+<tr class="odd">
+<td>name</td>
+<td>Name</td>
+</tr>
+<tr class="even">
+<td>sex</td>
+<td>Sex</td>
+</tr>
+<tr class="odd">
+<td>age</td>
+<td>Age</td>
+</tr>
+<tr class="even">
+<td>sibsp</td>
+<td>Number of Siblings/Spouses Aboard</td>
+</tr>
+<tr class="odd">
+<td>parch</td>
+<td>Number of Parents/Children Aboard</td>
+</tr>
+<tr class="even">
+<td>ticket</td>
+<td>Ticket Number</td>
+</tr>
+<tr class="odd">
+<td>fare</td>
+<td>Passenger Fare</td>
+</tr>
+<tr class="even">
+<td>cabin</td>
+<td>Cabin</td>
+</tr>
+<tr class="odd">
+<td>embarked</td>
+<td>Port of Embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)</td>
+</tr>
+</tbody>
+</table>
+<p><code>survival</code> 이 종속변수이며, 나머지를 예측변수로 사용해서 생존을 예측하는 모형을 개발한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
+## 01. 데이터 준비
+##========================================================
+<span class="co"># Titanic: Machine Learning from Disaster, https://www.kaggle.com/c/titanic/data</span>
+
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+titanic.train.df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/train.csv&quot;</span>)
+titanic.test.df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/test.csv&quot;</span>)
+titanic &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(titanic.train.df, titanic.test.df)</code></pre></div>
+<h2 id="데이터-정제">1.2. 데이터 정제</h2>
+<p>타이타닉 생존데이터를 불러온 다음 현황을 파악하고, 결측값에 대한 대응방안을 마련한다. 예를 들어, 결측값이 너무 많은 경우 변수(<code>Cabin</code>) 자체를 제거한다. <code>Name</code>, <code>Ticket</code>처럼 관측점마다 유일한 변수는 정보로서 의미가 없기 때문에 이것도 제거한다. <code>Age</code> 변수는 평균을 매워넣는 것으로 하고, 상대적으로 적은 결측값이 있는 관측점은 <code>Embarked</code>, <code>Fare</code>, <code>Survived</code>는 관측점을 제거하는 방식으로 정제 작업을 수행한다.</p>
+<p>특히, <code>Amelia</code> 팩키지의 <code>missmap</code> 함수를 사용해서 결측값 진행 작업을 바로 시각적으로 확인한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
+## 02. 데이터 정제
+##========================================================
+<span class="co"># 2.1. 현황 파악</span>
+<span class="kw">summary</span>(titanic)</code></pre></div>
+<pre class="output"><code>  PassengerId      Survived          Pclass          Name          
+ Min.   :   1   Min.   :0.0000   Min.   :1.000   Length:1309       
+ 1st Qu.: 328   1st Qu.:0.0000   1st Qu.:2.000   Class :character  
+ Median : 655   Median :0.0000   Median :3.000   Mode  :character  
+ Mean   : 655   Mean   :0.3838   Mean   :2.295                     
+ 3rd Qu.: 982   3rd Qu.:1.0000   3rd Qu.:3.000                     
+ Max.   :1309   Max.   :1.0000   Max.   :3.000                     
+                NA&#39;s   :418                                        
+     Sex                 Age            SibSp            Parch      
+ Length:1309        Min.   : 0.17   Min.   :0.0000   Min.   :0.000  
+ Class :character   1st Qu.:21.00   1st Qu.:0.0000   1st Qu.:0.000  
+ Mode  :character   Median :28.00   Median :0.0000   Median :0.000  
+                    Mean   :29.88   Mean   :0.4989   Mean   :0.385  
+                    3rd Qu.:39.00   3rd Qu.:1.0000   3rd Qu.:0.000  
+                    Max.   :80.00   Max.   :8.0000   Max.   :9.000  
+                    NA&#39;s   :263                                     
+    Ticket               Fare            Cabin          
+ Length:1309        Min.   :  0.000   Length:1309       
+ Class :character   1st Qu.:  7.896   Class :character  
+ Mode  :character   Median : 14.454   Mode  :character  
+                    Mean   : 33.295                     
+                    3rd Qu.: 31.275                     
+                    Max.   :512.329                     
+                    NA&#39;s   :1                           
+   Embarked        
+ Length:1309       
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   
+                   
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(titanic, function(x) <span class="kw">sum</span>(<span class="kw">is.na</span>(x)))</code></pre></div>
+<pre class="output"><code>PassengerId    Survived      Pclass        Name         Sex         Age 
+          0         418           0           0           0         263 
+      SibSp       Parch      Ticket        Fare       Cabin    Embarked 
+          0           0           0           1        1014           2 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(titanic, function(x) <span class="kw">length</span>(<span class="kw">unique</span>(x)))</code></pre></div>
+<pre class="output"><code>PassengerId    Survived      Pclass        Name         Sex         Age 
+       1309           3           3        1307           2          99 
+      SibSp       Parch      Ticket        Fare       Cabin    Embarked 
+          7           8         929         282         187           4 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(Amelia))
+<span class="kw">missmap</span>(titanic, <span class="dt">main =</span> <span class="st">&quot;결측값과 관측값&quot;</span>)</code></pre></div>
+<p><img src="fig/titanic-clean-1.png" title="plot of chunk titanic-clean" alt="plot of chunk titanic-clean" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2.2. 결측값에 대한 응징</span>
+<span class="co"># 분석에 사용될 변수만 선정</span>
+
+titanic &lt;-<span class="st"> </span>titanic %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Embarked) %&gt;%<span class="st">  </span><span class="co"># 결측값이 많은 Cabin과 이름, Ticket은 제거</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Age =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(Age), <span class="kw">mean</span>(Age, <span class="dt">na.rm=</span><span class="ot">TRUE</span>), Age)) %&gt;%<span class="st">  </span><span class="co"># 나이를 평균값으로 치환</span>
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(Embarked)) %&gt;%<span class="st">  </span><span class="co"># 결측값 2개 행 제거</span>
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(Fare)) %&gt;%<span class="st">   </span><span class="co"># 결측값 1개 행 제거</span>
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(Survived))   <span class="co"># 결측값 418개 행 제거</span>
+
+<span class="kw">missmap</span>(titanic, <span class="dt">main =</span> <span class="st">&quot;결측값과 관측값&quot;</span>)</code></pre></div>
+<p><img src="fig/titanic-clean-2.png" title="plot of chunk titanic-clean" alt="plot of chunk titanic-clean" style="display: block; margin: auto;" /></p>
+<h2 id="예측모형-적용">1.3. 예측모형 적용</h2>
+<p><code>caret</code> 팩키지 <code>createDataPartition</code> 함수를 사용해서 7:3으로 훈련데이터와 검증데이터로 구분한다.</p>
+<p><code>glm</code> 함수에 <code>family=binomial(link='logit')</code> 인자를 넣어 이항회귀모형을 적합시킨다. 특히, 전체 변수를 모두 넣어 <code>Survived ~.</code> 생존을 예측하는 모형을 구축한다.</p>
+<p>변수를 선정하는 방법은 여러가지가 있으나, 먼저 <code>anova</code>함수를 사용해서 포화모델에서 유의적인 변수와 그렇지 않는 변수를 구별한다. 비유의적인 변수를 제거하고 <code>logit.reduced.m</code> 축소된 이항회귀모형을 개발한다.</p>
+<p>이항회귀식에는 <span class="math inline">\(R^2\)</span> 결정계수가 큰 의미가 없다고 주장하는 경우도 있으나, <code>pscl</code> 팩키지의 기능을 사용하여 계산해본다.</p>
+<p><code>ROCR</code> 팩키지를 사용해서 포화모형과 축소모형간에 차이가 있는지 ROC 면적과 더불어 ROC 곡선을 도식화하여 비교한다.</p>
+<p>두 모형간에 성능의 차이는 없어 보이며, 4개 모형이 사용된 축약된 모형이 포화모형과 거의 비슷한 성능을 내고 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
+## 03. 모형 적합
+##========================================================
+## 
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.1. 훈련데이터와 검증데이터 분리</span>
+
+train.id &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(titanic$Survived, <span class="dt">p =</span> <span class="fl">0.7</span>)[[<span class="dv">1</span>]] 
+titanic.train.df &lt;-<span class="st"> </span>titanic[ train.id,] 
+titanic.test.df &lt;-<span class="st"> </span>titanic[-train.id,]
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.1. 선형회귀 적합</span>
+
+logit.full.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived ~.,<span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>), <span class="dt">data=</span>titanic.train.df)
+<span class="kw">summary</span>(logit.full.m)</code></pre></div>
+<pre class="output"><code>
+Call:
+glm(formula = Survived ~ ., family = binomial(link = &quot;logit&quot;), 
+    data = titanic.train.df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7882  -0.5605  -0.3859   0.6278   2.4974  
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  5.9124097  0.6813718   8.677  &lt; 2e-16 ***
+Pclass      -1.3132473  0.1731615  -7.584 3.35e-14 ***
+Sexmale     -2.7380153  0.2429523 -11.270  &lt; 2e-16 ***
+Age         -0.0464928  0.0095414  -4.873 1.10e-06 ***
+SibSp       -0.3346004  0.1342922  -2.492   0.0127 *  
+Parch       -0.0915437  0.1484707  -0.617   0.5375    
+Fare         0.0009746  0.0025971   0.375   0.7075    
+EmbarkedQ    0.2813593  0.4585272   0.614   0.5395    
+EmbarkedS   -0.2699759  0.2883458  -0.936   0.3491    
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 540.73  on 614  degrees of freedom
+AIC: 558.73
+
+Number of Fisher Scoring iterations: 5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.2. 변수선택</span>
+<span class="kw">anova</span>(logit.full.m, <span class="dt">test=</span><span class="st">&quot;Chisq&quot;</span>)</code></pre></div>
+<pre class="output"><code>Analysis of Deviance Table
+
+Model: binomial, link: logit
+
+Response: Survived
+
+Terms added sequentially (first to last)
+
+         Df Deviance Resid. Df Resid. Dev  Pr(&gt;Chi)    
+NULL                       622     838.41              
+Pclass    1   81.897       621     756.51 &lt; 2.2e-16 ***
+Sex       1  181.439       620     575.07 &lt; 2.2e-16 ***
+Age       1   20.196       619     554.88 6.992e-06 ***
+SibSp     1   10.583       618     544.30  0.001142 ** 
+Parch     1    0.550       617     543.75  0.458227    
+Fare      1    0.456       616     543.29  0.499589    
+Embarked  2    2.562       614     540.73  0.277792    
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.3. 최적모형</span>
+
+logit.reduced.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived  ~<span class="st"> </span>Pclass+Sex+Age+SibSp, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>), <span class="dt">data=</span>titanic.train.df)
+<span class="kw">summary</span>(logit.reduced.m)</code></pre></div>
+<pre class="output"><code>
+Call:
+glm(formula = Survived ~ Pclass + Sex + Age + SibSp, family = binomial(link = &quot;logit&quot;), 
+    data = titanic.train.df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.8295  -0.5752  -0.3860   0.6094   2.4585  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  5.771741   0.595671   9.689  &lt; 2e-16 ***
+Pclass      -1.321349   0.148115  -8.921  &lt; 2e-16 ***
+Sexmale     -2.762281   0.236329 -11.688  &lt; 2e-16 ***
+Age         -0.045853   0.009418  -4.869 1.12e-06 ***
+SibSp       -0.373944   0.127109  -2.942  0.00326 ** 
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 544.30  on 618  degrees of freedom
+AIC: 554.3
+
+Number of Fisher Scoring iterations: 5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.3. R^2 결정계수</span>
+
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(pscl))
+<span class="kw">pR2</span>(logit.full.m)</code></pre></div>
+<pre class="output"><code>         llh      llhNull           G2     McFadden         r2ML 
+-270.3643861 -419.2050418  297.6813114    0.3550545    0.3798656 
+        r2CU 
+   0.5135687 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pR2</span>(logit.reduced.m)</code></pre></div>
+<pre class="output"><code>         llh      llhNull           G2     McFadden         r2ML 
+-272.1482830 -419.2050418  294.1135175    0.3507991    0.3763041 
+        r2CU 
+   0.5087535 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.4. 모형 평가</span>
+
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(ROCR))
+<span class="co"># 전체 모형</span>
+logit.full.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.full.m, <span class="dt">newdata=</span>titanic.test.df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)
+logit.full.pr &lt;-<span class="st"> </span><span class="kw">prediction</span>(logit.full.pred, titanic.test.df$Survived)
+logit.full.prf &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.full.pr, <span class="dt">measure =</span> <span class="st">&quot;tpr&quot;</span>, <span class="dt">x.measure =</span> <span class="st">&quot;fpr&quot;</span>)
+<span class="kw">plot</span>(logit.full.prf)</code></pre></div>
+<p><img src="fig/titanic-model-1.png" title="plot of chunk titanic-model" alt="plot of chunk titanic-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># ROC 면적</span>
+logit.full.auc &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.full.pr, <span class="dt">measure =</span> <span class="st">&quot;auc&quot;</span>)
+logit.full.auc &lt;-<span class="st"> </span>logit.full.auc@y.values[[<span class="dv">1</span>]]
+logit.full.auc</code></pre></div>
+<pre class="output"><code>[1] 0.8259341
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 축소 모형</span>
+logit.reduced.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.reduced.m, <span class="dt">newdata=</span>titanic.test.df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)
+logit.reduced.pr &lt;-<span class="st"> </span><span class="kw">prediction</span>(logit.reduced.pred, titanic.test.df$Survived)
+logit.reduced.prf &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.reduced.pr, <span class="dt">measure =</span> <span class="st">&quot;tpr&quot;</span>, <span class="dt">x.measure =</span> <span class="st">&quot;fpr&quot;</span>)
+<span class="kw">plot</span>(logit.reduced.prf)</code></pre></div>
+<p><img src="fig/titanic-model-2.png" title="plot of chunk titanic-model" alt="plot of chunk titanic-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># ROC 면적</span>
+logit.reduced.auc &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.reduced.pr, <span class="dt">measure =</span> <span class="st">&quot;auc&quot;</span>)
+logit.reduced.auc &lt;-<span class="st"> </span>logit.reduced.auc@y.values[[<span class="dv">1</span>]]
+logit.reduced.auc</code></pre></div>
+<pre class="output"><code>[1] 0.8274411
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.5. ROC 면적비교</span>
+
+<span class="kw">plot</span>(logit.full.prf)
+<span class="kw">plot</span>(logit.reduced.prf, <span class="dt">add=</span><span class="ot">TRUE</span>, <span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
+<p><img src="fig/titanic-model-3.png" title="plot of chunk titanic-model" alt="plot of chunk titanic-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.full.auc</code></pre></div>
+<pre class="output"><code>[1] 0.8259341
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.reduced.auc</code></pre></div>
+<pre class="output"><code>[1] 0.8274411
+</code></pre>
+<h2 id="자동-모형-선정-방법">1.4. 자동 모형 선정 방법</h2>
+<p>만약 <span class="math inline">\(p\)</span>개 변수가 있다면 <span class="math inline">\(2^p\)</span> 만큼 가능한 모형이 존재한다. 모형을 모두 적합시켜 <span class="math inline">\(2^p\)</span> 모형중에서 성능 등 기준조건을 만족하는 최적의 모형을 선정한다. 경우의 수가 너무 많고, 성능이 비슷한 모형을 반복적으로 개발할 우려도 있고 해서, 기준조건(Criterion-based) 방법으로 통해 변수를 추출해 나간다. 즉, 가장 성능이 좋은 변수부터 선택해 나가면서 복잡성과 성능을 최적화한다. 가장 일반적으로 많이 사용되는 방식이 <span class="math inline">\(AIC(Akaike Information Criterion)\)</span>, <span class="math inline">\(BIC(Bayes Information Criterion)\)</span>을 들 수 있다.</p>
+<p><span class="math display">\[AIC = -2 ln(L) + 2k \]</span> <span class="math display">\[BIC = -2 ln(L) + k ln(n) \]</span></p>
+<p><span class="math inline">\(L\)</span>은 모형에 대한 우도함수 최대값이고, <span class="math inline">\(k\)</span>는 모형에 사용된 추정모수갯수, <span class="math inline">\(n\)</span>은 관측점 갯수가 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
+## 04. 변수선택 모형 선정
+##========================================================
+## 
+
+logit.null.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived ~<span class="dv">1</span>, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>), <span class="dt">data=</span>titanic.train.df)
+logit.full.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived ~., <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>), <span class="dt">data=</span>titanic.train.df)
+
+logit.bic.m &lt;-<span class="st"> </span><span class="kw">step</span>(logit.null.m, <span class="dt">scope=</span><span class="kw">formula</span>(logit.full.m), <span class="dt">direction=</span><span class="st">&quot;both&quot;</span>, <span class="dt">criterion=</span><span class="st">&quot;BIC&quot;</span>, <span class="dt">k=</span><span class="kw">log</span>(<span class="kw">nrow</span>(titanic.train.df)))</code></pre></div>
+<pre class="output"><code>Start:  AIC=844.84
+Survived ~ 1
+
+           Df Deviance    AIC
++ Sex       1   651.61 664.48
++ Pclass    1   756.51 769.38
++ Fare      1   792.64 805.51
++ Embarked  2   822.86 842.16
+&lt;none&gt;          838.41 844.84
++ Age       1   833.74 846.61
++ Parch     1   834.03 846.90
++ SibSp     1   837.61 850.48
+
+Step:  AIC=664.48
+Survived ~ Sex
+
+           Df Deviance    AIC
++ Pclass    1   575.07 594.38
++ Fare      1   629.44 648.75
++ SibSp     1   643.52 662.82
+&lt;none&gt;          651.61 664.48
++ Embarked  2   640.21 665.95
++ Parch     1   649.67 668.97
++ Age       1   650.72 670.03
+- Sex       1   838.41 844.84
+
+Step:  AIC=594.38
+Survived ~ Sex + Pclass
+
+           Df Deviance    AIC
++ Age       1   554.88 580.62
+&lt;none&gt;          575.07 594.38
++ SibSp     1   570.25 595.99
++ Parch     1   573.70 599.44
++ Fare      1   575.05 600.79
++ Embarked  2   570.94 603.11
+- Pclass    1   651.61 664.48
+- Sex       1   756.51 769.38
+
+Step:  AIC=580.62
+Survived ~ Sex + Pclass + Age
+
+           Df Deviance    AIC
++ SibSp     1   544.30 576.47
+&lt;none&gt;          554.88 580.62
++ Parch     1   551.55 583.72
++ Fare      1   554.84 587.01
++ Embarked  2   550.36 588.97
+- Age       1   575.07 594.38
+- Pclass    1   650.72 670.03
+- Sex       1   723.68 742.98
+
+Step:  AIC=576.47
+Survived ~ Sex + Pclass + Age + SibSp
+
+           Df Deviance    AIC
+&lt;none&gt;          544.30 576.47
+- SibSp     1   554.88 580.62
++ Parch     1   543.75 582.35
++ Fare      1   544.05 582.66
++ Embarked  2   541.18 586.22
+- Age       1   570.25 595.99
+- Pclass    1   640.86 666.60
+- Sex       1   720.76 746.50
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.aic.m &lt;-<span class="st"> </span><span class="kw">step</span>(logit.null.m, <span class="dt">scope=</span><span class="kw">formula</span>(logit.full.m), <span class="dt">direction=</span><span class="st">&quot;both&quot;</span>, <span class="dt">criterion=</span><span class="st">&quot;AIC&quot;</span>, <span class="dt">k=</span><span class="dv">2</span>)</code></pre></div>
+<pre class="output"><code>Start:  AIC=840.41
+Survived ~ 1
+
+           Df Deviance    AIC
++ Sex       1   651.61 655.61
++ Pclass    1   756.51 760.51
++ Fare      1   792.64 796.64
++ Embarked  2   822.86 828.86
++ Age       1   833.74 837.74
++ Parch     1   834.03 838.03
+&lt;none&gt;          838.41 840.41
++ SibSp     1   837.61 841.61
+
+Step:  AIC=655.61
+Survived ~ Sex
+
+           Df Deviance    AIC
++ Pclass    1   575.07 581.07
++ Fare      1   629.44 635.44
++ Embarked  2   640.21 648.21
++ SibSp     1   643.52 649.52
+&lt;none&gt;          651.61 655.61
++ Parch     1   649.67 655.67
++ Age       1   650.72 656.72
+- Sex       1   838.41 840.41
+
+Step:  AIC=581.07
+Survived ~ Sex + Pclass
+
+           Df Deviance    AIC
++ Age       1   554.88 562.88
++ SibSp     1   570.25 578.25
++ Embarked  2   570.94 580.94
+&lt;none&gt;          575.07 581.07
++ Parch     1   573.70 581.70
++ Fare      1   575.05 583.05
+- Pclass    1   651.61 655.61
+- Sex       1   756.51 760.51
+
+Step:  AIC=562.88
+Survived ~ Sex + Pclass + Age
+
+           Df Deviance    AIC
++ SibSp     1   544.30 554.30
++ Parch     1   551.55 561.55
++ Embarked  2   550.36 562.36
+&lt;none&gt;          554.88 562.88
++ Fare      1   554.84 564.84
+- Age       1   575.07 581.07
+- Pclass    1   650.72 656.72
+- Sex       1   723.68 729.68
+
+Step:  AIC=554.3
+Survived ~ Sex + Pclass + Age + SibSp
+
+           Df Deviance    AIC
+&lt;none&gt;          544.30 554.30
++ Embarked  2   541.18 555.18
++ Parch     1   543.75 555.75
++ Fare      1   544.05 556.05
+- SibSp     1   554.88 562.88
+- Age       1   570.25 578.25
+- Pclass    1   640.86 648.86
+- Sex       1   720.76 728.76
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.bic.m</code></pre></div>
+<pre class="output"><code>
+Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(link = &quot;logit&quot;), 
+    data = titanic.train.df)
+
+Coefficients:
+(Intercept)      Sexmale       Pclass          Age        SibSp  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
+
+Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
+Null Deviance:      838.4 
+Residual Deviance: 544.3    AIC: 554.3
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.aic.m</code></pre></div>
+<pre class="output"><code>
+Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(link = &quot;logit&quot;), 
+    data = titanic.train.df)
+
+Coefficients:
+(Intercept)      Sexmale       Pclass          Age        SibSp  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
+
+Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
+Null Deviance:      838.4 
+Residual Deviance: 544.3    AIC: 554.3
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/">R-bloggers, How to perform a Logistic Regression in R</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/">How to perform a Logistic Regression in R</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

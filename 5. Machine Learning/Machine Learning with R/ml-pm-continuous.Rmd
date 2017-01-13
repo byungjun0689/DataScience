@@ -1,0 +1,218 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 사례 - 도요타 중고차 가격 예측
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * 기본 예측모형을 살펴본다.
+> * 컴퓨팅 자원을 최대한 활용하는 예측모형을 개발한다.
+> * $RMSE$와 $R^2$ 기준 예측모형 성능을 평가한다.
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+## 1. 예측모형 A-Z 
+
+데이터가 주어진 상태에서 어떤 예측모형이 가장 최적인지는 알 수가 없다.
+단 하나의 모형으로 모든 데이터에 대한 예측모형으로 최적이라고 단언하는 예측모형도 존재하지 않는다.
+
+즉, 데이터가 주어지면 최적의 모형을 예측하는데 있어 "공짜 점심"은 없다.
+전통적인 방식부터 가장 정확도가 높은 모형까지 순차적으로 개발해 나가보자.
+
+<img src="fig/ml-predictive-model.png" alt="예측모형 A-Z" width="77%">
+
+1. 가장 단순한 모형을 데이터에 한번 적합시키고, 예측모형 개발자의 경험과 지식을 사용하여 가장 예측을 잘하는 모형을 추출해낸다.
+1. 다양한 예측모형을 모형개발자가 설정하고, R이 자동으로 특정 조건 예를 들어, $R^2$, $RMSE$, $정확도$, $민감도$, $ROC$ 등을 최적화하는 모형을 교차타당도, 훈련/검증 데이터 기준, 붓스트랩 등의 방식으로 찾아낸다.
+1. 컴퓨터와 R을 사용한 예측모형개발의 경우, 시간과 자원이 많이 소요되기 때문에 가장 병렬 컴퓨팅 개념을 확장하여 작업의 효율성과 더불어 더욱 크고 복잡한 문제에 대한 예측모형을 제시한다.
+
+
+## 2. 도요타 중고차 가격 예측 사례
+
+Shmueli et al. (2010)[^toyota]에서 소개된 데이터로 도요타 코롤라 중고차 가격을 정확하게 예측하는 것이 목표다.
+
+[^toyota]: [Shmueli, G., Patel, N.R., and Bruce, P.C.: Data Mining for Business Intelligence. Second edition. Hoboken, NJ: John Wiley & Sons, Inc., 2010](http://as.wiley.com/WileyCDA/WileyTitle/productCd-EHEP002378.html)
+
+[ToyotaCorolla.csv](https://raw.githubusercontent.com/datailluminations/PredictingToyotaPricesBlog/master/ToyotaCorolla.csv) 데이터는 GitHub에서도 다운로드 받아 바로 분석에 사용될 수 있다.
+
+### 2.1. 데이터 준비
+
+`readr` 팩키지를 사용하면 `read_csv` 함수에 인자로 웹URL을 넣으면 내부적으로 인터넷 데이터처리 핸들러가 있어 자동으로 불러올 수 있게 된다. `tuc.df` 데이터프레임으로 작명(Toyota Used Car)하여 데이터를 불러오고, 
+`caret` 팩키지 `createDataPartition` 함수로 7:3으로 훈련데이터와 검증데이터로 쪼갠다.
+
+```{r pm-toyota-data, tidy=FALSE}
+##==============================================================================================
+## 01. 데이터 가져오기
+##==============================================================================================
+# 1.1. 데이터 불러오기
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+suppressMessages(library(caret))
+tuc.df <- read_csv("https://raw.githubusercontent.com/datailluminations/PredictingToyotaPricesBlog/master/ToyotaCorolla.csv")
+dim(tuc.df)
+
+# 1.2. 훈련데이터, 검증데이터
+in_train <- createDataPartition(tuc.df$Price, p = .7, list = FALSE)
+
+tuc.train.df <- tuc.df[in_train, ]
+tuc.test.df <- tuc.df[-in_train, ]
+```
+
+### 2.2. 데이터 정제
+
+도요타 중고차 데이터가 이미 전처리되어 정제되어 있기 때문에 데이터 정제 및 전처리 과정은 생략한다.
+
+```{r pm-toyota-clean, tidy=FALSE}
+##==============================================================================================
+## 02. 데이터 정제 및 전처리
+##==============================================================================================
+# 생략
+```
+
+### 2.3. 예측모형 개발
+
+전통적인 수작업 예측모형개발 과정을 살펴보고 컴퓨팅 자원과 지식을 활용한 예측모형개발 과정을 순차적으로 살펴본다.
+
+#### 2.3.1. 전통 수작업 예측모형 개발
+
+훈련데이터와 검증데이터로 우선 나누고 나서, 각 모형에 훈련데이터를 넣고, 적합시킨 예측모형에 검증데이터를 넣어 예측을 순서대로 진행해 나간다. 선형회귀모형, 강건 선형회귀모형, PLS(Partial Least Square, 부분최소자승법), 능선회귀모형을 예측모형으로 사용하고, 검증데이터를 넣어 성능을 예측한다.
+
+```{r pm-toyota-old-model, tidy=FALSE}
+##==============================================================================================
+## 03. 예측 모형 개발
+##==============================================================================================
+
+#-----------------------------------------------------------------------------------------------
+# Y변수와 X변수 구분
+
+# 훈련 데이터
+tuc.train.Y <- tuc.train.df$Price
+tuc.train.X <- tuc.train.df %>% select(-Price)
+
+# 검증 데이터
+tuc.test.Y <- tuc.test.df$Price
+tuc.test.X <- tuc.test.df %>% select(-Price)
+
+#-----------------------------------------------------------------------------------------------
+# 예측모형 적합
+
+# 3.1. 선형회귀모형
+tuc.lm.m <- lm(Price ~ ., data = tuc.train.df)
+tuc.lm.pred <- predict(tuc.lm.m, tuc.test.X) 
+
+tuc.lm.values <- data.frame(obs = tuc.test.Y, pred = tuc.lm.pred) 
+defaultSummary(tuc.lm.values)
+
+# 3.2. 강건 선형회귀모형
+suppressMessages(library(MASS))
+tuc.rlm.m <- rlm(Price ~ ., data = tuc.train.df)
+tuc.rlm.pred <- predict(tuc.rlm.m, tuc.test.X) 
+
+tuc.rlm.values <- data.frame(obs = tuc.test.Y, pred = tuc.rlm.pred) 
+defaultSummary(tuc.rlm.values)
+
+# 3.3. PLS (Partial Least Square)
+suppressMessages(library(pls))
+tuc.plsr.m <- plsr(Price ~ ., data = tuc.train.df)
+tuc.plsr.pred <- predict(tuc.plsr.m, tuc.test.X, ncomp = 1:2) 
+
+# 3.4. 능선 회귀모형(Ridge Regression)
+suppressMessages(library(elasticnet)) # elasticnet
+tuc.ridge.m <- enet(x = as.matrix(tuc.train.X[,-3]), y = tuc.train.Y, lambda = 0.001)
+
+tuc.ridge.pred <- predict(tuc.ridge.m, newx = as.matrix(tuc.test.X[,-3]), 
+                          s = 1, mode = "fraction", type = "fit")
+
+tuc.ridge.coef <- predict(tuc.ridge.m, newx = as.matrix(tuc.test.X[,-3]),  
+                    s = .1, mode = "fraction", type = "coefficients")
+
+tuc.ridge.coef$coefficients
+```
+
+검증데이터의 종속변수와 예측모형에서 나온 종속변수 예측값과 산점도를 그려본다.
+모형에서 예측된 값을 잔차와 함께 산점도로 도식화한다.
+
+```{r pm-toyota-old-diagnostic, tidy=FALSE}
+#------------------------------------------------------------------------------------
+# 모형 시각화
+# 1. 선형회귀모형
+suppressMessages(library(gridExtra))
+p.fit <- xyplot(tuc.test.Y ~ predict(tuc.lm.m),
+       type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
+p.resid <- xyplot(resid(tuc.lm.m) ~ predict(tuc.lm.m), add=TRUE,
+       type = c("p", "g"), 
+       xlab = "Predicted", ylab = "Residuals")
+grid.arrange(p.fit, p.resid, ncol=2)
+```
+
+#### 2.3.2. 컴퓨팅을 활용한 예측모형 개발
+
+교차타당도(cross-validation) 방법(10개 집단)을 사용해서 선형회귀모형, 강건 선형회귀모형, PLS(Partial Least Square, 부분최소자승법), 능선회귀모형, 라소 회귀방법을 적용하여 가장 최적의 모형을 선정한다.
+
+```{r pm-toyota-pm, tidy=FALSE}
+#------------------------------------------------------------------------------------
+# 컴퓨팅을 활용한 예측모형
+
+# 0. 교차타당도 제어조건 설정
+
+ctrl <- trainControl(method = "cv", number = 10)
+
+# 1. 선형회귀모형
+tuc.lm.tune <- train(Price ~ ., data = tuc.train.df, 
+                      method = "lm", 
+                      trControl = ctrl)
+tuc.lm.tune
+
+# 2. 강건 선형회귀모형
+tuc.rlm.tune <- train(Price ~ ., data = tuc.train.df, 
+                      method = "rlm", 
+                      trControl = ctrl)
+tuc.rlm.tune
+
+# 3. 부분최소자승모형
+tuc.plsr.tune <- train(Price ~ ., data = tuc.train.df, 
+                       method = "pls",
+                       preProc = c("center", "scale"),
+                       tuneLength = 20, 
+                       trControl = ctrl)
+tuc.plsr.tune
+
+# 4. 능선회귀모형
+ridgeGrid <- data.frame(.lambda = seq(0, .1, length = 15))
+tuc.ridge.tune <- train(tuc.train.X[,-3], tuc.train.Y, 
+                        method = "ridge", 
+                        tuneGrid = ridgeGrid, 
+                        trControl = ctrl)
+tuc.ridge.tune
+
+# 5. 라소 회귀모형
+enetGrid <- expand.grid(.lambda = c(0, 0.01, .1), 
+                        .fraction = seq(.05, 1, length = 20))
+tuc.lasso.tune <- train(tuc.train.X[,-3], tuc.train.Y,  
+                        method = "enet", 
+                        tuneGrid = enetGrid, 
+                        trControl = ctrl)
+tuc.lasso.tune
+```
+
+5개 모형을 $RMSE$와 $R^2$ 기준으로 가장 성능이 좋은 모형을 선정한다.
+
+```{r pm-toyota-pm-comp, tidy=FALSE}
+tuc.comp <- resamples(list( 
+  LM =tuc.lm.tune,
+  RLM = tuc.rlm.tune,
+  PLS = tuc.plsr.tune,
+  Lasso = tuc.lasso.tune, Ridge = tuc.ridge.tune))
+
+bwplot(tuc.comp,  layout = c(2, 1),scales = list(relation = "free"),
+       xlim = list(c(0, 2500), c(0.5, 1)))
+```
+

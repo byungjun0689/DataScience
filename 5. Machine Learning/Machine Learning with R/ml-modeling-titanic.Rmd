@@ -1,0 +1,219 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 전통방식 모형개발 - 타이타닉 생존 데이터
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+
+```{r, include=FALSE}
+source("tools/chunk-options.R")
+options(warn=-1)
+```
+ 
+> ## 학습목표 {.objectives}
+>
+> * 전통방식 모형개발 방식을 타이타닉 생존데이터에 적용한다.
+> * CMM 3수준에 해당되는 모형개발 방식으로 간주할 수도 있다.
+
+## 1. 타이타닉 생존 데이터 [^r-bloggers-logistic]
+
+[^r-bloggers-logistic]: [R-bloggers, How to perform a Logistic Regression in R](http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/)
+
+타이타닉 생존데이터는 영화로도 만들어지고, 여러가지 에피소드가 많이 들어있는 소재로 데이터 과학과 통계학적인 측면에서 바라보면 범주형 데이터로 생존여부가 종속변수로 녹아져 있어, 예측모형으로 적합시키기도 적절한 데이터이기도 하다.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9xoqXVjBEF8" frameborder="0" allowfullscreen></iframe>
+
+
+### 1.1. 타이타닉 생존 데이터 가져오기 [^r-blogger-titanic]
+
+[^r-blogger-titanic]: [How to perform a Logistic Regression in R](http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/)
+
+[캐글 타이타닉 데이터](https://www.kaggle.com/c/titanic/data)를 다운로드 받아 로컬컴퓨터에서 불러읽어오거나,
+GitHub 사이트에서 캐글 타이타닉 데이터를 올려놓은 것을 바로 불러온다.
+캐글 타이나틱 생존 데이터는 `train.csv`와 `test.csv`로 나눠져 있는데 일단 모두 합쳐 하나의 데이터셋으로 만들고 난후에 동일하게 전처리 작업을 하고 전통적 방식으로 예측하는 방법을 전개한다.
+
+|  변수명        |          변수명 설명            |
+|--------------|------------------------------|
+|  **survival**    |    Survival (0 = No; 1 = Yes)|
+|  pclass      |    Passenger Class  (1 = 1st; 2 = 2nd; 3 = 3rd)|
+|  name        |    Name|
+|  sex         |    Sex|
+|  age         |    Age|
+|  sibsp       |    Number of Siblings/Spouses Aboard|
+|  parch       |    Number of Parents/Children Aboard|
+|  ticket      |    Ticket Number|
+|  fare        |    Passenger Fare|
+|  cabin       |    Cabin|
+|  embarked    |    Port of Embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)|
+
+`survival` 이 종속변수이며, 나머지를 예측변수로 사용해서 생존을 예측하는 모형을 개발한다.
+
+``` {r, titanic-data, tidy=FALSE}
+##========================================================
+## 01. 데이터 준비
+##========================================================
+# Titanic: Machine Learning from Disaster, https://www.kaggle.com/c/titanic/data
+
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+titanic.train.df <- read_csv("https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/train.csv")
+titanic.test.df <- read_csv("https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/test.csv")
+titanic <- bind_rows(titanic.train.df, titanic.test.df)
+```
+
+
+## 1.2. 데이터 정제 
+
+타이타닉 생존데이터를 불러온 다음 현황을 파악하고, 결측값에 대한 대응방안을 마련한다.
+예를 들어, 결측값이 너무 많은 경우 변수(`Cabin`) 자체를 제거한다.
+`Name`, `Ticket`처럼 관측점마다 유일한 변수는 정보로서 의미가 없기 때문에 이것도 제거한다.
+`Age` 변수는 평균을 매워넣는 것으로 하고, 상대적으로 적은 결측값이 있는 관측점은 
+`Embarked`, `Fare`, `Survived`는 관측점을 제거하는 방식으로 정제 작업을 수행한다.
+
+특히, `Amelia` 팩키지의 `missmap` 함수를 사용해서 결측값 진행 작업을 바로 시각적으로 확인한다.
+
+``` {r, titanic-clean, tidy=FALSE}
+##========================================================
+## 02. 데이터 정제
+##========================================================
+# 2.1. 현황 파악
+summary(titanic)
+
+sapply(titanic, function(x) sum(is.na(x)))
+sapply(titanic, function(x) length(unique(x)))
+
+suppressMessages(library(Amelia))
+missmap(titanic, main = "결측값과 관측값")
+
+# 2.2. 결측값에 대한 응징
+# 분석에 사용될 변수만 선정
+
+titanic <- titanic %>% 
+  select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Embarked) %>%  # 결측값이 많은 Cabin과 이름, Ticket은 제거
+  mutate(Age = ifelse(is.na(Age), mean(Age, na.rm=TRUE), Age)) %>%  # 나이를 평균값으로 치환
+  filter(!is.na(Embarked)) %>%  # 결측값 2개 행 제거
+  filter(!is.na(Fare)) %>%   # 결측값 1개 행 제거
+  filter(!is.na(Survived))   # 결측값 418개 행 제거
+
+missmap(titanic, main = "결측값과 관측값")
+```
+
+## 1.3. 예측모형 적용
+
+`caret` 팩키지 `createDataPartition` 함수를 사용해서 7:3으로 훈련데이터와 검증데이터로 구분한다.
+
+`glm` 함수에 `family=binomial(link='logit')` 인자를 넣어 이항회귀모형을 적합시킨다.
+특히, 전체 변수를 모두 넣어 `Survived ~.` 생존을 예측하는 모형을 구축한다.
+
+변수를 선정하는 방법은 여러가지가 있으나, 먼저 `anova`함수를 사용해서 포화모델에서 
+유의적인 변수와 그렇지 않는 변수를 구별한다. 비유의적인 변수를 제거하고 `logit.reduced.m` 축소된 
+이항회귀모형을 개발한다. 
+
+이항회귀식에는 $R^2$ 결정계수가 큰 의미가 없다고 주장하는 경우도 있으나, `pscl` 팩키지의 기능을 사용하여 계산해본다.
+
+`ROCR` 팩키지를 사용해서 포화모형과 축소모형간에 차이가 있는지 ROC 면적과 더불어 ROC 곡선을 도식화하여 비교한다.
+
+두 모형간에 성능의 차이는 없어 보이며, 4개 모형이 사용된 축약된 모형이 포화모형과 거의 비슷한 성능을 내고 있다.
+
+``` {r, titanic-model, tidy=FALSE}
+##========================================================
+## 03. 모형 적합
+##========================================================
+## 
+suppressMessages(library(caret))
+
+#---------------------------------------------------------
+# 3.1. 훈련데이터와 검증데이터 분리
+
+train.id <- createDataPartition(titanic$Survived, p = 0.7)[[1]] 
+titanic.train.df <- titanic[ train.id,] 
+titanic.test.df <- titanic[-train.id,]
+
+#---------------------------------------------------------
+# 3.1. 선형회귀 적합
+
+logit.full.m <- glm(Survived ~.,family=binomial(link='logit'), data=titanic.train.df)
+summary(logit.full.m)
+
+#---------------------------------------------------------
+# 3.2. 변수선택
+anova(logit.full.m, test="Chisq")
+
+#---------------------------------------------------------
+# 3.3. 최적모형
+
+logit.reduced.m <- glm(Survived  ~ Pclass+Sex+Age+SibSp, family=binomial(link='logit'), data=titanic.train.df)
+summary(logit.reduced.m)
+
+#---------------------------------------------------------
+# 3.3. R^2 결정계수
+
+suppressMessages(library(pscl))
+pR2(logit.full.m)
+pR2(logit.reduced.m)
+
+#---------------------------------------------------------
+# 3.4. 모형 평가
+
+suppressMessages(library(ROCR))
+# 전체 모형
+logit.full.pred <- predict(logit.full.m, newdata=titanic.test.df, type="response")
+logit.full.pr <- prediction(logit.full.pred, titanic.test.df$Survived)
+logit.full.prf <- performance(logit.full.pr, measure = "tpr", x.measure = "fpr")
+plot(logit.full.prf)
+
+# ROC 면적
+logit.full.auc <- performance(logit.full.pr, measure = "auc")
+logit.full.auc <- logit.full.auc@y.values[[1]]
+logit.full.auc
+
+# 축소 모형
+logit.reduced.pred <- predict(logit.reduced.m, newdata=titanic.test.df, type="response")
+logit.reduced.pr <- prediction(logit.reduced.pred, titanic.test.df$Survived)
+logit.reduced.prf <- performance(logit.reduced.pr, measure = "tpr", x.measure = "fpr")
+plot(logit.reduced.prf)
+
+# ROC 면적
+logit.reduced.auc <- performance(logit.reduced.pr, measure = "auc")
+logit.reduced.auc <- logit.reduced.auc@y.values[[1]]
+logit.reduced.auc
+
+#---------------------------------------------------------
+# 3.5. ROC 면적비교
+
+plot(logit.full.prf)
+plot(logit.reduced.prf, add=TRUE, col="red")
+
+logit.full.auc
+logit.reduced.auc
+```
+
+## 1.4. 자동 모형 선정 방법
+
+만약 $p$개 변수가 있다면 $2^p$ 만큼 가능한 모형이 존재한다. 모형을 모두 적합시켜 $2^p$ 모형중에서 성능 등 기준조건을 만족하는 최적의 모형을 선정한다. 경우의 수가 너무 많고, 성능이 비슷한 모형을 반복적으로 개발할 우려도 있고 해서, 기준조건(Criterion-based) 방법으로 통해 변수를 추출해 나간다. 즉, 가장 성능이 좋은 변수부터 선택해 나가면서 복잡성과 성능을 최적화한다. 가장 일반적으로 많이 사용되는 방식이 $AIC(Akaike Information Criterion)$, $BIC(Bayes Information Criterion)$을 들 수 있다.
+
+$$AIC = -2 ln(L) + 2k $$
+$$BIC = -2 ln(L) + k ln(n) $$
+
+$L$은 모형에 대한 우도함수 최대값이고, $k$는 모형에 사용된 추정모수갯수, $n$은 관측점 갯수가 된다.
+
+``` {r, titanic-variable-selection, tidy=FALSE}
+##========================================================
+## 04. 변수선택 모형 선정
+##========================================================
+## 
+
+logit.null.m <- glm(Survived ~1, family=binomial(link='logit'), data=titanic.train.df)
+logit.full.m <- glm(Survived ~., family=binomial(link='logit'), data=titanic.train.df)
+
+logit.bic.m <- step(logit.null.m, scope=formula(logit.full.m), direction="both", criterion="BIC", k=log(nrow(titanic.train.df)))
+logit.aic.m <- step(logit.null.m, scope=formula(logit.full.m), direction="both", criterion="AIC", k=2)
+
+logit.bic.m
+logit.aic.m
+```

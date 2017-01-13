@@ -1,0 +1,201 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 사례 - 카드발급
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * 계량경제학 신용카드 발급데이터에 예측모형을 적용한다.
+> * 인간과 조화되는 예측모형을 선정한다.
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+options(warn=-1)
+```
+
+### 1. 환경설정 및 데이터 가져오기
+
+[Greene, Econometric Analysis, 5th Edition](http://pages.stern.nyu.edu/~wgreene/Text/tables/tablelist5.htm) 책에 포함된 신용카드 데이터가 "AER" 팩키지에 들어 있다. 이를 바로 활용한다. 활용되는 팩키지의 각 기능은 다음과 같다.
+
+* `pscl` &rarr; 이항회귀모형에 사용되는 $R^2$ 결정계수
+* `ROCR`, `pROC` &rarr; ROC 곡선 및 AUC 면적
+* `dplyr` &rarr; 데이터 작업
+* `caret` &rarr; 예측모형 기본 팩키지
+
+```{r card-data, tidy=FALSE}
+
+##==============================================================================
+## 00. 환경설정
+##==============================================================================
+suppressMessages(library(doMC))
+registerDoMC(cores=7)
+
+suppressMessages(library(AER)) # 카드발급 데이터가 포함됨
+suppressMessages(library(pscl)) # 이항회귀분석 R^2
+suppressMessages(library(ROCR)) # 모형성능평가
+suppressMessages(library(caret))
+suppressMessages(library(dplyr))
+
+##==============================================================================
+## 01. 데이터 가져오기
+##==============================================================================
+data(CreditCard)
+CreditCard <- as.tbl(CreditCard)
+head(CreditCard)
+```
+
+|  변수명     |    변수 설명    |
+|-----------|------------------------------------------------------------|
+| Cardhldr  | Dummy variable, 1 if application for credit card accepted, 0 if not |
+| Majordrg  | Number of major derogatory reports |
+| Age       | Age n years plus twelfths of a year |
+| Income    | Yearly income (divided by 10,000) |
+| Exp_Inc   | Ratio of monthly credit card expenditure to yearly income |
+| Avgexp    | Average monthly credit card expenditure |
+| Ownrent   | 1 if owns their home, 0 if rent |
+| Selfempl  | 1 if self employed, 0 if not. |
+| Depndt    | 1 + number of dependents |
+| Inc_per   | Income divided by number of dependents |
+| Cur_add   | months living at current address |
+| Major     | number of major credit cards held |
+| Active    | number of active credit accounts |
+
+### 2. 데이터정제
+
+이미 데이터가 정제되어 이항회귀모형을 적합시킬 수 있기 때문에 데이터 정제 작업은 생략하고, 바로 모형개발작업에 들어간다.
+
+### 3. 모형개발
+
+`createDataPartition` 함수로 훈련데이터와 검증데이터로 구분한다.
+
+사람이 개입하여 모형을 한땀한땀 개발하는 과정이 아니라, 교차타당도를 기준으로 훈련데이터를 5개 집단으로 나누고,
+10번 반복하여 주어진 기준을 가장 잘 만족하는 모형을 선택한다. 
+
+1. 일반선형모형
+1. 일반선형모형 부스팅
+1. MARS
+1. CART
+1. 부스팅 나무(Boosted Tree)
+1. 확률숲(RandomForest)
+
+```{r card-modeling, tidy=FALSE}
+##==============================================================================
+## 03. 모형개발
+##==============================================================================
+
+#---------------------------------------------------------
+# 3.1. 훈련데이터와 검증데이터 분리
+
+train.id <- createDataPartition(CreditCard$card, p = 0.7)[[1]] 
+cc.train.df <- CreditCard[ train.id,] 
+cc.test.df <- CreditCard[-train.id,]
+
+#---------------------------------------------------------
+# 3.2. 제어변수 설정
+
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 5,
+                     repeats = 10,
+                     classProbs = TRUE,
+                     summaryFunction = twoClassSummary, 
+                     verboseIter = FALSE)
+
+#---------------------------------------------------------
+# 3.3. 예측 모형 적용
+
+# glm
+glm.tune <- train(card ~ ., data=cc.train.df, 
+                       method = "glm", 
+                       family = binomial,
+                       metric="ROC", 
+                       trControl = ctrl, 
+                       tuneLength=5)
+
+# glm boosting
+suppressMessages(library(mboost))
+glmBoost.tune <- train(card ~ ., data=cc.train.df, 
+                       method = "glmboost", 
+                       metric="ROC", 
+                       trControl = ctrl, 
+                       tuneLength=5, 
+                       center=TRUE, 
+                       family=Binomial(link = c("logit")))
+# mars
+suppressMessages(library(earth))
+mars.tune <- train(card ~ ., data=cc.train.df, 
+                   method = "earth", 
+                   glm=list(family=binomial), 
+                   metric="ROC", 
+                   trControl = ctrl, 
+                   tuneLength=5)
+
+# CART
+cart.tune <- train(card ~ ., data=cc.train.df, 
+                   method = "rpart", 
+                   metric="ROC", 
+                   trControl = ctrl, 
+                   tuneLength=5)
+
+# Boosted tree
+gbm.tune <- train(card ~ ., data=cc.train.df, 
+                  method = "gbm", 
+                  metric="ROC", 
+                  trControl = ctrl, 
+                  verbose=FALSE, 
+                  tuneLength=5)
+
+# Random Forest
+rf.tune <- train(card ~ ., data=cc.train.df, 
+                 method = "rf", 
+                 metric="ROC", 
+                 trControl = ctrl, 
+                 verbose=FALSE, 
+                 tuneLength=5)
+```
+
+### 4. 모형 성능평가
+
+`ROC` 기준으로 가장 면적이 넓은 모형을 선정한다. 6개 모형이 성능이 가장 좋아야 하고, 성능이 비슷하다면 단순한 모형을 선정한다. `parallelplot()` 시각화 도구를 통해 예측모형의 성능을 시각적으로 바로 확인한다.
+
+```{r card-performane, tidy=FALSE}
+##==============================================================================
+## 04. 모형성능평가
+##==============================================================================
+
+allResamples <- resamples(list(MARS = mars.tune,
+                               CART = cart.tune,
+                               "Logistic" = glm.tune,
+                               "GLM Boosting" = glmBoost.tune,
+                               "Boosted Tree" = gbm.tune,
+                               "Random Forest" = rf.tune))
+parallelplot(allResamples, metric = "ROC")
+```
+
+### 5. 최종모형 선정
+
+MARS를 최종모형으로 선정하고, 모형에 대한 자세한 사항을 `summary()` 함수를 통해 살펴본다.
+또한, MARS는 `plotmo` 기능을 통해 설명변수를 종속변수에 시각적으로 확인도 가능하다. 
+
+```{r card-deploy, tidy=FALSE}
+mars.tune
+
+mars.tune$bestTune
+
+summary(mars.tune)
+
+plotmo(mars.tune$finalModel, type="link")
+```
+
+
+
+
+
+
+

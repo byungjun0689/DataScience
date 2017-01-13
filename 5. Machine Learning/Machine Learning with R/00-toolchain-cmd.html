@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">파이썬기반 기계학습 툴체인(toolchain)</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>명령라인 인터페이스의 강력함을 살펴본다.</li>
+<li>유닉스 명령라인 인터페이스를 통해 데이터 분석을 실시한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="명령라인-인터페이스-강력함-시연">명령라인 인터페이스 강력함 시연</h2>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="대표적-국내외-공유-저작물-저장소-public-domain-public-domain-summary"><span class="glyphicon glyphicon-pushpin"></span>대표적 국내외 공유 저작물 저장소 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h3>
+</div>
+<div class="panel-body">
+<p>저작권 걱정없이 저작물을 받을 수 있는 경로는 여러 곳이 존재한다. 하지만, PDF, HWP, TXT 파일은 압축하여 제공하고 있어 사람손이 몇번씩 가는 문제점이 있다. 작업과정에 추가로 프로세스를 넣어주어야만 된다. 어차치 TXT로 작업하는데 …</p>
+<ul>
+<li>미국: <a href="http://www.gutenberg.org/">구텐베르크(Gutenberg) 프로젝트</a></li>
+<li>일본: <a href="http://www.aozora.gr.jp/">일본판 구텐베르크, 아오조라 문고(靑空文庫, あおぞらぶんこ)</a></li>
+<li><strong>대한민국</strong>
+<ul>
+<li><a href="http://www.kogl.or.kr/">공공누리 포털</a></li>
+<li><a href="http://www.jikji.org/">직지(http://www.jikji.org/)</a></li>
+<li><a href="http://gongu.copyright.or.kr/">공유마당</a></li>
+</ul></li>
+</ul>
+</div>
+</aside>
+<p>결국에 모두 실패하고, <a href="http://www.jikji.org/">직지(http://www.jikji.org/)</a>에서 수작업으로 <code>.txt</code> 파일을 생성하여 <code>.txt</code> 파일을 웹에 올려 <code>curl</code> 명령어를 통해 바로 다운로드 받게 소설데이터를 준비했다. 소설 데이터는 <strong>B사감과 러브레터</strong> 라 고등학교 인문계에서 필독서로 아주 오래전에 읽었던 기억이 난다. 영화로도 만들어지고, TV에서도 방영되었던 것으로 기억된다.</p>
+<ol style="list-style-type: decimal">
+<li><code>curl</code> 명령어를 통해 <a href="https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt" class="uri">https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B사감과_러브레터.txt</a> 파일을 다운로드 한다.</li>
+<li><code>grep</code> 명령어로 정규표현식 패턴을 넣어 단어를 각 행별로 추출하여 쭉 정리해 나간다.</li>
+<li><code>sort</code> 명령어로 오름차순으로 정리한다.</li>
+<li><code>unique</code> 명령어로 중복을 제거하고 <code>-c</code> 인자플래그를 넣어 중복수를 센다.</li>
+<li><code>sort</code> 명령어로 단어갯수를 내림차순으로 정리한다.</li>
+<li><code>head</code> 명령어로 가장 빈도가 높은 단어 5개를 추출한다.</li>
+</ol>
+<pre class="shell"><code>$ curl -s https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt | \
+grep -oE &#39;\w+&#39; | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 5</code></pre>
+<pre class="output"><code>    138 처음
+    132 직지에
+     65 러브레터
+     47 때
+     26 여학교에서</code></pre>
+<p>만약 두도시 이야기(A Tale of Two Cities)에서 가장 많은 단어를 분석하고자 하는 경우 <a href="http://www.gutenberg.org/cache/epub/98/pg98.txt" class="uri">http://www.gutenberg.org/cache/epub/98/pg98.txt</a>을 인자로 바꿔 넣으면 된다.</p>
+<pre class="shell"><code>$ curl -s http://www.gutenberg.org/cache/epub/98/pg98.txt | \
+grep -oE &#39;\w+&#39; | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 5</code></pre>
+<pre class="output"><code>   7577 the
+   4921 and
+   4103 of
+   3601 to
+   2864 a</code></pre>
+<h2 id="명령라인-데이터-분석-cmd-data-analysis-data-science-toolbox">명령라인 데이터 분석 <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></h2>
+<p>명령라인 인터페이스를 사용하면, 애자일(Agile), 다른 기술과 증강(Augmenting)이 가능하며, 확장성(Scalable)이 크며, 연장가능(Extensible)하며, 어디서나 사용(Ubiquitous)되는 장점을 갖는다.</p>
+<p>유닉스는 <strong>텍스트(Text)</strong> 가 어디서나 사용되는 인터페이스로, 각 개별 구성요소는 한가지 작업만 매우 잘 처리하게 설계되었고, 복잡하고 난이도가 있는 작업은 한가지 작업만 잘 처리하는 것을 <strong>파이프와 필터</strong> 로 자동화하고, 그리고 <strong>쉘스크립트</strong> 를 통해 추상화한다.</p>
+<h2 id="데이터-가져오기">1. 데이터 가져오기</h2>
+<p>데이터를 가져오는 방식은 결국 텍스트로 유닉스/리눅스 환경으로 불러와야만 된다. <strong><a href="http://csvkit.readthedocs.io/">csvkit</a></strong> 에 <code>in2csv</code>, <code>csvcut</code>, <code>csvlook</code>, <code>sql2csv</code>, <code>csvsql</code>이 포함되어 있다.</p>
+<p><code>sudo pip install csvkit</code> 명령어로 설치한다.</p>
+<ul>
+<li>로컬 파일: <code>cp</code> 복사, 원격파일 복사: <code>scp</code> 복사</li>
+<li>압축파일: <code>tar</code>, <code>unzip</code>, <code>unrar</code> 명령어로 압축된 파일을 푼다.
+<ul>
+<li>압축파일 확장자: <code>.tar.gz</code>, <code>.zip</code>, <code>.rar</code></li>
+<li>압축파일 푸는 종결자 <code>unpack</code></li>
+</ul></li>
+<li>스프레드쉬트: <a href="http://csvkit.readthedocs.io/">in2csv</a>는 표형식 엑셀 데이터를 받아 <code>csv</code> 파일로 변환.
+<ul>
+<li><code>$ in2csv ne_1033_data.xlsx | csvcut -c county,item_name,quantity | csvlook | head</code></li>
+</ul></li>
+<li>데이터베이스: sql2csv
+<ul>
+<li><code>sql2csv --db 'sqlite:///iris.db' --query 'SELECT * FROM iris where petal_length &gt; 6.5' | csvlook</code></li>
+</ul></li>
+<li>인터넷: <a href="https://curl.haxx.se/">curl</a>을 활용하여 인터넷 자원을 긁어온다.
+<ul>
+<li><code>curl -s http://www.gutenberg.org/files/13693/13693-t/13693-t.tex -o number-theory.txt</code><br />
+</li>
+</ul></li>
+<li>API: <a href="https://curl.haxx.se/">curl</a> 물론, API 토큰, 비밀키 등을 설정하거나 일일 이용한도가 있을 수도 있다. 특히, <a href="https://github.com/decklin/curlicue">curlicue</a>를 활용하여 트위터 데이터를 바로 가져와서 활용할 수 있다. 자세한 사항은 <a href="http://arjon.es/2015/07/30/create-your-own-dataset-consuming-twitter-api/">Create Your Own Dataset Consuming Twitter API</a> 블로그를 참조한다.
+<ul>
+<li><a href="https://randomuser.me/">RANDOM USER GENERATOR</a>, <code>curl -s http://api.randomuser.me | jq '.'</code></li>
+</ul></li>
+</ul>
+<h2 id="데이터-정제">2. 데이터 정제</h2>
+<h3 id="행-뽑아내기">2.1 행 뽑아내기</h3>
+<ul>
+<li>행 위치정보를 기반으로 해서 행 절대번호를 활용하여 추출한다.
+<ul>
+<li><code>head</code>, <code>sed</code>, <code>awk</code></li>
+</ul></li>
+<li>패턴을 주고 연관된 행만 추출한다.
+<ul>
+<li><code>grep</code> 명령어에 정규표현식으로 패턴을 담아 매칭되는 것만 뽑아낸다.</li>
+<li>사용례: <code>grep -i session paper.txt</code></li>
+</ul></li>
+<li>무작위로 행을 추출한다.
+<ul>
+<li><code>shuf</code> 명령어를 사용한다.</li>
+<li>사용례: <code>shuf -n 10 data.csv</code></li>
+</ul></li>
+</ul>
+<h3 id="값-추출">2.2. 값 추출</h3>
+<p>기본적인 값추출 전략은 <code>grep</code> 명령어로 행을 뽑아내고, <code>cut</code> 명령어로 구분자를 두거나 고정된 열위치에 해당하는 열에서 값을 추출한다. <code>cut</code> 명령어로 열을 쪼개는데 구분자로 <code>,</code>를 사용하고 뽑아내는 열로 <code>-f</code> 인자를 두고 3번째 행이후 모두를 지정한다.</p>
+<pre class="shell"><code>$ `grep -i session paper.txt | cut -d &#39;,&#39; -f3-`
+$ `grep -i session paper.txt | cut -c 7-`</code></pre>
+<h3 id="값-바꾸기">2.3. 값 바꾸기</h3>
+<p>값을 바꾸거나 삭제할 때 사용하는 명령어가 <code>tr</code>로 <code>translate</code> 번역의 약자다.</p>
+<p>공백 <code>`을</code>*`로 바꾼다.</p>
+<pre class="shell"><code>$ echo &#39;We Love Data Science!&#39; | tr &#39; &#39; &#39;*&#39;
+We*Love*Data*Science!</code></pre>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="명령라인-터미널-동영상-제작"><span class="glyphicon glyphicon-pushpin"></span>명령라인 터미널 동영상 제작</h3>
+</div>
+<div class="panel-body">
+<p><a href="https://asciinema.org/">asciinema (as-kee-nuh-muh)</a> $ asciinema -yt “Start Here !!!”</p>
+</div>
+</aside>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://gongu.copyright.or.kr/">공유마당</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://minheeblog.tistory.com/49">저작권 걱정없이 이용하기 프로젝트 03. 해외만료저작물</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://datascienceatthecommandline.com/">Data Science at the Command Line</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://datasciencetoolbox.org/">Data Science Toolbox</a><a href="#fnref4">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

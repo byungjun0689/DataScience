@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">네트워크 분석 사용자 안내서</h2>
+          <h3 id="네트워크-과학-network-user-guide">1. 네트워크 과학 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>네트워크 과학자들이 사용하는 네트워크 과학 도구에는 세가지가 있다.</p>
+<ol style="list-style-type: decimal">
+<li>네트워크 시각화</li>
+<li>전반적인 네트워크 구조 뿐만 아니라 네트워크 구성요소(노드, 하위 네트워크)를 기술</li>
+<li>네트워크 구조와 동적인 면을 수학적 통계학 모형으로 구현</li>
+</ol>
+<p>1930년대 <code>Jacob Moreno</code> 의 작업이 근대적인 네트워크 분석 시초로 알려졌고, <a href="https://en.wikipedia.org/wiki/Sociogram">Sociogram</a>을 통해 네트워크 구조를 시각화하는 방안을 제시했다.</p>
+<h3 id="r-네트워크-분석-툴체인">2. R 네트워크 분석 툴체인</h3>
+<p><code>network</code>, <code>igraph</code> 팩키지를 통해 R 객체로 저장이되고, <code>intergraph</code> 팩키지를 통해 다른 소프트웨어와 네트워크 데이터를 주고 받는다.</p>
+<p>기본적인 네트워크 분석과 시각화는 <code>sna</code> 팩키지가 담당하는데, <code>statnet</code>, <code>igraph</code>의 일부로 역할을 수행한다.</p>
+<p>고급 네트워크 모형개발은 <code>ergm</code>이 담당하고, 동적 네트워크 모형은 <code>RSiena</code> 팩키지, <code>ndtv</code> 팩키지가 있다. “dynamic actor-based network models” 모형은 <code>RSiena</code>, 시간에 따른 중소규모 네트워크 시각화에는 <code>ndtv</code>가 권장된다.</p>
+<p><a href="http://link.springer.com/book/10.1007/978-3-319-23883-8">A Users Guide to Network Analysis in R. Springer, 2015.</a> 책에 소개된 각각의 장에 나타난 중요개념과 팩키지, 데이터셋이 예제로 잘 나와 있다. 이를 중요개념으로 삼아 학습을 해나가면 도움이 많이 될 것으로 보인다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">네트워크 분석 분야</th>
+<th align="left">관련 팩키지</th>
+<th align="left">데이터셋</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">소개</td>
+<td align="left"></td>
+<td align="left">FIFA Nether, Krebs</td>
+</tr>
+<tr class="even">
+<td align="left">다섯 숫자 요약</td>
+<td align="left">statnet, sna</td>
+<td align="left">Moreno</td>
+</tr>
+<tr class="odd">
+<td align="left">네트워크 데이터</td>
+<td align="left">statnet, network, igraph</td>
+<td align="left">DHHS, ICTS</td>
+</tr>
+<tr class="even">
+<td align="left">시각화 기초</td>
+<td align="left">statnet, sna</td>
+<td align="left">Moreno, Bali</td>
+</tr>
+<tr class="odd">
+<td align="left">그래픽 디자인 설계</td>
+<td align="left">statnet, sna, igraph</td>
+<td align="left">Bali</td>
+</tr>
+<tr class="even">
+<td align="left">고급 그래픽</td>
+<td align="left">arcdiagram, circlize, visNetwork, networkD3</td>
+<td align="left">Simpsons, Bali</td>
+</tr>
+<tr class="odd">
+<td align="left">유명함(Prominence)</td>
+<td align="left">statnet, sna</td>
+<td align="left">DHHS, Bali</td>
+</tr>
+<tr class="even">
+<td align="left">하위그룹(Subgroups)</td>
+<td align="left">igraph</td>
+<td align="left">DHHS, Moreno, Bali</td>
+</tr>
+<tr class="odd">
+<td align="left">소속(Affiliation)네트워크</td>
+<td align="left">igraph</td>
+<td align="left">hwd</td>
+</tr>
+<tr class="even">
+<td align="left">수학 모형</td>
+<td align="left">igraph</td>
+<td align="left">lhds</td>
+</tr>
+<tr class="odd">
+<td align="left">확률적 모형</td>
+<td align="left">ergm</td>
+<td align="left">TCnetworks</td>
+</tr>
+<tr class="even">
+<td align="left">동적 모형</td>
+<td align="left">RSiena</td>
+<td align="left">Coevolve</td>
+</tr>
+<tr class="odd">
+<td align="left">모의 시험</td>
+<td align="left">igraph</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<h3 id="네트워크-기술-통계">2. 네트워크 기술 통계</h3>
+<p>네트워크 분석를 분석하는데 가장 효과적인 방법이 시각화다. 하지만, 네트워크가 커지게 되면 시각화하는데 한계가 있다. 이런 제약사항에 관계없이 사용할 수 있는 기법이 기술통계다.</p>
+<p>마치 평균, 분산, 표준편차처럼 데이터를 숫자로 요약하여 전체적인 데이터 이해를 돕듯이, 네트워크 분석에도 이런 기술통계가 존재한다.</p>
+<p><a href="http://www.martingrandjean.ch/social-network-analysis-visualization-morenos-sociograms-revisited/">Social network analysis and visualization: Moreno’s Sociograms revisited</a> 4학년 네트워크 연결을 오래전에 Moreno가 수행한 연구에 따르면 고립된 집단과 남자와 여자로 확연히 구별된다.</p>
+<p><img src="fig/ml-user-guide-moreno-4.png" alt="Moreno Sociogram" width="57%" /></p>
+<p>이를 네트워크 시각화를 통해 확인하면 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># devtools::install_github(&quot;DougLuke/UserNetR&quot;)</span>
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(statnet)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(UserNetR)))
+
+<span class="kw">data</span>(Moreno)
+
+gender &lt;-<span class="st"> </span>Moreno %v%<span class="st"> &quot;gender&quot;</span>
+<span class="kw">plot</span>(Moreno, <span class="dt">vertex.col =</span> gender +<span class="st"> </span><span class="dv">2</span>, <span class="dt">vertex.cex =</span> <span class="fl">1.2</span>)</code></pre></div>
+<p><img src="fig/network-user-guide-viz-1.png" title="plot of chunk network-user-guide-viz" alt="plot of chunk network-user-guide-viz" style="display: block; margin: auto;" /></p>
+<p>네트워크 기술통계량에는 네크워크 크기, 전체 네트워크 요약, 네트워크 밀도, 네트워크 구성요소 및 반경, 네트워크 군집 계수등이 포함된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 네트워크 크기 및 요약</span>
+<span class="kw">network.size</span>(Moreno)</code></pre></div>
+<pre class="output"><code>[1] 33
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(Moreno, <span class="dt">print.adj =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<pre class="output"><code>Network attributes:
+  vertices = 33
+  directed = FALSE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 46 
+   missing edges = 0 
+   non-missing edges = 46 
+ density = 0.08712121 
+
+Vertex attributes:
+
+ gender:
+   numeric valued attribute
+   attribute summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   1.000   2.000   1.515   2.000   2.000 
+  vertex.names:
+   character valued attribute
+   33 valid vertex names
+
+No edge attributes
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 네트워크 밀도</span>
+<span class="kw">gden</span>(Moreno)</code></pre></div>
+<pre class="output"><code>[1] 0.08712121
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 네트워크 구성요소(Component)</span>
+<span class="kw">components</span>(Moreno)</code></pre></div>
+<pre class="output"><code>Node 1, Reach 31, Total 31
+Node 2, Reach 31, Total 62
+Node 3, Reach 31, Total 93
+Node 4, Reach 31, Total 124
+Node 5, Reach 31, Total 155
+Node 6, Reach 31, Total 186
+Node 7, Reach 31, Total 217
+Node 8, Reach 31, Total 248
+Node 9, Reach 31, Total 279
+Node 10, Reach 31, Total 310
+Node 11, Reach 31, Total 341
+Node 12, Reach 31, Total 372
+Node 13, Reach 31, Total 403
+Node 14, Reach 31, Total 434
+Node 15, Reach 31, Total 465
+Node 16, Reach 31, Total 496
+Node 17, Reach 31, Total 527
+Node 18, Reach 31, Total 558
+Node 19, Reach 31, Total 589
+Node 20, Reach 31, Total 620
+Node 21, Reach 31, Total 651
+Node 22, Reach 31, Total 682
+Node 23, Reach 31, Total 713
+Node 24, Reach 31, Total 744
+Node 25, Reach 31, Total 775
+Node 26, Reach 31, Total 806
+Node 27, Reach 31, Total 837
+Node 28, Reach 31, Total 868
+Node 29, Reach 31, Total 899
+Node 30, Reach 31, Total 930
+Node 31, Reach 31, Total 961
+Node 32, Reach 2, Total 963
+Node 33, Reach 2, Total 965
+</code></pre>
+<pre class="output"><code>[1] 2
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 네트워크 반경(Diameter)</span>
+lgc &lt;-<span class="st"> </span><span class="kw">component.largest</span>(Moreno, <span class="dt">result=</span><span class="st">&quot;graph&quot;</span>)</code></pre></div>
+<pre class="output"><code>Node 1, Reach 31, Total 31
+Node 2, Reach 31, Total 62
+Node 3, Reach 31, Total 93
+Node 4, Reach 31, Total 124
+Node 5, Reach 31, Total 155
+Node 6, Reach 31, Total 186
+Node 7, Reach 31, Total 217
+Node 8, Reach 31, Total 248
+Node 9, Reach 31, Total 279
+Node 10, Reach 31, Total 310
+Node 11, Reach 31, Total 341
+Node 12, Reach 31, Total 372
+Node 13, Reach 31, Total 403
+Node 14, Reach 31, Total 434
+Node 15, Reach 31, Total 465
+Node 16, Reach 31, Total 496
+Node 17, Reach 31, Total 527
+Node 18, Reach 31, Total 558
+Node 19, Reach 31, Total 589
+Node 20, Reach 31, Total 620
+Node 21, Reach 31, Total 651
+Node 22, Reach 31, Total 682
+Node 23, Reach 31, Total 713
+Node 24, Reach 31, Total 744
+Node 25, Reach 31, Total 775
+Node 26, Reach 31, Total 806
+Node 27, Reach 31, Total 837
+Node 28, Reach 31, Total 868
+Node 29, Reach 31, Total 899
+Node 30, Reach 31, Total 930
+Node 31, Reach 31, Total 961
+Node 32, Reach 2, Total 963
+Node 33, Reach 2, Total 965
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gd &lt;-<span class="st"> </span><span class="kw">geodist</span>(lgc)
+<span class="kw">max</span>(gd$gdist)</code></pre></div>
+<pre class="output"><code>[1] 11
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 군집 계수(Clustering Coefficient)</span>
+<span class="kw">gtrans</span>(Moreno,<span class="dt">mode=</span><span class="st">&quot;graph&quot;</span>)</code></pre></div>
+<pre class="output"><code>[1] 0.2857143
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://link.springer.com/book/10.1007/978-3-319-23883-8">Luke, Douglas A. A Users Guide to Network Analysis in R. Springer, 2015.</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

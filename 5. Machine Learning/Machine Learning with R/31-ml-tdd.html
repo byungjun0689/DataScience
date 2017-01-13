@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">테스트 주도 기계학습</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>테스트 주도 기계학습을 이해한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="테스트-주도-기계학습-배경-tdd-kirk">테스트 주도 기계학습 배경 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>기계학습을 통한 소프트웨어를 개발할 경우, 복잡성이 증대되면 사양서를 작성하고 테스트 케이스를 생성하여 품질을 높여야만 품질과 성능을 높일 수 있다. 마이크로소프트 리서치 연구결과에 따르면, 소프트웨어 프로젝트에 테스트 주도 개발(Test Driven Development)을 하게 되면 시간이 15 – 35% 더 소요되지만, 품질은 60 – 90% 향상된다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<p>TDD는 켄트 벡이 1999년 XP(extreme programming)를 통해 대중화 시켰고, <strong>적록 리팩토링(red green refactoring)</strong> 이라고 부르며, 먼저 코드를 작성하지 않은 상황에서 의도와 목적을 테스트 케이스로 작성하고 코드를 작성해 나간다. 당연히 코드를 아무것도 작성하지 않았기 때문에 테스트를 돌리게 되면 적색으로 실패하고 차근차근 코드를 적어 나가면서 최종단계에서는 가능하면 모두 녹색으로 만들어 나가 개발을 완료하는 과정을 거치게 된다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="가설-테스트-이론화"><span class="glyphicon glyphicon-pushpin"></span>가설 → 테스트 → 이론화</h3>
+</div>
+<div class="panel-body">
+<p>과학은 시험과 실패과정이 받듯이 수반되는데, 이를 가설을 생성하고, 가설을 검증 테스트하고나서 가설을 조합하여 이론화하는 과정을 일반적으로 거치게 된다. 최근에는 컴퓨터의 발달과 데이터가 폭발적으로 증가하여 모의시험과 데이터과학을 근본으로 데이터와 모의시험을 통해 가설을 검증하고 이론화하는 과정을 거치는 것이 일반적이다.</p>
+</div>
+</aside>
+<h3 id="tdd를-통한-명제에-대한-타당성-검증">1. TDD를 통한 명제에 대한 타당성 검증</h3>
+<p>TDD를 통해 논리적 명제에 대한 타당성 검증을 한다. 정당화된 참된 믿음(justified true belief)과 참된 믿음에 대한 정당성이 모두 필요하다. 믿음을 정당화하는데 명제가 동원된다. 필요조건과 충분조건이 충족되면 동원된 명제가 참으로 인정한다. 필요조건은 우주선을 우주로 쏘아올리기 전에 모든 조건이 충족되어야 하고, 충분조건은 완벽하지는 않지만 검증 테스트를 증명할 정도로 충분하기만 하면 된다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">과학적 방법론</th>
+<th align="left">테스트 주도 개발</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">필요조건</td>
+<td align="left">공리(Axioms)</td>
+<td align="left">순수 기능 테스트</td>
+</tr>
+<tr class="even">
+<td align="left">충분조건</td>
+<td align="left">통계적 가설검증</td>
+<td align="left">단위, 통합 테스트</td>
+</tr>
+</tbody>
+</table>
+<p>공리를 통한 소프트웨어 개발은 정형 방법론(Formal Method)로 소개되어 과거 악명높은 윈도우가 죽으면 파란 화면이 뜨는 버그 문제를 해결했다. 하지만, 현실 세계에서는 필요조건을 충족시키는 테스트 기법보다는 통계적 가설검증과 마찬가지로 단위, 통합 테스트를 통한 증명방식을 취한다. 통합테스트, 시스템 테스트를 통한 인과성을 만족시킬 충분한 증거가 있는가에 초점을 맞춘다.</p>
+<h3 id="ttd를-통해-사전-테스트-제작과-문서화">2. TTD를 통해 사전 테스트 제작과 문서화</h3>
+<p>테스트를 사전에 작성하게 되면 동료검토와 더불어 기계학습 소프트웨어 개발에 초석이 된다. 소프트웨어의 특징은 추상적이며 변경하기 쉽다는 점이다. 테스트를 사전에 작성하면 문서화는 자동으로 따라오게 된다.</p>
+<h3 id="논문-검토와-동료검토">3. 논문 검토와 동료검토</h3>
+<p>과학논문을 작성하게 되면 요즘 재현성에 대한 위기가 있기는 하지만, 기본적으로 사람에 대한 부분은 논문 검토자를 통해 저널에 실리기 전에 검토가 이루어고, 이때 나온 피드백을 근간으로 반복이 이루어지는데, 기계학습 소프트웨어 개발과정도 별반 차이가 나지 않는다.</p>
+<h3 id="기계학습과-관련된-위험">4. 기계학습과 관련된 위험</h3>
+<p>기계학습이 좋은 성과를 내고 있는 것은 사실이지만, 딥러닝과 다르게 기본적으로 사람이 데이터를 보고, 본인의 경험과 학습한 이론에 비추어 최적의 모형을 찾아내는 과정을 거치게 된다. 따라서, 데이터에 가장 잘 작합되는 모형을 개발하여 산출하는 과정에서 다양한 위험과 유혹에 노출된 것도 사실이다.</p>
+<ul>
+<li>안정성 없는 데이터 → 접합선 테스트(Seam Testing) <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></li>
+<li>과소적합(Underfitting) → 교차 검증(Cross-Validation)</li>
+<li>과대적합(Overfitting) → 벤치마크 테스트(오캄의 면도날)</li>
+<li>예측할 수 없는 미래 → 시간경과에 따른 정확도/재현율 추적</li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://shop.oreilly.com/product/0636920032298.do">Matthew Kirk(2014), “Thoughtful Machine Learning -A Test-Driven Approach”, O’Reilly Media</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://research.microsoft.com/en-us/news/features/nagappan-100609.aspx">Janie Chang (2009), “Exploding Software-Engineering Myths”, Microsoft Research</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p>“A seam is a place where you can alter behavior in your program without editing in that place” from “Working Effectively with Legacy Code” (Prentice Hall), Michael Feathers.<a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

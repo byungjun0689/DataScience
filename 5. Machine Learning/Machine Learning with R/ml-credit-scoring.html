@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">소매금융 부도예측 - 독일신용 데이터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>독일신용 데이터를 기준으로 통계예측모형을 개발한다.</li>
+<li>신용카드발급의 기준이 될 수 있는 컷오프를 산출한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="환경설정-및-데이터-가져오기">1. 환경설정 및 데이터 가져오기</h3>
+<p><a href="https://www.packtpub.com/big-data-and-business-intelligence/r-statistical-application-development-example-beginners-guide">R Statistical Application Development by Example</a> 책에 부록으로 딸려있는 팩키지 “RSADBE”에 독일신용데이터가 들어 있다. 이를 바로 활용한다. 활용되는 팩키지의 각 기능은 다음과 같다.</p>
+<ul>
+<li><code>pscl</code> → 이항회귀모형에 사용되는 <span class="math inline">\(R^2\)</span> 결정계수</li>
+<li><code>ROCR</code>, <code>pROC</code> → ROC 곡선 및 AUC 면적</li>
+<li><code>dplyr</code> → 데이터 작업</li>
+<li><code>caret</code> → 예측모형 기본 팩키지</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 00. 환경설정
+##==============================================================================
+<span class="co"># R Statistical Application Development by Example</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(RSADBE)) <span class="co"># 독일신용데이터 포함됨</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(pscl)) <span class="co"># 이항회귀분석 R^2</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(ROCR)) <span class="co"># 모형성능평가</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(pROC))  <span class="co"># 모형성능평가</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret)) <span class="co"># 기본예측모형</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr)) <span class="co"># 데이터 작업</span>
+
+##==============================================================================
+## 01. 데이터 가져오기
+##==============================================================================
+<span class="kw">data</span>(GC)
+GC &lt;-<span class="st"> </span><span class="kw">as.tbl</span>(GC)
+<span class="kw">head</span>(GC)</code></pre></div>
+<pre class="output"><code>Source: local data frame [6 x 21]
+
+  checking duration history purpose amount savings employed installp
+     (int)    (int)   (int)  (fctr)  (dbl)   (int)    (int)    (int)
+1        1        6       4       3   1169       5        5        4
+2        2       48       2       3   5951       1        3        2
+3        4       12       4       6   2096       1        4        2
+4        1       42       2       2   7882       1        4        2
+5        1       24       3       0   4870       1        3        3
+6        4       36       2       6   9055       5        3        2
+Variables not shown: marital (int), coapp (int), resident (int), property
+  (fctr), age (dbl), other (int), housing (int), existcr (int), job (int),
+  depends (int), telephon (int), foreign (int), good_bad (fctr)
+</code></pre>
+<h3 id="데이터정제">2. 데이터정제</h3>
+<p>이미 데이터가 정제되어 이항회귀모형을 적합시킬 수 있기 때문에 데이터 정제 작업은 생략하고, 바로 모형개발작업에 들어간다.</p>
+<h3 id="모형개발">3. 모형개발</h3>
+<p><code>createDataPartition</code> 함수로 훈련데이터와 검증데이터로 구분한다.</p>
+<p><code>logit.full.m</code> 포화모형(모든 변수가 들어간 모형)과 <code>logit.null.m</code> 상수항만 들어간 모형을 각각 이항모형에 적합시키고 나서, <strong>BIC</strong> 기준으로 변수를 선정하여 절약성의 원칙을 준수한 이항회귀모형을 적합시킨다.</p>
+<ol style="list-style-type: decimal">
+<li><em>Hosmer-Lemeshow 적합성 검증(Goodness of Fit, GOF)</em> 검정을 통해 모형 자체 적합성을 검정한다.</li>
+<li>적합한 모형의 잔차를 분석하여 뽑아내지 못한 패턴이 있는지 점검한다.</li>
+<li>이상점, 영향점, 지렛대 관측점이 있는지를 잔차분석, 쿡거리, 지렛대점 거리계산을 통해 확인한다.</li>
+</ol>
+<p>모형의 적합성은 차치하고 잔차분석을 통해 모형에 이상징후는 찾아보기 힘들다는 것을 확인할 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 03. 모형개발
+##==============================================================================
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.1. 훈련데이터와 검증데이터 분리</span>
+
+train.id &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(GC$good_bad, <span class="dt">p =</span> <span class="fl">0.7</span>)[[<span class="dv">1</span>]] 
+gc.train.df &lt;-<span class="st"> </span>GC[ train.id,] 
+gc.test.df &lt;-<span class="st"> </span>GC[-train.id,]
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.2. 모형접합 및 최적변수 선정</span>
+
+logit.full.m &lt;-<span class="st"> </span><span class="kw">glm</span>(good_bad~., <span class="dt">data=</span>gc.train.df, <span class="dt">family=</span><span class="kw">binomial</span>())
+logit.null.m &lt;-<span class="st"> </span><span class="kw">glm</span>(good_bad~<span class="dv">1</span>, <span class="dt">data=</span>gc.train.df, <span class="dt">family=</span><span class="kw">binomial</span>())
+
+logit.bic.m &lt;-<span class="st"> </span><span class="kw">step</span>(logit.null.m, <span class="dt">scope=</span><span class="kw">formula</span>(logit.full.m), <span class="dt">direction=</span><span class="st">&quot;both&quot;</span>, <span class="dt">criterion=</span><span class="st">&quot;BIC&quot;</span>, <span class="dt">k=</span><span class="kw">log</span>(<span class="kw">nrow</span>(gc.train.df)))</code></pre></div>
+<pre class="output"><code>Start:  AIC=861.76
+good_bad ~ 1
+
+           Df Deviance    AIC
++ checking  1   751.74 764.84
++ history   1   802.46 815.57
++ duration  1   820.24 833.34
++ amount    1   830.95 844.05
++ savings   1   834.12 847.22
++ employed  1   847.32 860.42
++ property  3   834.84 861.04
++ other     1   847.96 861.06
+&lt;none&gt;          855.21 861.76
++ marital   1   849.43 862.53
++ age       1   851.27 864.37
++ foreign   1   851.70 864.81
++ installp  1   854.21 867.32
++ existcr   1   854.55 867.65
++ job       1   855.03 868.13
++ telephon  1   855.06 868.16
++ resident  1   855.13 868.23
++ depends   1   855.18 868.28
++ housing   1   855.20 868.30
++ coapp     1   855.21 868.31
++ purpose   9   825.74 891.25
+
+Step:  AIC=764.84
+good_bad ~ checking
+
+           Df Deviance    AIC
++ duration  1   721.24 740.89
++ history   1   723.48 743.13
++ amount    1   730.62 750.27
++ savings   1   744.92 764.57
+&lt;none&gt;          751.74 764.84
++ foreign   1   746.16 765.82
++ marital   1   746.96 766.61
++ employed  1   747.70 767.35
++ other     1   747.86 767.51
++ property  3   735.37 768.12
++ coapp     1   749.70 769.36
++ age       1   750.03 769.68
++ job       1   750.52 770.18
++ installp  1   750.86 770.51
++ existcr   1   751.65 771.31
++ resident  1   751.66 771.31
++ telephon  1   751.72 771.38
++ housing   1   751.73 771.39
++ depends   1   751.74 771.39
++ purpose   9   731.63 803.70
+- checking  1   855.21 861.76
+
+Step:  AIC=740.89
+good_bad ~ checking + duration
+
+           Df Deviance    AIC
++ history   1   698.45 724.65
++ savings   1   712.26 738.47
+&lt;none&gt;          721.24 740.89
++ employed  1   715.33 741.54
++ marital   1   715.61 741.81
++ other     1   718.01 744.22
++ foreign   1   718.17 744.38
++ amount    1   718.48 744.69
++ coapp     1   719.37 745.58
++ age       1   720.35 746.55
++ housing   1   720.37 746.58
++ installp  1   720.46 746.67
++ telephon  1   720.68 746.89
++ resident  1   721.14 747.34
++ existcr   1   721.23 747.44
++ depends   1   721.24 747.44
++ job       1   721.24 747.44
++ property  3   714.59 753.89
+- duration  1   751.74 764.84
++ purpose   9   694.18 772.79
+- checking  1   820.24 833.34
+
+Step:  AIC=724.65
+good_bad ~ checking + duration + history
+
+           Df Deviance    AIC
++ savings   1   688.46 721.22
+&lt;none&gt;          698.45 724.65
++ marital   1   694.36 727.12
++ existcr   1   695.08 727.84
++ employed  1   695.60 728.35
++ foreign   1   695.74 728.50
++ amount    1   696.35 729.11
++ coapp     1   696.76 729.51
++ installp  1   696.78 729.54
++ other     1   697.02 729.78
++ housing   1   698.07 730.83
++ telephon  1   698.17 730.93
++ age       1   698.36 731.11
++ job       1   698.40 731.15
++ resident  1   698.43 731.18
++ depends   1   698.44 731.20
++ property  3   692.65 738.50
+- history   1   721.24 740.89
+- duration  1   723.48 743.13
++ purpose   9   667.73 752.89
+- checking  1   774.46 794.11
+
+Step:  AIC=721.22
+good_bad ~ checking + duration + history + savings
+
+           Df Deviance    AIC
+&lt;none&gt;          688.46 721.22
++ marital   1   684.50 723.81
+- savings   1   698.45 724.65
++ existcr   1   685.63 724.93
++ foreign   1   685.63 724.93
++ coapp     1   685.71 725.01
++ amount    1   686.30 725.60
++ installp  1   686.39 725.70
++ other     1   686.45 725.75
++ employed  1   686.48 725.79
++ housing   1   688.02 727.33
++ telephon  1   688.26 727.57
++ resident  1   688.29 727.60
++ depends   1   688.40 727.70
++ age       1   688.46 727.76
++ job       1   688.46 727.76
++ property  3   682.41 734.82
+- history   1   712.26 738.47
+- duration  1   715.43 741.64
++ purpose   9   657.50 749.22
+- checking  1   750.03 776.24
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(logit.bic.m)</code></pre></div>
+<pre class="output"><code>
+Call:
+glm(formula = good_bad ~ checking + duration + history + savings, 
+    family = binomial(), data = gc.train.df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.5451  -0.8521   0.4532   0.7727   1.8646  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -1.186392   0.337684  -3.513 0.000443 ***
+checking     0.625372   0.084408   7.409 1.27e-13 ***
+duration    -0.039466   0.007763  -5.084 3.69e-07 ***
+history      0.428010   0.090784   4.715 2.42e-06 ***
+savings      0.200097   0.064928   3.082 0.002057 ** 
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 855.21  on 699  degrees of freedom
+Residual deviance: 688.46  on 695  degrees of freedom
+AIC: 698.46
+
+Number of Fisher Scoring iterations: 4
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.3. 모형 진단 및 검증</span>
+
+<span class="co"># 3.3.1. Hosmer-Lemeshow 적합성 검증(Goodness of Fit, GOF)</span>
+<span class="co"># Source: https://github.com/psolymos/ResourceSelection/blob/master/R/hoslem.test.R</span>
+
+hoslem.test &lt;-<span class="st"> </span>function(x, y, <span class="dt">g=</span><span class="dv">10</span>) {
+    DNAME &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">deparse</span>(<span class="kw">substitute</span>(x)), <span class="kw">deparse</span>(<span class="kw">substitute</span>(y)), <span class="dt">sep=</span><span class="st">&quot;, &quot;</span>)
+    METHOD &lt;-<span class="st"> &quot;Hosmer and Lemeshow goodness of fit (GOF) test&quot;</span>
+    yhat &lt;-<span class="st"> </span>y
+    y &lt;-<span class="st"> </span>x
+    qq &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">quantile</span>(yhat, <span class="dt">probs=</span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>/g)))
+    cutyhat &lt;-<span class="st"> </span><span class="kw">cut</span>(yhat,
+                   <span class="dt">breaks =</span> qq, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+    observed &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="kw">cbind</span>(<span class="st">&quot;y0&quot;</span>=<span class="dv">1</span> -<span class="st"> </span>y, <span class="st">&quot;y1&quot;</span>=y) ~<span class="st"> </span>cutyhat)
+    expected &lt;-<span class="st"> </span><span class="kw">xtabs</span>(<span class="kw">cbind</span>(<span class="st">&quot;yhat0&quot;</span>=<span class="dv">1</span> -<span class="st"> </span>yhat, <span class="st">&quot;yhat1&quot;</span>=yhat) ~<span class="st"> </span>cutyhat)
+    chisq &lt;-<span class="st"> </span><span class="kw">sum</span>((observed -<span class="st"> </span>expected)^<span class="dv">2</span> /<span class="st"> </span>expected)
+    PVAL =<span class="st"> </span><span class="dv">1</span> -<span class="st"> </span><span class="kw">pchisq</span>(chisq, g -<span class="st"> </span><span class="dv">2</span>)
+    PARAMETER &lt;-<span class="st"> </span>g -<span class="st"> </span><span class="dv">2</span>
+    <span class="kw">names</span>(chisq) &lt;-<span class="st"> &quot;X-squared&quot;</span>
+    <span class="kw">names</span>(PARAMETER) &lt;-<span class="st"> &quot;df&quot;</span>
+    <span class="kw">structure</span>(<span class="kw">list</span>(<span class="dt">statistic =</span> chisq, <span class="dt">parameter =</span> PARAMETER, 
+                   <span class="dt">p.value =</span> PVAL, <span class="dt">method =</span> METHOD, <span class="dt">data.name =</span> DNAME, <span class="dt">observed =</span> observed, 
+                   <span class="dt">expected =</span> expected), <span class="dt">class =</span> <span class="st">&quot;htest&quot;</span>)
+}
+logit.bic.m.hat &lt;-<span class="st"> </span><span class="kw">fitted</span>(logit.bic.m)
+<span class="kw">hoslem.test</span>(<span class="kw">as.numeric</span>(gc.train.df$good_bad), logit.bic.m.hat)</code></pre></div>
+<pre class="output"><code>
+    Hosmer and Lemeshow goodness of fit (GOF) test
+
+data:  as.numeric(gc.train.df$good_bad), logit.bic.m.hat
+X-squared = 5848.7, df = 8, p-value &lt; 2.2e-16
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3.3.2. 잔차 분석</span>
+
+<span class="co"># 잔차 시각화</span>
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="dt">oma=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">0</span>))
+<span class="kw">plot</span>(<span class="kw">fitted</span>(logit.bic.m), <span class="kw">residuals</span>(logit.bic.m,<span class="st">&quot;response&quot;</span>), <span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Fitted Values&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Response Residuals&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="dv">0</span>)
+<span class="kw">plot</span>(<span class="kw">fitted</span>(logit.bic.m), <span class="kw">residuals</span>(logit.bic.m,<span class="st">&quot;deviance&quot;</span>), <span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Fitted Values&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Deviance Residuals&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="dv">0</span>)
+<span class="kw">plot</span>(<span class="kw">fitted</span>(logit.bic.m), <span class="kw">residuals</span>(logit.bic.m,<span class="st">&quot;pearson&quot;</span>), <span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Fitted Values&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Pearson Residuals&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="dv">0</span>)
+<span class="kw">title</span>(<span class="dt">main=</span><span class="st">&quot;Response, Deviance, and Pearson Residuals Comparison&quot;</span>,<span class="dt">outer=</span><span class="ot">TRUE</span>)</code></pre></div>
+<p><img src="fig/credit-modeling-1.png" title="plot of chunk credit-modeling" alt="plot of chunk credit-modeling" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 지렛대점 2*(p+1)/2</span>
+logit.bic.point &lt;-<span class="st"> </span><span class="kw">hatvalues</span>(logit.bic.m) &gt;<span class="st"> </span><span class="dv">2</span>*<span class="st"> </span>(<span class="kw">length</span>(logit.bic.m$coefficients)-<span class="dv">1</span>)/<span class="kw">length</span>(logit.bic.m$y)
+<span class="co"># 쿡 거리</span>
+logit.bic.influence<span class="fl">.10</span> &lt;-<span class="st"> </span><span class="kw">cooks.distance</span>(logit.bic.m) &gt;<span class="kw">qf</span>(<span class="fl">0.1</span>,<span class="kw">length</span>(logit.bic.m$coefficients),
+                                 <span class="kw">length</span>(logit.bic.m$y)-<span class="kw">length</span>(logit.bic.m$coefficients))
+logit.bic.influence<span class="fl">.50</span> &lt;-<span class="st"> </span><span class="kw">cooks.distance</span>(logit.bic.m) &gt;<span class="kw">qf</span>(<span class="fl">0.5</span>,<span class="kw">length</span>(logit.bic.m$coefficients),
+                               <span class="kw">length</span>(logit.bic.m$y)-<span class="kw">length</span>(logit.bic.m$coefficients))
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))
+<span class="kw">plot</span>(<span class="kw">dfbetas</span>(logit.bic.m)[,<span class="dv">1</span>],<span class="dt">ylab=</span><span class="st">&quot;DFBETAS - INTERCEPT&quot;</span>)
+<span class="kw">plot</span>(<span class="kw">dfbetas</span>(logit.bic.m)[,<span class="dv">2</span>],<span class="dt">ylab=</span><span class="st">&quot;DFBETAS - SAT&quot;</span>)
+<span class="kw">plot</span>(<span class="kw">dffits</span>(logit.bic.m),<span class="dt">ylab=</span><span class="st">&quot;DFFITS&quot;</span>)</code></pre></div>
+<p><img src="fig/credit-modeling-2.png" title="plot of chunk credit-modeling" alt="plot of chunk credit-modeling" style="display: block; margin: auto;" /></p>
+<h3 id="모형-성능평가-및-활용">4. 모형 성능평가 및 활용</h3>
+<p>이항회귀모형을 신용평가모형으로 개발한 후, 이를 실무에 적용하기 위해서 신용카드를 발급할 것인지 거절할 것인지에 대해 컷오프를 결정해야 한다. 신용카드 발급 뿐만 아니라, 마케팅 행사에 할인쿠폰을 제시할 것인지, 신규 고객으로 유치를 적극 추진할 것인지 말 것이지 다양한 상황에 결정에 도움이 되는 것이다. 여러가지 기준이 존재하고, 다음 세가지 경우에 대해 살펴본다.</p>
+<ol style="list-style-type: decimal">
+<li>정확도 기준으로 컷오프 결정</li>
+<li>민감도 + 특이성의 합이 최대가 되는 지점에서 컷오프 결정</li>
+<li>1종 오류와 2종 오류 비용이 다른 경우, 비용을 고려해서 컷오프 결정</li>
+</ol>
+<p>전반적인 모형에 대한 성능에 대한 ROC 곡선 및 AUC 면적 계산등을 통해 마무리 한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 04. 모형성능평가
+##==============================================================================
+<span class="co"># 검증데이터 예측 시전준비</span>
+
+gc.logit.bic.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.bic.m, <span class="dt">newdata=</span>gc.test.df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)
+gc.logit.bic.pr &lt;-<span class="st"> </span><span class="kw">prediction</span>(gc.logit.bic.pred, gc.test.df$good_bad)
+gc.logit.bic.prf &lt;-<span class="st"> </span><span class="kw">performance</span>(gc.logit.bic.pr, <span class="dt">measure =</span> <span class="st">&quot;acc&quot;</span>) ## 정확도 기준 최적성능 결정
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 4.1. 정확도를 극대화하는 컷오프 결정</span>
+<span class="co"># http://horicky.blogspot.kr/2012_06_01_archive.html</span>
+<span class="co"># http://stats.stackexchange.com/questions/37411/calculating-precision-and-recall-in-r</span>
+
+<span class="co"># 4.1.1. 정확도(Accuracy) 기준 컷오프 결정</span>
+bestAccInd &lt;-<span class="st"> </span><span class="kw">which.max</span>(gc.logit.bic.prf@<span class="st">&quot;y.values&quot;</span>[[<span class="dv">1</span>]])
+bestMsg &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;best accuracy=&quot;</span>, gc.logit.bic.prf@<span class="st">&quot;y.values&quot;</span>[[<span class="dv">1</span>]][bestAccInd], 
+                 <span class="st">&quot; at cutoff=&quot;</span>, <span class="kw">round</span>(gc.logit.bic.prf@<span class="st">&quot;x.values&quot;</span>[[<span class="dv">1</span>]][bestAccInd], <span class="dv">4</span>))
+
+<span class="kw">plot</span>(gc.logit.bic.prf, <span class="dt">sub=</span>bestMsg)</code></pre></div>
+<p><img src="fig/credit-performane-1.png" title="plot of chunk credit-performane" alt="plot of chunk credit-performane" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4.1.2. 민감도 + 특이성 최적기준 컷오프 결정</span>
+<span class="kw">library</span>(pROC)
+rocCurve   &lt;-<span class="st"> </span><span class="kw">roc</span>(<span class="dt">response =</span> gc.test.df$good_bad,
+                  <span class="dt">predictor =</span> gc.logit.bic.pred,
+                  <span class="dt">levels =</span> <span class="kw">rev</span>(<span class="kw">levels</span>(gc.test.df$good_bad)), <span class="dt">direction=</span><span class="st">&quot;&gt;&quot;</span>, <span class="dt">smooth=</span><span class="ot">FALSE</span>)
+
+<span class="kw">plot</span>(rocCurve, <span class="dt">print.thres =</span> <span class="st">&quot;best&quot;</span>, <span class="dt">print.thres.best.method =</span> <span class="st">&quot;youden&quot;</span>)</code></pre></div>
+<p><img src="fig/credit-performane-2.png" title="plot of chunk credit-performane" alt="plot of chunk credit-performane" style="display: block; margin: auto;" /></p>
+<pre class="output"><code>
+Call:
+roc.default(response = gc.test.df$good_bad, predictor = gc.logit.bic.pred,     levels = rev(levels(gc.test.df$good_bad)), direction = &quot;&gt;&quot;,     smooth = FALSE)
+
+Data: gc.logit.bic.pred in 210 controls (gc.test.df$good_bad good) &gt; 90 cases (gc.test.df$good_bad bad).
+Area under the curve: 0.7396
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4.1.3. &quot;최소비용&quot; 고려한 최적 결정</span>
+gc.logit.cost.prf &lt;-<span class="st"> </span><span class="kw">performance</span>(gc.logit.bic.pr, <span class="st">&quot;cost&quot;</span>, <span class="dt">cost.fp=</span><span class="dv">1</span>, <span class="dt">cost.fn=</span><span class="dv">1</span>)
+
+bestCostInd &lt;-<span class="st"> </span><span class="kw">which.min</span>(gc.logit.cost.prf@<span class="st">&quot;y.values&quot;</span>[[<span class="dv">1</span>]])
+costMsg &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Min. Cost=&quot;</span>, gc.logit.cost.prf@<span class="st">&quot;y.values&quot;</span>[[<span class="dv">1</span>]][bestCostInd], 
+                 <span class="st">&quot; at cutoff=&quot;</span>, <span class="kw">round</span>(gc.logit.cost.prf@<span class="st">&quot;x.values&quot;</span>[[<span class="dv">1</span>]][bestCostInd], <span class="dv">4</span>))
+
+<span class="kw">plot</span>(gc.logit.cost.prf,<span class="dt">sub=</span>costMsg)</code></pre></div>
+<p><img src="fig/credit-performane-3.png" title="plot of chunk credit-performane" alt="plot of chunk credit-performane" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
+<span class="co"># 4.2. ROC 곡선</span>
+gc.logit.bic.prf &lt;-<span class="st"> </span><span class="kw">performance</span>(gc.logit.bic.pr, <span class="dt">measure =</span> <span class="st">&quot;tpr&quot;</span>, <span class="dt">x.measure =</span> <span class="st">&quot;fpr&quot;</span>) ## 정확도 기준 최적성능 결정
+<span class="kw">plot</span>(gc.logit.bic.prf)
+<span class="kw">abline</span>(<span class="dt">a=</span><span class="dv">0</span>, <span class="dt">b=</span><span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/credit-performane-4.png" title="plot of chunk credit-performane" alt="plot of chunk credit-performane" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># ROC 면적</span>
+gc.logit.bic.auc &lt;-<span class="st"> </span><span class="kw">performance</span>(gc.logit.bic.pr, <span class="dt">measure =</span> <span class="st">&quot;auc&quot;</span>)
+gc.logit.bic.auc &lt;-<span class="st"> </span>gc.logit.bic.auc@y.values[[<span class="dv">1</span>]]
+gc.logit.bic.auc</code></pre></div>
+<pre class="output"><code>[1] 0.7396032
+</code></pre>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

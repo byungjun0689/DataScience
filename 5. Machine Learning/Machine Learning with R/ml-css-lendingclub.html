@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 데이터 과학</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">데이터 과학</h1></a>
+          <h2 class="subtitle">랜딩클럽 - 채무불이행 예측모형</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표-stat545-data-inout"><span class="glyphicon glyphicon-certificate"></span>학습 목표 [^stat545-data-inout]</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li></li>
+</ul>
+</div>
+</section>
+<p><img src="fig/ml-lc-preprocessing.png" alt="렌딩클럽 데이터 전처리 개요" width="77%" /></p>
+<h3 id="채무불이행-예측모형---랜딩클럽-lendingclub-pm-01-lendingclub-pm-02-caret-feature-selection-rf-lc-yhat-lc">1. 채무불이행 예측모형 - 랜딩클럽 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> <a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a></h3>
+<p>실제 렌딩클럽 데이터를 다운로드 받아 신용평가 모형을 개발하는 과정의 시작은 <a href="https://www.lendingclub.com/info/download-data.action">Lending Club</a> 웹사이트에서 데이터를 다운로드 받는 과정부터 시작된다.</p>
+<p>실제 렌딩클럽 데이터를 다운로드 받아 보면 연도별로 데이터가 쪼개져 있고, 승인데이터와 거절데이터로 나눠져 있다. 신용평가 예측모형을 개발하고자 할 때, 두 데이터가 모두 필요하기 때문에 이를 결합하는 과정을 거치게 된다.</p>
+<p>데이터를 하나로 합치게 된 후에 결측값, 요인변수변환, 가변수 생성, 날짜정보 추출 등 다양한 전처리 과정을 거치게 된다.</p>
+<h4 id="데이터-가져오기">1.1. 데이터 가져오기</h4>
+<p>렌딩클럽 예측모형 개발에 필요한 팩키지를 가져온다. <code>do.call</code> <code>rbind</code> 함수를 사용하여 연도별로 쪼개진 각 승인, 거절 데이터를 하나로 모으고, 나중에 <code>bind_rows</code> 함수로 승인, 거절 데이터도 합친다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 00. 환경설정
+##==========================================================================================
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(tidyverse))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readxl))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(lubridate))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(stringr))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(Hmisc))
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+##==========================================================================================
+## 01. 데이터 가져오기
+##==========================================================================================
+<span class="co"># 랜딩클럽 원본데이터 : https://www.lendingclub.com/info/download-data.action</span>
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 01.01. 채무불이행 정보 데이터 가져오기</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># spec_csv(&quot;data/download_data/RejectStatsA.csv&quot;, skip=1, col_names=TRUE)</span>
+
+dep_data1 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/RejectStatsA.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>, <span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2007-2012</span>
+dep_data2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/RejectStatsB.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>, <span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2013-14</span>
+dep_data3 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/RejectStatsD.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>, <span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2015</span>
+dep_data4 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/RejectStats_2016Q1.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>, <span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2016Q1</span>
+dep_data5 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/RejectStats_2016Q2.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>, <span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2016Q2</span>
+<span class="kw">dim</span>(dep_data1)
+<span class="kw">dim</span>(dep_data2)
+<span class="kw">dim</span>(dep_data3)
+<span class="kw">dim</span>(dep_data4)
+<span class="kw">dim</span>(dep_data5)
+
+<span class="co"># 데이터 통합</span>
+data_reject &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;rbind&quot;</span>, <span class="kw">list</span>(dep_data1, dep_data2, dep_data3, dep_data4, dep_data5)) 
+data_reject$AR &lt;-<span class="st"> &quot;Declined&quot;</span> <span class="co"># 거절</span>
+data_reject$grade &lt;-<span class="st">&quot;Z&quot;</span> <span class="co"># create grade &quot;z&quot; for rejected loans - Match column of accepted loan</span>
+data_reject$id &lt;-<span class="dv">10000000</span> <span class="co"># create a common id for rejected loans - Match column of accepted loan</span>
+
+<span class="co"># 데이터 정리</span>
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">setdiff</span>(<span class="kw">ls</span>(), <span class="st">&quot;data_reject&quot;</span>))
+<span class="kw">save</span>(data_reject,<span class="dt">file=</span><span class="st">&quot;./data/data_reject.RData&quot;</span>)
+<span class="kw">gc</span>()
+<span class="kw">memory.size</span>()
+<span class="co"># load(&quot;data/data_reject.RData&quot;)</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 01.02. 정상 채무이행 데이터 가져오기</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+ind_data1 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats3a.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2007-2011</span>
+ind_data2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats3b.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2012-13</span>
+ind_data3 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats3c.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2014</span>
+ind_data4 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats3d.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2015 </span>
+ind_data5 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats_2016Q1.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2016Q1</span>
+ind_data6 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/download_data/LoanStats_2016Q2.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">1</span>,<span class="dt">col_names=</span><span class="ot">TRUE</span>) <span class="co"># 2016Q2</span>
+<span class="kw">dim</span>(ind_data1)
+<span class="kw">dim</span>(ind_data2)
+<span class="kw">dim</span>(ind_data3)
+<span class="kw">dim</span>(ind_data4)
+<span class="kw">dim</span>(ind_data5)
+<span class="kw">dim</span>(ind_data6)
+
+<span class="co"># 승인 대출 데이터 결합</span>
+data_accept &lt;-<span class="kw">do.call</span>(<span class="st">&quot;rbind&quot;</span>, <span class="kw">list</span>(ind_data1,ind_data2,ind_data3,ind_data4,ind_data5,ind_data6)) <span class="co"># Consolidate into single file</span>
+data_accept$AR&lt;-<span class="st">&quot;Issued&quot;</span> <span class="co"># 승인</span>
+
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">setdiff</span>(<span class="kw">ls</span>(), <span class="kw">c</span>(<span class="st">&quot;data_reject&quot;</span>,<span class="st">&quot;data_accept&quot;</span>)))
+<span class="kw">save</span>(data_accept,<span class="dt">file=</span><span class="st">&quot;./data/data_accept.RData&quot;</span>)
+<span class="kw">gc</span>()
+<span class="co"># load(&quot;data/data_accept.RData&quot;)</span></code></pre></div>
+<h4 id="데이터-결합">1.2. 데이터 결합</h4>
+<p>원본데이터가 크기 때문에 표본추출하여 전처리 과정을 진행하는 방법과 더불어 <code>.Rdata</code> 형태로 데이터를 저장하여 필요시 꺼내 사용하는 것도 빅데이터를 처리하는 중요한 방법이 된다.</p>
+<p><code>bind_rows</code> 함수를 사용하여 거절데이터와 승인데이터를 하나로 묶는다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 02. 데이터 전처리
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.01. 표본 데이터 추출</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+accept &lt;-<span class="st"> </span>data_accept[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(data_accept), <span class="dv">1000</span>), ]
+reject &lt;-<span class="st"> </span>data_reject[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(data_reject), <span class="dv">1000</span>), ]
+<span class="co"># load(&quot;data/data_accept.RData&quot;)</span>
+<span class="co"># load(&quot;data/data_reject.RData&quot;)</span>
+<span class="co"># accept &lt;- data_accept</span>
+<span class="co"># reject &lt;- data_reject</span>
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.02. 거절 데이터</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+<span class="co"># 거절 데이터 날짜 정보 추출</span>
+reject$<span class="st">`</span><span class="dt">Application Date</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">ymd</span>(reject$<span class="st">`</span><span class="dt">Application Date</span><span class="st">`</span>)
+reject$month &lt;-<span class="st"> </span><span class="kw">month</span>(reject$<span class="st">`</span><span class="dt">Application Date</span><span class="st">`</span>,<span class="dt">label=</span><span class="ot">TRUE</span>,<span class="dt">abbr=</span><span class="ot">TRUE</span>)
+reject$year &lt;-<span class="st"> </span><span class="kw">year</span>(reject$<span class="st">`</span><span class="dt">Application Date</span><span class="st">`</span>)
+reject$<span class="st">`</span><span class="dt">Application Date</span><span class="st">`</span> &lt;-<span class="ot">NULL</span>
+reject$loan_status&lt;-<span class="st">&quot;Rejected&quot;</span>
+reject$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">sub</span>(<span class="st">&quot;%&quot;</span>,<span class="st">&quot;&quot;</span>, reject$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span>)
+reject$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(reject$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span>)
+
+<span class="co"># View(reject)</span>
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.03. 승인 데이터</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+<span class="co"># 승인데이터 날짜</span>
+accept$month &lt;-<span class="st"> </span><span class="kw">str_split_fixed</span>(accept$issue_d, <span class="st">&quot;-&quot;</span>, <span class="dv">2</span>)[,<span class="dv">1</span>]
+accept$month &lt;-<span class="st"> </span><span class="kw">factor</span>(accept$month, <span class="dt">order=</span><span class="ot">TRUE</span>, <span class="dt">levels=</span><span class="kw">c</span>(<span class="st">&quot;Jan&quot;</span>, <span class="st">&quot;Feb&quot;</span>, <span class="st">&quot;Mar&quot;</span>, <span class="st">&quot;Apr&quot;</span>, <span class="st">&quot;May&quot;</span>, <span class="st">&quot;Jun&quot;</span>,
+                                              <span class="st">&quot;Jul&quot;</span>, <span class="st">&quot;Aug&quot;</span>, <span class="st">&quot;Sep&quot;</span>, <span class="st">&quot;Oct&quot;</span>, <span class="st">&quot;Nov&quot;</span>, <span class="st">&quot;Dec&quot;</span>))
+accept$year &lt;-<span class="st"> </span><span class="kw">str_split_fixed</span>(accept$issue_d, <span class="st">&quot;-&quot;</span>, <span class="dv">2</span>)[,<span class="dv">2</span>]
+accept$year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(accept$year)
+<span class="co"># View(accept)</span>
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.04. 데이터 결합</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+accept1 &lt;-<span class="st"> </span>accept %&gt;%<span class="st"> </span>dplyr::<span class="kw">select</span>(id,loan_amnt,month,year, title, dti, zip_code,  addr_state, emp_length, policy_code,AR, grade, loan_status)
+<span class="kw">names</span>(accept1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;id&quot;</span>,<span class="st">&quot;Amount Requested&quot;</span>,<span class="st">&quot;month&quot;</span> , <span class="st">&quot;year&quot;</span>, <span class="st">&quot;Loan Title&quot;</span>,<span class="st">&quot;Debt-To-Income Ratio&quot;</span>, <span class="st">&quot;Zip Code&quot;</span> , <span class="st">&quot;State&quot;</span>,<span class="st">&quot;Employment Length&quot;</span>,<span class="st">&quot;Policy Code&quot;</span>,<span class="st">&quot;AR&quot;</span>, <span class="st">&quot;grade&quot;</span>,<span class="st">&quot;loan_status&quot;</span>)
+reject$Risk_Score &lt;-<span class="st"> </span><span class="ot">NULL</span>
+
+loan_df &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(accept1,reject)
+
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">setdiff</span>(<span class="kw">ls</span>(), <span class="st">&quot;loan_df&quot;</span>))
+<span class="kw">save</span>(loan_df,<span class="dt">file=</span><span class="st">&quot;./data/loan_df.RData&quot;</span>)
+<span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">ls</span>())
+<span class="kw">load</span>(<span class="st">&quot;./data/loan_df.RData&quot;</span>)</code></pre></div>
+<h4 id="데이터-전처리">1.3. 데이터 전처리</h4>
+<p>데이터를 하나로 합치게 된 후에 결측값, 변수 정리 작업, 관측점 처리 작업을 거쳐 전처리 과정을 순차적으로 수행해 나간다. 통계학적인 지식이 필요한 요인변수변환, 가변수 생성 등의 작업도 있는 반면에, 날짜정보에서 연도, 월 정보를 추출하는 기본 데이터 처리 기술도 필요하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 피쳐공학(Feature Engineering): 데이터 전처리
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 결측값 처리</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+ncol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">nrow</span>(loan_df), <span class="dt">each=</span><span class="kw">ncol</span>(loan_df))
+missingdata &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(<span class="dt">colnames=</span><span class="kw">names</span>(loan_df), 
+                                   ncol, 
+                                   <span class="dt">nmsg=</span><span class="kw">as.integer</span>(<span class="kw">as.character</span>(<span class="kw">as.vector</span>(<span class="kw">apply</span>(loan_df, <span class="dv">2</span>, function(x) <span class="kw">length</span>(<span class="kw">which</span>(<span class="kw">is.na</span>(x)))))))))
+missingdata$nmsg &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">levels</span>(missingdata$nmsg))[missingdata$nmsg]
+
+missingdata &lt;-<span class="st"> </span><span class="kw">cbind</span>(missingdata,<span class="dt">percmissing=</span><span class="kw">as.integer</span>(missingdata$nmsg/ncol*<span class="dv">100</span>))
+drops &lt;-<span class="st"> </span><span class="kw">as.character</span>(<span class="kw">subset</span>(missingdata,missingdata$percmissing&gt;<span class="dv">0</span>)[,<span class="dv">1</span>])
+<span class="kw">length</span>(drops)
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.02. 변수 정리 작업</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+<span class="co"># 변수 변환</span>
+loan_df$<span class="st">`</span><span class="dt">Zip Code</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">strtrim</span>(loan_df$<span class="st">`</span><span class="dt">Zip Code</span><span class="st">`</span>, <span class="dv">3</span>)
+loan_df$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">sub</span>(<span class="st">&quot;%&quot;</span>,<span class="st">&quot;&quot;</span>, loan_df$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span>)
+loan_df$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(loan_df$<span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span>)
+
+<span class="co"># 변수명 변환</span>
+loan_df &lt;-<span class="st"> </span>loan_df %&gt;%<span class="st"> </span>dplyr::<span class="kw">rename</span>(<span class="dt">Emp.Len=</span><span class="st">`</span><span class="dt">Employment Length</span><span class="st">`</span>, <span class="dt">Debt_to_Inc =</span> <span class="st">`</span><span class="dt">Debt-To-Income Ratio</span><span class="st">`</span>)
+
+<span class="co"># 변수값 변환</span>
+<span class="kw">table</span>(loan_df$loan_status)
+loan_df$loan_status[loan_df$loan_status==<span class="st">&quot;Does not meet the credit policy. Status:Charged Off&quot;</span>] &lt;-<span class="st"> &quot;Charged Off&quot;</span>
+loan_df$loan_status[loan_df$loan_status==<span class="st">&quot;Does not meet the credit policy. Status:Fully Paid&quot;</span>] &lt;-<span class="st"> &quot;Fully Paid&quot;</span>
+<span class="kw">table</span>(loan_df$loan_status)
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.03. 관측점 변환작업</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 중복 확인</span>
+<span class="kw">nrow</span>(loan_df) -<span class="st"> </span><span class="kw">nrow</span>(<span class="kw">unique</span>(loan_df))
+loan_df &lt;-<span class="st"> </span>loan_df[!<span class="kw">duplicated</span>(loan_df), ]
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.04. ZV, NZV 변수 제거</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+col_uv  &lt;-<span class="st">  </span><span class="kw">sapply</span>(loan_df, function(x) <span class="kw">length</span>(<span class="kw">unique</span>(x)))
+<span class="kw">cat</span>(<span class="st">&quot;ZV, NZV Variables :&quot;</span>, <span class="kw">length</span>(col_uv[col_uv==<span class="dv">1</span>]))
+
+<span class="kw">names</span>(col_uv[col_uv==<span class="dv">1</span>])
+loan_df &lt;-<span class="st">  </span>loan_df[, !<span class="kw">names</span>(loan_df) %in%<span class="st"> </span><span class="kw">names</span>(col_uv[col_uv==<span class="dv">1</span>])]
+
+loan_df$<span class="st">`</span><span class="dt">Policy Code</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="ot">NULL</span>
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.05. 요인변수 전처리</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 명목형 범주형 변수를 순서형 범주형 변수</span>
+loan_df$loan_status_F &lt;-<span class="st"> </span><span class="kw">factor</span>(loan_df$loan_status, <span class="dt">order=</span><span class="ot">TRUE</span>, 
+                                <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Fully Paid&quot;</span>,  <span class="st">&quot;Current&quot;</span>, <span class="st">&quot;In Grace Period&quot;</span>, 
+                                           <span class="st">&quot;Late (31-120 days)&quot;</span>, <span class="st">&quot;Late (16-30 days)&quot;</span>, <span class="st">&quot;Charged Off&quot;</span>, <span class="st">&quot;Rejected&quot;</span>))
+<span class="kw">table</span>(loan_df$loan_status_F)
+
+loan_df$Emp.Len_F &lt;-<span class="st"> </span><span class="kw">factor</span>(loan_df$Emp.Len)
+<span class="kw">table</span>(loan_df$Emp.Len)
+
+loan_df$Emp.Len_F  &lt;-<span class="st">  </span><span class="kw">factor</span>(loan_df$Emp.Len_F,
+                              <span class="kw">levels</span>(loan_df$Emp.Len_F)[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">12</span>)])
+<span class="kw">table</span>(loan_df$Emp.Len_F)
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.06. 범주형 변수는 변수명에 표기</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+col_names&lt;-<span class="kw">names</span>(<span class="kw">subset</span>(loan_df, <span class="dt">select =</span> <span class="kw">c</span>(month, year, Emp.Len, State, <span class="st">`</span><span class="dt">Zip Code</span><span class="st">`</span> )))
+col_names_new &lt;-<span class="st"> </span><span class="kw">paste</span>(col_names, <span class="st">&quot;F&quot;</span>,<span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
+
+loan_df[,col_names_new] &lt;-<span class="st"> </span><span class="kw">lapply</span>(loan_df[,col_names] , factor)
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.07. 범주값 통합</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="kw">names</span>(loan_df)
+loan_df$<span class="st">`</span><span class="dt">Zip Code_F</span><span class="st">`</span> &lt;-<span class="st"> </span><span class="kw">combine.levels</span>(loan_df$<span class="st">`</span><span class="dt">Zip Code_F</span><span class="st">`</span>, <span class="dt">minlev=</span><span class="fl">0.005</span>)
+
+<span class="kw">glimpse</span>(loan_df)
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.08. 가변수(Dummy Variable) 생성</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="kw">library</span>(caret) 
+col_names_F &lt;-<span class="st"> </span><span class="kw">names</span>(<span class="kw">subset</span>(loan_df, <span class="dt">select =</span> <span class="kw">c</span>(year_F,Emp.Len_F, State_F)))
+dummy &lt;-<span class="st"> </span><span class="kw">dummyVars</span>(<span class="st">&quot; ~ .&quot;</span>, <span class="dt">data =</span> loan_df[, <span class="kw">c</span>(col_names_F)])
+dummy_data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">predict</span>(dummy, <span class="dt">newdata =</span> loan_df[, <span class="kw">c</span>(col_names_F)]))
+
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.09. 데이터 결합</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+loan_df &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(loan_df, dummy_data)
+
+
+#### 1.4. 자료분석
+
+데이터 전처리 과정을 통해 데이터가 준비되면 다음 단계로 종속변수와 독립변수간에 다양한 자료분석을 
+수행하게 된다.</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 04. 자료분석
+##==========================================================================================
+
+<span class="kw">as.matrix</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(loan_df$AR, loan_df$year),<span class="dv">2</span>))
+<span class="kw">barplot</span>(<span class="kw">as.matrix</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(loan_df$AR,loan_df$year),<span class="dv">2</span>)),
+        <span class="dt">main =</span> <span class="st">&quot;Barplot of Cases Issued / Declined &quot;</span>, 
+        <span class="dt">xlab=</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">ylab=</span> <span class="st">&quot;No of Cases&quot;</span>, 
+        <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;Red&quot;</span>,<span class="st">&quot;darkgreen&quot;</span>),
+        <span class="dt">legend =</span> <span class="kw">rownames</span>(<span class="kw">as.matrix</span>(<span class="kw">table</span>(loan_df$AR, loan_df$year))))
+
+<span class="kw">as.matrix</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(loan_df$AR,loan_df$Emp.Len_F),<span class="dv">1</span>)*<span class="dv">100</span>)
+<span class="kw">barplot</span>(<span class="kw">as.matrix</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(loan_df$AR,loan_df$Emp.Len_F),<span class="dv">1</span>)*<span class="dv">100</span>),
+        <span class="dt">main =</span> <span class="st">&quot;Barplot of Cases Issued / Declined &quot;</span>, 
+        <span class="dt">xlab=</span> <span class="st">&quot;Emp_Len&quot;</span>, <span class="dt">ylab=</span> <span class="st">&quot;No of Cases&quot;</span>, 
+        <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;Red&quot;</span>,<span class="st">&quot;darkgreen&quot;</span>),
+        <span class="dt">legend =</span> <span class="kw">rownames</span>(<span class="kw">as.matrix</span>(<span class="kw">prop.table</span>(<span class="kw">table</span>(loan_df$AR,loan_df$Emp.Len_F),<span class="dv">1</span>)*<span class="dv">100</span>)))
+
+##==========================================================================================
+## 05. 예측모형 개발
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.01. 훈련/검증 데이터</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+train &lt;-　<span class="kw">subset</span>(loan_df, loan_df$year==<span class="st">&quot;2015&quot;</span> )
+test &lt;-<span class="st">  </span><span class="kw">subset</span>(loan_df, loan_df$year==<span class="st">&quot;2016&quot;</span> )</code></pre></div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://rstudio-pubs-static.s3.amazonaws.com/203258_d20c1a34bc094151a0a1e4f4180c5f6f.html">Predict LendingClub’s Loan Data</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://rpubs.com/KGFeMan/LCD_ID">Lending Club Loan Data - Issued vs Declined</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/">Feature Selection with the Caret R Package</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://www.kimberlycoffey.com/blog/2016/3/19/random-forest">Random Forest for Loan Performance Prediction</a><a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p><a href="http://blog.yhat.com/posts/machine-learning-for-predicting-bad-loans.html">Machine Learning for Predicting Bad Loans</a><a href="#fnref5">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

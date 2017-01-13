@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">네트워크 커뮤니티 탐지</h2>
+          <h3 id="하위집단과-커뮤니티">1. 하위집단과 커뮤니티</h3>
+<p>네트워크 분석에서 하위집단, 커뮤니티 식별은 관심이 가는 흥미로운 주제중 하나다. 하위집단, 커뮤니티 탐지 분석작업을 위해서 먼저 방향성 없는 그래프로 변환이 필요한데 3가지 방법이 있다.</p>
+<ol style="list-style-type: decimal">
+<li><code>mode=&quot;collapse&quot;</code> 방법을 통해 방향성 없는 엣지를 생성.</li>
+<li><code>mode=&quot;each&quot;</code> 방법을 통해 멀티플렉스 그래프의 경우 방향성 없는 엣지를 생성</li>
+<li><code>mode=&quot;mutual&quot;</code> 방법을 통해 대칭 링크로 방향성 없는 엣지를 생성.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================================
+## 01. 하위집단과 커뮤니티
+##================================================================================
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(igraph)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr)))
+
+nodes &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  id = col_character(),
+  media = col_character(),
+  media.type = col_integer(),
+  type.label = col_character(),
+  audience.size = col_integer()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  from = col_character(),
+  to = col_character(),
+  weight = col_integer(),
+  type = col_character()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links &lt;-<span class="st"> </span><span class="kw">aggregate</span>(links[,<span class="dv">3</span>], links[,-<span class="dv">3</span>], sum)
+links &lt;-<span class="st"> </span>links[<span class="kw">order</span>(links$from, links$to),]
+<span class="kw">colnames</span>(links)[<span class="dv">4</span>] &lt;-<span class="st"> &quot;weight&quot;</span>
+<span class="kw">rownames</span>(links) &lt;-<span class="st"> </span><span class="ot">NULL</span>
+
+net &lt;-<span class="st"> </span><span class="kw">graph.data.frame</span>(links, nodes, <span class="dt">directed=</span>T)
+
+<span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 01. 사전 정지작업: 방향성 없는 그래프로 변환</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+net.sym &lt;-<span class="st"> </span><span class="kw">as.undirected</span>(net, <span class="dt">mode=</span> <span class="st">&quot;collapse&quot;</span>, <span class="dt">edge.attr.comb=</span><span class="kw">list</span>(<span class="dt">weight=</span><span class="st">&quot;sum&quot;</span>, <span class="st">&quot;ignore&quot;</span>))</code></pre></div>
+<h3 id="클리크">2. 클리크</h3>
+<p>클리크(cliques)를 통해 방향성 없는 그래프 전체가 연결된 하위집단을 식별한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 02. 클리크(Cliques)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+
+<span class="kw">cliques</span>(net.sym) %&gt;%<span class="st"> </span>tail <span class="co"># 클리크 목록</span></code></pre></div>
+<pre class="output"><code>[[1]]
++ 3/17 vertices, named:
+[1] s04 s06 s12
+
+[[2]]
++ 3/17 vertices, named:
+[1] s04 s06 s15
+
+[[3]]
++ 3/17 vertices, named:
+[1] s04 s06 s17
+
+[[4]]
++ 3/17 vertices, named:
+[1] s06 s16 s17
+
+[[5]]
++ 3/17 vertices, named:
+[1] s12 s13 s14
+
+[[6]]
++ 4/17 vertices, named:
+[1] s01 s02 s03 s05
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(<span class="kw">cliques</span>(net.sym), length) <span class="co"># 클리크 길이</span></code></pre></div>
+<pre class="output"><code> [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+[36] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+[71] 3 3 3 3 4
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">largest_cliques</span>(net.sym) <span class="co"># 최대 클리크</span></code></pre></div>
+<pre class="output"><code>[[1]]
++ 4/17 vertices, named:
+[1] s03 s01 s02 s05
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시각화</span>
+vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey80&quot;</span>, <span class="kw">vcount</span>(net.sym))
+vcol[<span class="kw">unlist</span>(<span class="kw">largest_cliques</span>(net.sym))] &lt;-<span class="st"> &quot;gold&quot;</span>
+<span class="kw">plot</span>(<span class="kw">as.undirected</span>(net.sym), <span class="dt">vertex.label=</span><span class="kw">V</span>(net.sym)$name, <span class="dt">vertex.color=</span>vcol)</code></pre></div>
+<p><img src="fig/network-communities-cliques-1.png" title="plot of chunk network-communities-cliques" alt="plot of chunk network-communities-cliques" style="display: block; margin: auto;" /></p>
+<h3 id="커뮤니티-탐지">3. 커뮤니티 탐지</h3>
+<p>다양한 알고리즘이 커뮤니티 탐지를 위해 개발되었다. 커뮤니티 사이는 링크연결이 최소화되고, 커뮤니티 내에는 연결이 조밀하게 많아야 된다.</p>
+<ol style="list-style-type: decimal">
+<li>Newman-Girvan</li>
+<li>라벨 전파(Propagating labels)</li>
+<li>Greedy optimization of modularity</li>
+<li>K-core 분해</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 03. 커뮤니티 탐지</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+
+<span class="co"># 1. Newman-Girvan</span>
+ceb &lt;-<span class="st"> </span><span class="kw">cluster_edge_betweenness</span>(net) 
+<span class="kw">dendPlot</span>(ceb, <span class="dt">mode=</span><span class="st">&quot;hclust&quot;</span>)</code></pre></div>
+<p><img src="fig/network-communities-communities-1.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시각화</span>
+<span class="kw">plot</span>(ceb, net)</code></pre></div>
+<p><img src="fig/network-communities-communities-2.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># igraph 객체 살펴보기</span>
+<span class="kw">class</span>(ceb)</code></pre></div>
+<pre class="output"><code>[1] &quot;communities&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">length</span>(ceb)  </code></pre></div>
+<pre class="output"><code>[1] 5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modularity</span>(ceb)</code></pre></div>
+<pre class="output"><code>[1] 0.292751
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">crossing</span>(ceb, net) </code></pre></div>
+<pre class="output"><code>s01|s02 s01|s03 s01|s04 s01|s15 s02|s01 s02|s03 s02|s09 s02|s10 s03|s01 
+   TRUE    TRUE    TRUE   FALSE    TRUE    TRUE    TRUE    TRUE    TRUE 
+s03|s04 s03|s05 s03|s08 s03|s10 s03|s11 s03|s12 s04|s03 s04|s06 s04|s11 
+   TRUE    TRUE   FALSE    TRUE    TRUE    TRUE    TRUE   FALSE   FALSE 
+s04|s12 s04|s17 s05|s01 s05|s02 s05|s09 s05|s15 s06|s06 s06|s16 s06|s17 
+  FALSE   FALSE   FALSE    TRUE    TRUE   FALSE   FALSE   FALSE   FALSE 
+s07|s03 s07|s08 s07|s10 s07|s14 s08|s03 s08|s07 s08|s09 s09|s10 s10|s03 
+  FALSE   FALSE    TRUE    TRUE   FALSE   FALSE    TRUE   FALSE    TRUE 
+s12|s06 s12|s13 s12|s14 s13|s12 s13|s17 s14|s11 s14|s13 s15|s01 s15|s04 
+  FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE    TRUE 
+s15|s06 s16|s06 s16|s17 s17|s04 
+   TRUE   FALSE   FALSE   FALSE 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. Propagating labels</span>
+clp &lt;-<span class="st"> </span><span class="kw">cluster_label_prop</span>(net)
+<span class="kw">plot</span>(clp, net)</code></pre></div>
+<p><img src="fig/network-communities-communities-3.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3. Greedy optimization of modularity</span>
+cfg &lt;-<span class="st"> </span>igraph::<span class="kw">cluster_fast_greedy</span>(<span class="kw">as.undirected</span>(net))
+<span class="kw">plot</span>(cfg, <span class="kw">as.undirected</span>(net))</code></pre></div>
+<p><img src="fig/network-communities-communities-4.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)$community &lt;-<span class="st"> </span>cfg$membership
+colrs &lt;-<span class="st"> </span><span class="kw">adjustcolor</span>( <span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>, <span class="st">&quot;yellowgreen&quot;</span>), <span class="dt">alpha=</span>.<span class="dv">6</span>)
+<span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>colrs[<span class="kw">V</span>(net)$community])</code></pre></div>
+<p><img src="fig/network-communities-communities-5.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4. K-core 분해</span>
+kc &lt;-<span class="st"> </span><span class="kw">coreness</span>(net, <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>)
+<span class="kw">plot</span>(net, <span class="dt">vertex.size=</span>kc*<span class="dv">6</span>, <span class="dt">vertex.label=</span>kc, <span class="dt">vertex.color=</span>colrs[kc])</code></pre></div>
+<p><img src="fig/network-communities-communities-6.png" title="plot of chunk network-communities-communities" alt="plot of chunk network-communities-communities" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

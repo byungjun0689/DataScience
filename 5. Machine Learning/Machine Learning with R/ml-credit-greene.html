@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">사례 - 카드발급</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>계량경제학 신용카드 발급데이터에 예측모형을 적용한다.</li>
+<li>인간과 조화되는 예측모형을 선정한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="환경설정-및-데이터-가져오기">1. 환경설정 및 데이터 가져오기</h3>
+<p><a href="http://pages.stern.nyu.edu/~wgreene/Text/tables/tablelist5.htm">Greene, Econometric Analysis, 5th Edition</a> 책에 포함된 신용카드 데이터가 “AER” 팩키지에 들어 있다. 이를 바로 활용한다. 활용되는 팩키지의 각 기능은 다음과 같다.</p>
+<ul>
+<li><code>pscl</code> → 이항회귀모형에 사용되는 <span class="math inline">\(R^2\)</span> 결정계수</li>
+<li><code>ROCR</code>, <code>pROC</code> → ROC 곡선 및 AUC 면적</li>
+<li><code>dplyr</code> → 데이터 작업</li>
+<li><code>caret</code> → 예측모형 기본 팩키지</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 00. 환경설정
+##==============================================================================
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(doMC))
+<span class="kw">registerDoMC</span>(<span class="dt">cores=</span><span class="dv">7</span>)
+
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(AER)) <span class="co"># 카드발급 데이터가 포함됨</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(pscl)) <span class="co"># 이항회귀분석 R^2</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(ROCR)) <span class="co"># 모형성능평가</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+
+##==============================================================================
+## 01. 데이터 가져오기
+##==============================================================================
+<span class="kw">data</span>(CreditCard)
+CreditCard &lt;-<span class="st"> </span><span class="kw">as.tbl</span>(CreditCard)
+<span class="kw">head</span>(CreditCard)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 12
+    card reports      age income       share expenditure  owner selfemp
+  &lt;fctr&gt;   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt; &lt;fctr&gt;  &lt;fctr&gt;
+1    yes       0 37.66667 4.5200 0.033269910  124.983300    yes      no
+2    yes       0 33.25000 2.4200 0.005216942    9.854167     no      no
+3    yes       0 33.66667 4.5000 0.004155556   15.000000    yes      no
+4    yes       0 30.50000 2.5400 0.065213780  137.869200     no      no
+5    yes       0 32.16667 9.7867 0.067050590  546.503300    yes      no
+6    yes       0 23.25000 2.5000 0.044438400   91.996670     no      no
+# ... with 4 more variables: dependents &lt;dbl&gt;, months &lt;dbl&gt;,
+#   majorcards &lt;dbl&gt;, active &lt;dbl&gt;
+</code></pre>
+<table>
+<colgroup>
+<col width="16%" />
+<col width="83%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">변수명</th>
+<th align="left">변수 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Cardhldr</td>
+<td align="left">Dummy variable, 1 if application for credit card accepted, 0 if not</td>
+</tr>
+<tr class="even">
+<td align="left">Majordrg</td>
+<td align="left">Number of major derogatory reports</td>
+</tr>
+<tr class="odd">
+<td align="left">Age</td>
+<td align="left">Age n years plus twelfths of a year</td>
+</tr>
+<tr class="even">
+<td align="left">Income</td>
+<td align="left">Yearly income (divided by 10,000)</td>
+</tr>
+<tr class="odd">
+<td align="left">Exp_Inc</td>
+<td align="left">Ratio of monthly credit card expenditure to yearly income</td>
+</tr>
+<tr class="even">
+<td align="left">Avgexp</td>
+<td align="left">Average monthly credit card expenditure</td>
+</tr>
+<tr class="odd">
+<td align="left">Ownrent</td>
+<td align="left">1 if owns their home, 0 if rent</td>
+</tr>
+<tr class="even">
+<td align="left">Selfempl</td>
+<td align="left">1 if self employed, 0 if not.</td>
+</tr>
+<tr class="odd">
+<td align="left">Depndt</td>
+<td align="left">1 + number of dependents</td>
+</tr>
+<tr class="even">
+<td align="left">Inc_per</td>
+<td align="left">Income divided by number of dependents</td>
+</tr>
+<tr class="odd">
+<td align="left">Cur_add</td>
+<td align="left">months living at current address</td>
+</tr>
+<tr class="even">
+<td align="left">Major</td>
+<td align="left">number of major credit cards held</td>
+</tr>
+<tr class="odd">
+<td align="left">Active</td>
+<td align="left">number of active credit accounts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="데이터정제">2. 데이터정제</h3>
+<p>이미 데이터가 정제되어 이항회귀모형을 적합시킬 수 있기 때문에 데이터 정제 작업은 생략하고, 바로 모형개발작업에 들어간다.</p>
+<h3 id="모형개발">3. 모형개발</h3>
+<p><code>createDataPartition</code> 함수로 훈련데이터와 검증데이터로 구분한다.</p>
+<p>사람이 개입하여 모형을 한땀한땀 개발하는 과정이 아니라, 교차타당도를 기준으로 훈련데이터를 5개 집단으로 나누고, 10번 반복하여 주어진 기준을 가장 잘 만족하는 모형을 선택한다.</p>
+<ol style="list-style-type: decimal">
+<li>일반선형모형</li>
+<li>일반선형모형 부스팅</li>
+<li>MARS</li>
+<li>CART</li>
+<li>부스팅 나무(Boosted Tree)</li>
+<li>확률숲(RandomForest)</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 03. 모형개발
+##==============================================================================
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.1. 훈련데이터와 검증데이터 분리</span>
+
+train.id &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(CreditCard$card, <span class="dt">p =</span> <span class="fl">0.7</span>)[[<span class="dv">1</span>]] 
+cc.train.df &lt;-<span class="st"> </span>CreditCard[ train.id,] 
+cc.test.df &lt;-<span class="st"> </span>CreditCard[-train.id,]
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.2. 제어변수 설정</span>
+
+ctrl &lt;-<span class="st"> </span><span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>,
+                     <span class="dt">number =</span> <span class="dv">5</span>,
+                     <span class="dt">repeats =</span> <span class="dv">10</span>,
+                     <span class="dt">classProbs =</span> <span class="ot">TRUE</span>,
+                     <span class="dt">summaryFunction =</span> twoClassSummary, 
+                     <span class="dt">verboseIter =</span> <span class="ot">FALSE</span>)
+
+<span class="co">#---------------------------------------------------------</span>
+<span class="co"># 3.3. 예측 모형 적용</span>
+
+<span class="co"># glm</span>
+glm.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                       <span class="dt">method =</span> <span class="st">&quot;glm&quot;</span>, 
+                       <span class="dt">family =</span> binomial,
+                       <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                       <span class="dt">trControl =</span> ctrl, 
+                       <span class="dt">tuneLength=</span><span class="dv">5</span>)
+
+<span class="co"># glm boosting</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(mboost))
+glmBoost.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                       <span class="dt">method =</span> <span class="st">&quot;glmboost&quot;</span>, 
+                       <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                       <span class="dt">trControl =</span> ctrl, 
+                       <span class="dt">tuneLength=</span><span class="dv">5</span>, 
+                       <span class="dt">center=</span><span class="ot">TRUE</span>, 
+                       <span class="dt">family=</span><span class="kw">Binomial</span>(<span class="dt">link =</span> <span class="kw">c</span>(<span class="st">&quot;logit&quot;</span>)))</code></pre></div>
+<pre class="output"><code>Loading required package: plyr
+</code></pre>
+<pre class="output"><code>-------------------------------------------------------------------------
+</code></pre>
+<pre class="output"><code>You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+</code></pre>
+<pre class="output"><code>-------------------------------------------------------------------------
+</code></pre>
+<pre class="output"><code>
+Attaching package: &#39;plyr&#39;
+</code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># mars</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(earth))
+mars.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                   <span class="dt">method =</span> <span class="st">&quot;earth&quot;</span>, 
+                   <span class="dt">glm=</span><span class="kw">list</span>(<span class="dt">family=</span>binomial), 
+                   <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                   <span class="dt">trControl =</span> ctrl, 
+                   <span class="dt">tuneLength=</span><span class="dv">5</span>)
+
+<span class="co"># CART</span>
+cart.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                   <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, 
+                   <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                   <span class="dt">trControl =</span> ctrl, 
+                   <span class="dt">tuneLength=</span><span class="dv">5</span>)</code></pre></div>
+<pre class="output"><code>Loading required package: rpart
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Boosted tree</span>
+gbm.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                  <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, 
+                  <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                  <span class="dt">trControl =</span> ctrl, 
+                  <span class="dt">verbose=</span><span class="ot">FALSE</span>, 
+                  <span class="dt">tuneLength=</span><span class="dv">5</span>)</code></pre></div>
+<pre class="output"><code>Loading required package: gbm
+</code></pre>
+<pre class="output"><code>Loading required package: splines
+</code></pre>
+<pre class="output"><code>Loaded gbm 2.1.1
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Random Forest</span>
+rf.tune &lt;-<span class="st"> </span><span class="kw">train</span>(card ~<span class="st"> </span>., <span class="dt">data=</span>cc.train.df, 
+                 <span class="dt">method =</span> <span class="st">&quot;rf&quot;</span>, 
+                 <span class="dt">metric=</span><span class="st">&quot;ROC&quot;</span>, 
+                 <span class="dt">trControl =</span> ctrl, 
+                 <span class="dt">verbose=</span><span class="ot">FALSE</span>, 
+                 <span class="dt">tuneLength=</span><span class="dv">5</span>)</code></pre></div>
+<pre class="output"><code>Loading required package: randomForest
+</code></pre>
+<pre class="output"><code>randomForest 4.6-12
+</code></pre>
+<pre class="output"><code>Type rfNews() to see new features/changes/bug fixes.
+</code></pre>
+<pre class="output"><code>
+Attaching package: &#39;randomForest&#39;
+</code></pre>
+<pre class="output"><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    combine
+</code></pre>
+<pre class="output"><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    margin
+</code></pre>
+<h3 id="모형-성능평가">4. 모형 성능평가</h3>
+<p><code>ROC</code> 기준으로 가장 면적이 넓은 모형을 선정한다. 6개 모형이 성능이 가장 좋아야 하고, 성능이 비슷하다면 단순한 모형을 선정한다. <code>parallelplot()</code> 시각화 도구를 통해 예측모형의 성능을 시각적으로 바로 확인한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==============================================================================
+## 04. 모형성능평가
+##==============================================================================
+
+allResamples &lt;-<span class="st"> </span><span class="kw">resamples</span>(<span class="kw">list</span>(<span class="dt">MARS =</span> mars.tune,
+                               <span class="dt">CART =</span> cart.tune,
+                               <span class="st">&quot;Logistic&quot;</span> =<span class="st"> </span>glm.tune,
+                               <span class="st">&quot;GLM Boosting&quot;</span> =<span class="st"> </span>glmBoost.tune,
+                               <span class="st">&quot;Boosted Tree&quot;</span> =<span class="st"> </span>gbm.tune,
+                               <span class="st">&quot;Random Forest&quot;</span> =<span class="st"> </span>rf.tune))
+<span class="kw">parallelplot</span>(allResamples, <span class="dt">metric =</span> <span class="st">&quot;ROC&quot;</span>)</code></pre></div>
+<p><img src="fig/card-performane-1.png" title="plot of chunk card-performane" alt="plot of chunk card-performane" style="display: block; margin: auto;" /></p>
+<h3 id="최종모형-선정">5. 최종모형 선정</h3>
+<p>MARS를 최종모형으로 선정하고, 모형에 대한 자세한 사항을 <code>summary()</code> 함수를 통해 살펴본다. 또한, MARS는 <code>plotmo</code> 기능을 통해 설명변수를 종속변수에 시각적으로 확인도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mars.tune</code></pre></div>
+<pre class="output"><code>Multivariate Adaptive Regression Spline 
+
+925 samples
+ 11 predictor
+  2 classes: &#39;no&#39;, &#39;yes&#39; 
+
+No pre-processing
+Resampling: Cross-Validated (5 fold, repeated 10 times) 
+Summary of sample sizes: 740, 740, 739, 740, 741, 741, ... 
+Resampling results across tuning parameters:
+
+  nprune  ROC        Sens       Spec     
+   2      0.9908273  0.9980836  0.9787986
+   5      0.9947449  0.9975958  0.9797718
+   8      0.9956892  0.9942393  0.9801913
+  11      0.9955115  0.9937515  0.9799116
+  15      0.9955115  0.9937515  0.9799116
+
+Tuning parameter &#39;degree&#39; was held constant at a value of 1
+ROC was used to select the optimal model using  the largest value.
+The final values used for the model were nprune = 8 and degree = 1. 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mars.tune$bestTune</code></pre></div>
+<pre class="output"><code>  nprune degree
+3      8      1
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(mars.tune)</code></pre></div>
+<pre class="output"><code>Call: earth(x=matrix[925,11], y=factor.object, keepxy=TRUE,
+            glm=list(family=function.object), degree=1, nprune=8)
+
+GLM coefficients
+                              yes
+(Intercept)            3049.88147
+h(3-reports)             19.55122
+h(36.4167-age)            0.07744
+h(age-36.4167)            0.11742
+h(expenditure-6.5175)   -64.81641
+h(53.3017-expenditure)  -58.36274
+h(expenditure-53.3017)   64.82000
+h(3-active)              -0.43159
+
+Earth selected 8 of 18 terms, and 4 of 11 predictors
+Termination condition: RSq changed by less than 0.001 at 18 terms
+Importance: expenditure, reports, age, active, share-unused, ...
+Number of terms at each degree of interaction: 1 7 (additive model)
+Earth GCV 0.01603614    RSS 14.35625    GRSq 0.908196    RSq 0.9109569
+
+GLM null.deviance 986.0438 (924 dof)   deviance 72.36952 (917 dof)   iters 24
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plotmo</span>(mars.tune$finalModel, <span class="dt">type=</span><span class="st">&quot;link&quot;</span>)</code></pre></div>
+<pre class="output"><code> grid:    reports      age income      share expenditure owneryes
+                0 31.16667   2.97 0.03709175    98.57916        0
+ selfempyes dependents months majorcards active
+          0          1     30          1      6
+</code></pre>
+<p><img src="fig/card-deploy-1.png" title="plot of chunk card-deploy" alt="plot of chunk card-deploy" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

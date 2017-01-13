@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">텍스트 데이터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>텍스트 데이터 분석에 대해 이해한다.</li>
+<li>전통적인 텍스트 분석방법에 대응되는 단어 주머니(bag of words)에 대해 살펴본다.</li>
+</ul>
+</div>
+</section>
+<h3 id="언어기술-로드맵">1. 언어기술 로드맵</h3>
+<p>스탠포드 <a href="http://web.stanford.edu/~jurafsky/">Dan Jurfsky</a> 교수가 정의한 언어기술(Language Technology)에 따라 거의 해결된 기술과 상당한 진전을 이루는 기술, 그리고 여전히 어려운 문제로 구분했다.</p>
+<ul>
+<li><strong>상당부분 해결 문제</strong>
+<ul>
+<li>Spam Detection</li>
+<li>Part-of-speech (POS) tagging</li>
+<li>Named entity recognition (NER)</li>
+</ul></li>
+<li><strong>성과를 내고 있는 문제</strong>
+<ul>
+<li>Sentiment analysis</li>
+<li>Coreference resolution</li>
+<li>Word sense disambiguation (WSD)</li>
+<li>Parsing</li>
+<li>Machine translation (MT)</li>
+<li>Information extraction (IE)</li>
+</ul></li>
+<li><strong>여전히 어려운 문제</strong>
+<ul>
+<li>Question answering (QA)</li>
+<li>Paraphrase</li>
+<li>Summarization</li>
+<li>Dialog</li>
+</ul></li>
+</ul>
+<p><img src="fig/ml-text-technology-roadmap.png" alt="언어기술 " width="70%" /></p>
+<h3 id="단어주머니-접근법">2. 단어주머니 접근법</h3>
+<p><a href="https://en.wikipedia.org/wiki/Bag-of-words_model"><strong>단어 주머니(bag of words)</strong></a> 모형은 전통적인 자연어 처리(Natural Language Processing) 혹은 정보 검색(Information Retrieval)에서 사용되는 간략화한 표현으로 볼 수 있다. 문법 무시, 어순 무시 등 전통적인 텍스트 분석에 사용되는 것과 달리, 각 단어가 출현된 회수를 Feature로 추출하여 문서 분류, 감정분석 등에 활용한다.</p>
+<p><img src="fig/ml-text-comparison.png" alt="텍스트 데이터 분석 접근방법 비교" width="70%" /></p>
+<h3 id="텍스트-데이터-분석-작업-흐름">3. 텍스트 데이터 분석 작업 흐름</h3>
+<p>텍스트 문자 데이터 분석 작업 흐름도 일반적인 데이터 분석 과정과 크게 차이가 나지는 않는다.</p>
+<ol style="list-style-type: decimal">
+<li>문제 정의 및 목표설정: 적용분야 전문지식 습득 필요</li>
+<li>수집 텍스트 데이터 식별: 목표달성을 위한 정보가 담긴 데이터 발굴</li>
+<li>데이터 분석 및 모형 개발 과정
+<ul>
+<li>텍스트 데이터 전처리 및 구조화</li>
+<li>데이터 정제 및 Feature 공학을 통한 Feature 추출</li>
+<li>데이터 분석 및 모형 개발 : 탐색적 데이터 분석 포함</li>
+</ul></li>
+<li>분석결과 정리: 보고서, 추천, 통찰 도출</li>
+</ol>
+<p><img src="fig/ml-text-workflow.png" alt="텍스트 데이터 분석 작업흐름" width="70%" /></p>
+<h4 id="텍스트-데이터-전처리-text-mining-in-r">3.1. 텍스트 데이터 전처리 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h4>
+<ol style="list-style-type: decimal">
+<li>토큰화(Tokenization)</li>
+<li>정제(Cleaning): 소문자, 공백(Whitespace) 제거, 구두점 소거 등</li>
+<li>어간 추출(Stemming), Lemmatization, Collocation</li>
+<li>필터(Filtering): 불용어 제거</li>
+</ol>
+<table>
+<colgroup>
+<col width="44%" />
+<col width="55%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">만화가 김충원</th>
+<th align="left">개발하는 데이터 분석가 박은정</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>사람의 생김새</strong> 를 결정짓는 것은 <strong>골격과 피부의 미묘한 변화에서 비롯되는 차이</strong> 점이고, 그 차이점을 없애 버린다면 모든 사람의 생김새는 똑같을 것입니다.</td>
+<td align="left"><strong>데이터</strong>를 결정짓는 것은 <strong>행과 열의 미묘한 변화에서 비롯되는 차이</strong> 점이고, 그 차이점을 없애 버린다면 모든 데이터는 똑같을 것입니다.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="문서단어행렬dtm-단어문서행렬tdm">3.2. 문서단어행렬(DTM), 단어문서행렬(TDM)</h4>
+<p>단어문서행렬(Term Document Matrix)을 전치(Transpose)하게 되면 문서단어행렬(DTM)이 된다. 단어문서행렬은 다음과 같은 형태를 갖는다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"><span class="math inline">\(문서_1\)</span></th>
+<th align="left"><span class="math inline">\(문서_1\)</span></th>
+<th align="left"><span class="math inline">\(문서_1\)</span></th>
+<th align="left"><span class="math inline">\(\cdots\)</span></th>
+<th align="left"><span class="math inline">\(문서_n\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_1\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(단어_2\)</span></td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_3\)</span></td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(\cdots\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">2</td>
+<td align="left">1</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_m\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<p>문서단어행렬은 단서문서행렬을 전치하여 다음과 같은 형태를 갖는다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"><span class="math inline">\(단어_1\)</span></th>
+<th align="left"><span class="math inline">\(단어_1\)</span></th>
+<th align="left"><span class="math inline">\(단어_1\)</span></th>
+<th align="left"><span class="math inline">\(\cdots\)</span></th>
+<th align="left"><span class="math inline">\(단어_n\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><span class="math inline">\(문서_1\)</span></td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(문서_2\)</span></td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(문서_3\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">2</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(\cdots\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(문서_m\)</span></td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<p><code>qdap</code> 팩키지 <code>wfm()</code> 함수를 사용해서 말뭉치(Corpus) 대신 텍스트에서 바로 단어 빈도수를 산출하는 것도 가능하다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"><span class="math inline">\(문서_1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_1\)</span></td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(단어_2\)</span></td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_3\)</span></td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left"><span class="math inline">\(\cdots\)</span></td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left"><span class="math inline">\(단어_m\)</span></td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.slideshare.net/RyanWesslen/text-mining-with-r-for-social-science-research">Ryan Wesslen, Text Mining with R for Social Science Research</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

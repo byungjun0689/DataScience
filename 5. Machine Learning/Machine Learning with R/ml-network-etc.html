@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기타 네트워크 데이터 분석</h2>
+          <h3 id="tkplot을-활용한-인터랙티브-네트워크-시각화">1. <code>tkplot</code>을 활용한 인터랙티브 네트워크 시각화</h3>
+<p>R과 <code>igraph</code> 팩키지를 활용해서 인터랙티브한 방식으로 네트워크 시각화가 가능하다. 규모가 그렇게 크지 않은 네트워크 시각화에 <code>tkplot</code>을 활용하여 수작업으로 미세 조정을 한 후에 노드를 적절한 좌표에 배치하고 나서 후속작업에 활용하는 작업흐름을 만들어 낸다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tkid &lt;-<span class="st"> </span><span class="kw">tkplot</span>(net) 
+l &lt;-<span class="st"> </span><span class="kw">tkplot.getcoords</span>(tkid) 
+<span class="kw">plot</span>(net, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-tkplot-1.png" title="plot of chunk network-tkplot" alt="plot of chunk network-tkplot" style="display: block; margin: auto;" /></p>
+<h3 id="적외선-열지도heatmap">2. 적외선 열지도(Heatmap)</h3>
+<p>네트워크 데이터를 머리에 털이 난 모양(hairball) 말고, 적외선 열지도(Heatmap)로 표현하는 것도 가능한 방법이다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">netm &lt;-<span class="st"> </span><span class="kw">get.adjacency</span>(net, <span class="dt">attr=</span><span class="st">&quot;weight&quot;</span>, <span class="dt">sparse=</span>F)
+<span class="kw">colnames</span>(netm) &lt;-<span class="st"> </span><span class="kw">V</span>(net)$media
+<span class="kw">rownames</span>(netm) &lt;-<span class="st"> </span><span class="kw">V</span>(net)$media
+
+palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;gold&quot;</span>, <span class="st">&quot;dark orange&quot;</span>)) 
+<span class="kw">heatmap</span>(netm[,<span class="dv">17</span>:<span class="dv">1</span>], <span class="dt">Rowv =</span> <span class="ot">NA</span>, <span class="dt">Colv =</span> <span class="ot">NA</span>, <span class="dt">col =</span> <span class="kw">palf</span>(<span class="dv">100</span>), 
+        <span class="dt">scale=</span><span class="st">&quot;none&quot;</span>, <span class="dt">margins=</span><span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">10</span>) )</code></pre></div>
+<p><img src="fig/network-heatmap-1.png" title="plot of chunk network-heatmap" alt="plot of chunk network-heatmap" style="display: block; margin: auto;" /></p>
+<h3 id="연결-분포degree-distribution">3. 연결 분포(Degree Distribution)</h3>
+<p>네트워크 노드와 엣지링크에 따라 차이가 나지만, 단순한 그래프가 복잡한 네트워크 시각화 산출물보다 더 의미가 있을 때가 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dd &lt;-<span class="st"> </span><span class="kw">degree.distribution</span>(net, <span class="dt">cumulative=</span>T, <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>)
+<span class="kw">plot</span>(dd, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">1</span>, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Degree&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Cumulative Frequency&quot;</span>)</code></pre></div>
+<p><img src="fig/network-degree-dist-1.png" title="plot of chunk network-degree-dist" alt="plot of chunk network-degree-dist" style="display: block; margin: auto;" /></p>
+<h3 id="이분할-그래프bipartite-graph">4. 이분할 그래프(Bipartite Graph)</h3>
+<p><strong>이분할 그래프(Bipartite Graph)</strong> 는 서로 다른 두 객체를 모형화할 때 자주 나타난다. 예를 들어, 뉴스기사를 생산하는 언론사와 이를 소비하는 독자로 나누는 것이 한 사례가 된다. 네트워크 엣지링크는 행렬형태로 표현된다. 행렬형태 데이터를 <code>graph.incidence</code> 함수로 그래프 객체로 불러온다. <code>igraph</code> 팩키지에서 이분할 그래프는 <code>type</code>이 0이면 노드 한집단을 <code>type</code>이 `이면 또다른 집단을 표현한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes2)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 5
+     id   media media.type media.name audience.size
+  &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01     NYT          1  Newspaper            20
+2   s02    WaPo          1  Newspaper            25
+3   s03     WSJ          1  Newspaper            30
+4   s04    USAT          1  Newspaper            32
+5   s05 LATimes          1  Newspaper            20
+6   s06     CNN          2         TV            56
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links2)</code></pre></div>
+<pre class="output"><code>    U01 U02 U03 U04 U05 U06 U07 U08 U09 U10 U11 U12 U13 U14 U15 U16 U17
+s01   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+s02   0   0   0   1   1   0   0   0   0   0   0   0   0   0   0   0   0
+s03   0   0   0   0   0   1   1   1   1   0   0   0   0   0   0   0   0
+s04   0   0   0   0   0   0   0   0   1   1   1   0   0   0   0   0   0
+s05   0   0   0   0   0   0   0   0   0   0   1   1   1   0   0   0   0
+s06   0   0   0   0   0   0   0   0   0   0   0   0   1   1   0   0   1
+    U18 U19 U20
+s01   0   0   0
+s02   0   0   1
+s03   0   0   0
+s04   0   0   0
+s05   0   0   0
+s06   0   0   0
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net2 &lt;-<span class="st"> </span><span class="kw">graph.incidence</span>(links2)
+<span class="kw">table</span>(<span class="kw">E</span>(net2)$type)</code></pre></div>
+<pre class="output"><code>&lt; table of extent 0 &gt;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net2, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-bipartite-1.png" title="plot of chunk network-bipartite" alt="plot of chunk network-bipartite" style="display: block; margin: auto;" /></p>
+<p>이분할 그래프도 마찬가지로 네트워크 노드와 엣지링크의 속성을 변경시킬 수 있다. 이번에는 언론사는 정사각형, 독자는 원으로 노드 형태를 바꾼다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net2)$color &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;steel blue&quot;</span>, <span class="st">&quot;orange&quot;</span>)[<span class="kw">V</span>(net2)$type<span class="dv">+1</span>]
+<span class="kw">V</span>(net2)$shape &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;square&quot;</span>, <span class="st">&quot;circle&quot;</span>)[<span class="kw">V</span>(net2)$type<span class="dv">+1</span>]
+<span class="kw">V</span>(net2)$label &lt;-<span class="st"> &quot;&quot;</span>
+<span class="kw">V</span>(net2)$label[<span class="kw">V</span>(net2)$type==F] &lt;-<span class="st"> </span>nodes2$media[<span class="kw">V</span>(net2)$type==F] 
+<span class="kw">V</span>(net2)$label.cex=.<span class="dv">7</span>
+<span class="kw">V</span>(net2)$label.font=<span class="dv">2</span>
+
+<span class="kw">plot</span>(net2, <span class="dt">vertex.label.color=</span><span class="st">&quot;white&quot;</span>, <span class="dt">vertex.size=</span>(<span class="dv">2</span>-<span class="kw">V</span>(net2)$type)*<span class="dv">8</span>) </code></pre></div>
+<p><img src="fig/network-bipartite-attributes-1.png" title="plot of chunk network-bipartite-attributes" alt="plot of chunk network-bipartite-attributes" style="display: block; margin: auto;" /></p>
+<p><code>layout.bipartite</code> 네트워크 배치가 있어 이를 활용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># layout.bipartite 배치</span>
+<span class="kw">plot</span>(net2, <span class="dt">vertex.label=</span><span class="ot">NA</span>, <span class="dt">vertex.size=</span><span class="dv">7</span>, <span class="dt">layout=</span>layout.bipartite) </code></pre></div>
+<p><img src="fig/network-bipartite-layout-1.png" title="plot of chunk network-bipartite-layout" alt="plot of chunk network-bipartite-layout" style="display: block; margin: auto;" /></p>
+<p>노드를 텍스트로 표현하는 것이 때로는 도움이 많이 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net2, <span class="dt">vertex.shape=</span><span class="st">&quot;none&quot;</span>, <span class="dt">vertex.label=</span>nodes2$media,
+     <span class="dt">vertex.label.color=</span><span class="kw">V</span>(net2)$color, <span class="dt">vertex.label.font=</span><span class="dv">2</span>, 
+     <span class="dt">vertex.label.cex=</span>.<span class="dv">6</span>, <span class="dt">edge.color=</span><span class="st">&quot;gray70&quot;</span>,  <span class="dt">edge.width=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="fig/network-bipartite-text-1.png" title="plot of chunk network-bipartite-text" alt="plot of chunk network-bipartite-text" style="display: block; margin: auto;" /></p>
+<p>노드에 이미지를 넣어 시각적인 이해를 돕는 것도 가능하다. 단, 이 작업을 위해서 <code>png</code> 팩키지가 필요하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(&quot;png&quot;)</span>
+<span class="kw">library</span>(png)
+ 
+img<span class="fl">.1</span> &lt;-<span class="st"> </span><span class="kw">readPNG</span>(<span class="st">&quot;~/Dropbox/network/network/03.data/Images/news.png&quot;</span>)
+img<span class="fl">.2</span> &lt;-<span class="st"> </span><span class="kw">readPNG</span>(<span class="st">&quot;~/Dropbox/network/network/03.data/Images/user.png&quot;</span>)
+
+<span class="kw">V</span>(net2)$raster &lt;-<span class="st"> </span><span class="kw">list</span>(img<span class="fl">.1</span>, img<span class="fl">.2</span>)[<span class="kw">V</span>(net2)$type<span class="dv">+1</span>]
+
+<span class="kw">plot</span>(net2, <span class="dt">vertex.shape=</span><span class="st">&quot;raster&quot;</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>,
+     <span class="dt">vertex.size=</span><span class="dv">16</span>, <span class="dt">vertex.size2=</span><span class="dv">16</span>, <span class="dt">edge.width=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="fig/network-bipartite-image-1.png" title="plot of chunk network-bipartite-image" alt="plot of chunk network-bipartite-image" style="display: block; margin: auto;" /></p>
+<p>필요하면 어떤 이미지도 네트워크 시각화 산출물에 넣어 표현하는 것도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># l &lt;- layout.auto(net2, ymin=-1.5, ymax=1.5, xmin=-1.5, xmax=1.5)</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.auto</span>(net2)
+
+
+<span class="kw">plot</span>(net2, <span class="dt">vertex.shape=</span><span class="st">&quot;raster&quot;</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>,
+     <span class="dt">vertex.size=</span><span class="dv">16</span>, <span class="dt">vertex.size2=</span><span class="dv">16</span>, <span class="dt">edge.width=</span><span class="dv">2</span>, <span class="dt">layout=</span>l)
+
+img<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">readPNG</span>(<span class="st">&quot;~/Dropbox/network/network/03.data/Images/puppy.png&quot;</span>)
+<span class="kw">rasterImage</span>(img<span class="fl">.3</span>,  <span class="dt">xleft=</span>-<span class="fl">1.7</span>, <span class="dt">xright=</span><span class="dv">0</span>, <span class="dt">ybottom=</span>-<span class="fl">1.2</span>, <span class="dt">ytop=</span><span class="dv">0</span>)</code></pre></div>
+<p><img src="fig/network-bipartite-images-1.png" title="plot of chunk network-bipartite-images" alt="plot of chunk network-bipartite-images" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

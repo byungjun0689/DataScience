@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">장바구니 데이터 분석</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="신용평가모형-목표"><span class="glyphicon glyphicon-check"></span>신용평가모형 목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>카드에 담는 장바구니(Market Basket) 데이터를 이해한다.</li>
+<li>기초적인 장바구니 데이터 분석방법을 학습한다.</li>
+</ul>
+</div>
+</section>
+<section class="prereq panel panel-warning">
+<div class="panel-heading">
+<h3 id="r---association-rules---market-basket-analysis"><span class="glyphicon glyphicon-education"></span>R - Association Rules - Market Basket Analysis</h3>
+</div>
+<div class="panel-body">
+<table>
+<thead>
+<tr class="header">
+<th align="center">장바구니 분석 1부</th>
+<th align="center">장바구니분석 2부</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><iframe width="350" height="260" src="https://www.youtube.com/embed/b5hgDPa7a2k" frameborder="0" allowfullscreen></iframe></td>
+<td align="center"><iframe width="350" height="260" src="https://www.youtube.com/embed/Gy_nqzJMNrI" frameborder="0" allowfullscreen></iframe></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<h3 id="장바구니-데이터-arules">1. 장바구니 데이터 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>장바구니 분석용 데이터로 가장 유명한 것 중 하나가 <a href="http://www.salemmarafi.com/wp-content/uploads/2014/03/groceries.csv"><code>Groceries</code></a> 데이터다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<h4 id="장바구니-데이터-분석-환경설정">1.1. 장바구니 데이터 분석 환경설정</h4>
+<p>가장 먼저 장바구니 데이터 분석을 위한 환경을 설정한다. 연관규칙 추출을 위한 <code>arules</code>, 추출된 연관규칙 시각화를 위한 <code>arulesViz</code> 팩키지가 기본적으로 필요하다. 여기에 <code>wordcloud</code> 팩키지를 사용해서 사용된 장바구니에 가장 많이 든 물품이 무엇인지 텍스트 마이닝에 많이 사용되는 시각화도구도 활용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================
+## 00. 장바구니 분석 환경 설정
+##======================================================================================
+<span class="co"># arules, arulesViz, wordcloud 팩키지 설치</span>
+<span class="co"># install.packages(&quot;arules&quot;)</span>
+<span class="co"># install.packages(&quot;arulesViz&quot;)</span>
+<span class="co"># install.packages(&quot;wordcloud&quot;)</span>
+
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(arules)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(arulesViz)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(wordcloud)))</code></pre></div>
+<h4 id="장바구니-데이터-불러오기">1.2. 장바구니 데이터 불러오기</h4>
+<p>장바구니 데이터는 마트에서 카드에 담긴 물품을 생각하면 쉽다. 각 고객마다 마트에서 장바구니 카드를 밀게 되거나, 인터넷에서 주문을 할 때 가상의 장바구니에 담게 된다. 담겨진 물건은 물품마다 고유 제품번호가 부여되어 있고, 해당 제품에 대한 라벨이 함께 붙어 있다. 고유 제품번호는 컴퓨터 전산처리를 위해 부여된 것이고, 해당 제품에 대한 라벨은 사람이 제품을 이해하기 위해 부여된 것이다.</p>
+<p><img src="fig/ml-cart-metaphor.png" alt="카트 장바구니 데이터 코드화" width="57%" /></p>
+<p><code>arules</code> 팩키지에 소속된 <code>read.transactions</code> 함수를 사용해서 장바구니 데이터를 연관분석을 위한 자료형으로 불러 읽어온다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================
+## 01. 장바구니 분석 데이터 가져오기
+##======================================================================================
+
+cart  &lt;-<span class="st"> </span><span class="kw">read.transactions</span>(<span class="st">&quot;data/groceries.csv&quot;</span>, <span class="dt">format =</span> <span class="st">&quot;basket&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;,&quot;</span>)
+<span class="kw">head</span>(cart)</code></pre></div>
+<pre class="output"><code>transactions in sparse format with
+ 6 transactions (rows) and
+ 169 items (columns)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(datasets)
+<span class="kw">data</span>(Groceries)
+
+<span class="co"># 데이터가 동일한지 확인</span>
+
+<span class="co"># G &lt;- inspect(Groceries)</span>
+<span class="co"># C &lt;- inspect(cart)</span>
+<span class="co"># identical(G, C)</span></code></pre></div>
+<p><code>library(datasets)</code> 팩키지에 <code>Groceries</code> 데이터가 기본으로 포함되어 있어, 이를 바로 활용해도 좋다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="왜-연관분석인가"><span class="glyphicon glyphicon-pushpin"></span>왜 연관분석인가?</h3>
+</div>
+<div class="panel-body">
+<p>연관분석은 “Association Rules”을 번역한 것으로 결국 “<strong>If…, then …</strong> 만약 … 라면, … 가 될 것이다” 라는 연관성이 결과로 도출된다. 연관분석은 다음과 같이 실행에 옮길 수 있는 규칙이 도출된다는 면에서 실무자의 많은 관심을 끌고 있다.</p>
+<ul>
+<li>제품추천: A,B,C 제품을 구매한 다음에 다음에 구매 가능성이 높은 제품 추천.<br />
+</li>
+<li>콘텐츠 최적화: 잡지 웹사이트, 블로그 콘텐츠 추천, 웹페이지 개인화<br />
+</li>
+<li>의료진단: 자세한 사항 논문 참조, <a href="http://static.ijcsce.org/wp-content/uploads/2013/12/IJCSCE110513.pdf">Implementation of Apriori Algorithm in Health Care Sector: A Survey</a><br />
+</li>
+<li>교차마케팅, 우편-주문 캠페인 프로모션에 적용</li>
+</ul>
+</div>
+</aside>
+<h3 id="연관분석에-사용되는-핵심-개념">2. 연관분석에 사용되는 핵심 개념</h3>
+<p>연관분석결과 산출물에 인용되는 주요 용어에 대해 이해하고 넘어가야 된다.</p>
+<ul>
+<li>지지도(Support) : 확률 <span class="math inline">\(Support(A) = P(A)\)</span>, 하나이상의 빈발 제품 집합 식별에 활용됨</li>
+<li>신뢰도(Confidence) : 조건부 확률 <span class="math inline">\(Confidence(A \rightarrow B) = \frac{P(A,B)}{P(A)}\)</span>, 제품 집합 간의 연관성 강도를 측정하는데 활용됨</li>
+<li>향상도(Lift) : <span class="math inline">\(lift(A \rightarrow B) = \frac{P(A,B)}{P(A) \dot P(B)}\)</span> 도출된 연관규칙의 효용성을 측정하는데 활용됨</li>
+</ul>
+<p>생성 가능한 모든 규칙을 생성하고, 지지도, 신뢰도, 향상도를 판단기준으로 놓고 가장 최선의 규칙을 선택하면 되지만, 현실적으로 제품개수가 증가하게 되면 컴퓨터 연산시간이 이를 감당하지 못한다. 대안으로 가장 빈발하는 제품집합만을 기준으로 삼아 연관규칙을 생성해 나간다.</p>
+<p>“Support of an item set never exceeds the support of its subsets, which is known as anti-monotoneproperty of support.” 즉, 지지도 특성 중에 제품 집합 지지도는 절대로 하위집합 지지도를 넘어서지 못하는 특징이 있다. 이를 활용하여 빈발집합을 우선 고려하고, 지지도와 최소지지도를 모수로 적당한 값 예를 들어, 기준 지지도 30%, 기준 신뢰도 70%로 설정하여 연관규칙 도출에 필요한 연산시간을 급격히 줄인다. Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이다.</p>
+<h3 id="장바구니-기술통계-분석">3. 장바구니 기술통계 분석</h3>
+<p>장바구니 데이터를 R 로 불러왔고, 이에 대해 본격적으로 연관규칙 도출을 위한 Apriori 알고리즘을 적용하기 위한 기술통계 분석을 수행한다.</p>
+<p><code>summary(cart)</code>를 통해 itemMatrix에 대한 정보가 제일 처음 나오고, 가장 빈발하는 제품(most frequent items), 제품집합에 대한 정보가 순차적으로 출력된다.</p>
+<p><strong>itemMatrix</strong> 에서 장바구니 분석에 행렬이 성긴 행렬(Sparse Matrix)로 <span class="math inline">\(9835 \times 169\)</span> 크기를 갖는데 밀도가 <code>0.02609146</code>에 불과하다. 즉, <span class="math inline">\(9835 * 169 * 0.02609146 = 43,367\)</span> 개 제품만이 장바구니 분석에 포함되어 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================
+## 02. 장바구니 기술통계 분석
+##======================================================================================
+
+<span class="kw">summary</span>(cart)</code></pre></div>
+<pre class="output"><code>transactions as itemMatrix in sparse format with
+ 9835 rows (elements/itemsets/transactions) and
+ 169 columns (items) and a density of 0.02609146 
+
+most frequent items:
+      whole milk other vegetables       rolls/buns             soda 
+            2513             1903             1809             1715 
+          yogurt          (Other) 
+            1372            34055 
+
+element (itemset/transaction) length distribution:
+sizes
+   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15 
+2159 1643 1299 1005  855  645  545  438  350  246  182  117   78   77   55 
+  16   17   18   19   20   21   22   23   24   26   27   28   29   32 
+  46   29   14   14    9   11    4    6    1    1    1    1    3    1 
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   2.000   3.000   4.409   6.000  32.000 
+
+includes extended item information - examples:
+            labels
+1 abrasive cleaner
+2 artif. sweetener
+3   baby cosmetics
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">itemFrequencyPlot</span>(cart,<span class="dt">topN=</span><span class="dv">20</span>,<span class="dt">type=</span><span class="st">&quot;absolute&quot;</span>)</code></pre></div>
+<p><img src="fig/ml-groceries-eda-1.png" title="plot of chunk ml-groceries-eda" alt="plot of chunk ml-groceries-eda" style="display: block; margin: auto;" /></p>
+<h3 id="연관규칙-도출">4. 연관규칙 도출</h3>
+<p><code>apriori</code> 함수에 지지도 0.001, 신뢰도 0.8 값을 설정하고 연관규칙을 도출한다. 410개 규칙 중 도출된 연관규칙 중 상위 5개만 뽑아 출력한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================
+## 03. Apriori 알고리즘: 연관규칙 도출
+##======================================================================================
+<span class="co"># 연관규칙 도출</span>
+rules &lt;-<span class="st"> </span><span class="kw">apriori</span>(cart, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">supp =</span> <span class="fl">0.001</span>, <span class="dt">conf =</span> <span class="fl">0.8</span>))</code></pre></div>
+<pre class="output"><code>Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport support minlen maxlen
+        0.8    0.1    1 none FALSE            TRUE   0.001      1     10
+ target   ext
+  rules FALSE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 9 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+sorting and recoding items ... [157 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 3 4 5 6 done [0.01s].
+writing ... [410 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules</code></pre></div>
+<pre class="output"><code>set of 410 rules 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 상위 5개 규칙만 출력</span>
+<span class="kw">options</span>(<span class="dt">digits=</span><span class="dv">2</span>)
+<span class="kw">inspect</span>(rules[<span class="dv">1</span>:<span class="dv">5</span>])</code></pre></div>
+<pre class="output"><code>  lhs                        rhs            support confidence lift
+1 {liquor,red/blush wine} =&gt; {bottled beer} 0.0019  0.90       11.2
+2 {cereals,curd}          =&gt; {whole milk}   0.0010  0.91        3.6
+3 {cereals,yogurt}        =&gt; {whole milk}   0.0017  0.81        3.2
+4 {butter,jam}            =&gt; {whole milk}   0.0010  0.83        3.3
+5 {bottled beer,soups}    =&gt; {whole milk}   0.0011  0.92        3.6
+</code></pre>
+<h4 id="유의미한-연관규칙-탐색">4.1. 유의미한 연관규칙 탐색</h4>
+<p>연관규칙이 너무 많이 도출되기 때문에 이중에서 가장 유의미한 규칙을 뽑아낼 필요가 있다. 이런 경우 <strong>신뢰도(Confidence)</strong> 혹은 <strong>향상도(Lift)</strong> 를 기준으로 내림차순 정렬하면 유의미한 연관규칙을 빠르게 탐색할 수 있다.</p>
+<p>특히 연관규칙집합의 길이가 긴 경우 <code>maxlen=3</code> 인자를 조정하여 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 01. 정렬</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 최대 길이 3인 집합으로 한정</span>
+rules &lt;-<span class="st"> </span><span class="kw">apriori</span>(Groceries, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">supp =</span> <span class="fl">0.001</span>, <span class="dt">conf =</span> <span class="fl">0.8</span>, <span class="dt">maxlen=</span><span class="dv">3</span>))</code></pre></div>
+<pre class="output"><code>Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport support minlen maxlen
+        0.8    0.1    1 none FALSE            TRUE   0.001      1      3
+ target   ext
+  rules FALSE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 9 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+sorting and recoding items ... [157 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 3 done [0.00s].
+writing ... [29 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>, <span class="dt">decreasing=</span><span class="ot">TRUE</span>)
+<span class="kw">inspect</span>(rules[<span class="dv">1</span>:<span class="dv">10</span>])</code></pre></div>
+<pre class="output"><code>   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  =&gt; {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       =&gt; {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} =&gt; {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          =&gt; {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           =&gt; {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 =&gt; {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    =&gt; {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                =&gt; {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          =&gt; {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         =&gt; {bottled beer}      0.0019       0.90 11.2
+</code></pre>
+<h4 id="중복-연관집합-제거">4.2. 중복 연관집합 제거</h4>
+<p>흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을 데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 제거하는 것도 바람직하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 02. 중복 집합 제거</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+
+subset.matrix &lt;-<span class="st"> </span><span class="kw">is.subset</span>(rules, rules)
+subset.matrix[<span class="kw">lower.tri</span>(subset.matrix, <span class="dt">diag=</span>T)] &lt;-<span class="st"> </span><span class="ot">NA</span>
+redundant &lt;-<span class="st"> </span><span class="kw">colSums</span>(subset.matrix, <span class="dt">na.rm=</span>T) &gt;=<span class="st"> </span><span class="dv">1</span>
+rules.pruned &lt;-<span class="st"> </span>rules[!redundant]
+
+rules.pruned &lt;-<span class="st"> </span><span class="kw">sort</span>(rules.pruned, <span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>, <span class="dt">decreasing=</span><span class="ot">TRUE</span>)
+<span class="kw">inspect</span>(rules.pruned[<span class="dv">1</span>:<span class="dv">10</span>])</code></pre></div>
+<pre class="output"><code>   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  =&gt; {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       =&gt; {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} =&gt; {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          =&gt; {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           =&gt; {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 =&gt; {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    =&gt; {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                =&gt; {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          =&gt; {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         =&gt; {bottled beer}      0.0019       0.90 11.2
+</code></pre>
+<h4 id="목표-제품-집중-분석">4.3. 목표 제품 집중 분석</h4>
+<p>지금까지 연관규칙을 생성하는 방법을 학습했고, 생성된 규칙이 통상적으로 많기 때문에 이를 제거하거나 축약하는 방식을 살펴봤다. 이제 특정 제품에 집중해서 연관규칙을 활용하는 방법을 살펴보자.</p>
+<ul>
+<li>특정 제품(<code>whole milk</code>)을 장바구니에 넣기 전에, 고객이 구매할 가능성이 많은 제품은 무엇인가?</li>
+<li>특정 제품(<code>whole milk</code>)을 장바구니에 넣어 구매했다면, 고객이 추가로 구매할 가능성이 높은 제품은 무엇인가?</li>
+</ul>
+<p>위와 같은 질문이 특정 제품을 기준으로 제기되는 상황이 전개된는데, 이를 R 코드로 구현하는 것은 어렵지 않다. 즉, <code>lhs</code>, <code>rhs</code> 인자를 제어하면서 풀 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules_before &lt;-<span class="kw">apriori</span>(<span class="dt">data=</span>Groceries, <span class="dt">parameter=</span><span class="kw">list</span>(<span class="dt">supp=</span><span class="fl">0.001</span>,<span class="dt">conf =</span> <span class="fl">0.08</span>), 
+               <span class="dt">appearance =</span> <span class="kw">list</span>(<span class="dt">default=</span><span class="st">&quot;lhs&quot;</span>,<span class="dt">rhs=</span><span class="st">&quot;whole milk&quot;</span>),
+               <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">verbose=</span>F))
+rules_before &lt;-<span class="kw">sort</span>(rules_before , <span class="dt">decreasing=</span><span class="ot">TRUE</span>,<span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>)
+<span class="kw">inspect</span>(rules_before [<span class="dv">1</span>:<span class="dv">5</span>])</code></pre></div>
+<pre class="output"><code>  lhs                     rhs          support confidence lift
+1 {rice,                                                      
+   sugar}              =&gt; {whole milk}  0.0012          1  3.9
+2 {canned fish,                                               
+   hygiene articles}   =&gt; {whole milk}  0.0011          1  3.9
+3 {root vegetables,                                           
+   butter,                                                    
+   rice}               =&gt; {whole milk}  0.0010          1  3.9
+4 {root vegetables,                                           
+   whipped/sour cream,                                        
+   flour}              =&gt; {whole milk}  0.0017          1  3.9
+5 {butter,                                                    
+   soft cheese,                                               
+   domestic eggs}      =&gt; {whole milk}  0.0010          1  3.9
+</code></pre>
+<p><code>supp</code>, <code>conf</code> 인자를 조정하여 연관규칙이 적절히 도출되도록 제어한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules_after &lt;-<span class="kw">apriori</span>(<span class="dt">data=</span>Groceries, <span class="dt">parameter=</span><span class="kw">list</span>(<span class="dt">supp=</span><span class="fl">0.001</span>,<span class="dt">conf =</span> <span class="fl">0.15</span>,<span class="dt">minlen=</span><span class="dv">2</span>), 
+               <span class="dt">appearance =</span> <span class="kw">list</span>(<span class="dt">default=</span><span class="st">&quot;rhs&quot;</span>,<span class="dt">lhs=</span><span class="st">&quot;whole milk&quot;</span>),
+               <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">verbose=</span>F))
+rules_after &lt;-<span class="kw">sort</span>(rules_after , <span class="dt">decreasing=</span><span class="ot">TRUE</span>,<span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>)
+<span class="kw">inspect</span>(rules_after [<span class="dv">1</span>:<span class="dv">5</span>])</code></pre></div>
+<pre class="output"><code>  lhs             rhs                support confidence lift
+6 {whole milk} =&gt; {other vegetables} 0.075   0.29       1.5 
+5 {whole milk} =&gt; {rolls/buns}       0.057   0.22       1.2 
+4 {whole milk} =&gt; {yogurt}           0.056   0.22       1.6 
+2 {whole milk} =&gt; {root vegetables}  0.049   0.19       1.8 
+1 {whole milk} =&gt; {tropical fruit}   0.042   0.17       1.6 
+</code></pre>
+<h3 id="시각화">5. 시각화</h3>
+<h4 id="단어구름">5.1. 단어구름</h4>
+<p>연관규칙을 시각화하는데 네트워크 도표와 더불어 가장 빈발하는 제품을 <code>wordcloud</code>를 통해 살펴보는 것도 시각화의 한 좋은 사례다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 01. 단어 구름</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+product_name &lt;-<span class="st"> </span><span class="kw">itemLabels</span>(cart)
+product_cnt &lt;-<span class="st"> </span><span class="kw">itemFrequency</span>(cart)*<span class="dv">9835</span>
+
+col.pal &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">9</span>, <span class="st">&quot;Blues&quot;</span>)
+
+<span class="kw">wordcloud</span>(<span class="dt">words =</span> product_name, <span class="dt">freq =</span> product_cnt, <span class="dt">min.freq =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="fl">0.2</span>), <span class="dt">col =</span> col.pal , <span class="dt">random.order =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<p><img src="fig/ml-groceries-rules-wordcloud-1.png" title="plot of chunk ml-groceries-rules-wordcloud" alt="plot of chunk ml-groceries-rules-wordcloud" style="display: block; margin: auto;" /></p>
+<h4 id="연관규칙-시각화">5.2. 연관규칙 시각화</h4>
+<p>연관규칙을 시각화하는데 <code>arulesViz</code> 팩키지를 활용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 02. 연관규칙 시각화</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="kw">library</span>(arulesViz)
+<span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;graph&quot;</span>, <span class="dt">interactive=</span><span class="ot">TRUE</span>, <span class="dt">shading=</span><span class="ot">NA</span>)
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+<span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;grouped&quot;</span>)</code></pre></div>
+<p><img src="fig/ml-groceries-rules-arulesViz-1.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;paracoord&quot;</span>, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">reorder=</span><span class="ot">TRUE</span>))</code></pre></div>
+<p><img src="fig/ml-groceries-rules-arulesViz-2.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.salemmarafi.com/code/market-basket-analysis-with-r/">Market Basket Analysis with R</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Michael Hahsler, Kurt Hornik, and Thomas Reutterer (2006) Implications of probabilistic data modeling for mining association rules. In M. Spiliopoulou, R. Kruse, C. Borgelt, A. Nuernberger, and W. Gaul, editors, From Data and Information Analysis to Knowledge Engineering, Studies in Classification, Data Analysis, and Knowledge Organization, pages 598–605. Springer-Verlag.<a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

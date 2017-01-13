@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">사례 - 콘크리트 강도 데이터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>UCI 콘크리트 강도 데이터로 예측모형을 개발한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="uci-콘크리트-데이터">1. UCI 콘크리트 데이터</h2>
+<p>UCI 콘크리트 강도 데이터는 <a href="https://archive.ics.uci.edu/ml/datasets/Concrete+Compressive+Strength">Concrete Compressive Strength Data Set</a> 데이터를 사용해서 강도를 예측한다.</p>
+<ul>
+<li>Name – Data Type – Measurement – Description
+<ul>
+<li></li>
+<li>Cement (component 1) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Blast Furnace Slag (component 2) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Fly Ash (component 3) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Water (component 4) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Superplasticizer (component 5) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Coarse Aggregate (component 6) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Fine Aggregate (component 7) – quantitative – kg in a m3 mixture – Input Variable</li>
+<li>Age – quantitative – Day (1~365) – Input Variable</li>
+<li><strong>Concrete compressive strength</strong> – quantitative – MPa – Output Variable</li>
+</ul></li>
+</ul>
+<p>예측변수 및 종속변수 모두 연속형 변수이며 결측값도 없고 전형적인 공학 데이터 형태를 띄고 있다.</p>
+<h2 id="콘크리트-데이터-예측모형-적용">2. 콘크리트 데이터 예측모형 적용</h2>
+<p>데이터는 <code>AppliedPredictiveModeling</code> 팩키지에 <code>concrete</code>로 저장되어 있고, <strong>Applied Predictive Modeling</strong> 책에 적용된 모형을 그대로 실행한다.</p>
+<p><code>mixtures</code> 데이터셋은 <code>concrete</code> 데이터의 짝꿍으로 이해하면 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 0.0 환경설정, 각자 컴퓨터 코어 숫자를 확인하고 설정한다.</span>
+<span class="co"># 기본원칙은 최대 코어숫자에서 1개를 뺀 숫자를 작업에 할당한다.</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(doMC))
+<span class="kw">registerDoMC</span>(<span class="dt">cores=</span><span class="dv">7</span>)
+
+<span class="co"># 1.1. 데이터 불러오기</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(AppliedPredictiveModeling))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(plyr))
+<span class="kw">data</span>(concrete) 
+<span class="kw">str</span>(concrete)
+
+<span class="co"># 1.2. 훈련데이터, 검증데이터</span>
+averaged &lt;-<span class="st"> </span><span class="kw">ddply</span>(mixtures, 
+                  .(Cement, BlastFurnaceSlag, FlyAsh, Water, 
+                    Superplasticizer, CoarseAggregate, 
+                    FineAggregate, Age), 
+                  function(x) <span class="kw">c</span>(<span class="dt">CompressiveStrength =</span> 
+                                  <span class="kw">mean</span>(x$CompressiveStrength)))
+
+forTraining &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(averaged$CompressiveStrength, 
+                                   <span class="dt">p =</span> <span class="dv">3</span>/<span class="dv">4</span>)[[<span class="dv">1</span>]] 
+trainingSet &lt;-<span class="st"> </span>averaged[ forTraining,] 
+testSet &lt;-<span class="st"> </span>averaged[-forTraining,]
+
+##==============================================================================================
+## 02. EDA
+##==============================================================================================
+<span class="co"># describe in Hmisc </span>
+<span class="co"># featurePlot in caret</span>
+<span class="kw">featurePlot</span>(<span class="dt">x =</span> concrete[, -<span class="dv">9</span>], 
+            <span class="dt">y =</span> concrete$CompressiveStrength, 
+            <span class="dt">between =</span> <span class="kw">list</span>(<span class="dt">x =</span> <span class="dv">1</span>, <span class="dt">y =</span> <span class="dv">1</span>), 
+            <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&quot;g&quot;</span>, <span class="st">&quot;p&quot;</span>, <span class="st">&quot;smooth&quot;</span>))
+
+##==============================================================================================
+## 03. 예측 모형 적합
+##==============================================================================================
+<span class="co"># 모형 공식 생성</span>
+modFormula &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;CompressiveStrength ~ (.)^2 + I(Cement^2) + &quot;</span>, 
+                    <span class="st">&quot;I(BlastFurnaceSlag^2) + I(FlyAsh^2) + I(Water^2) +&quot;</span>, 
+                    <span class="st">&quot; I(Superplasticizer^2) + I(CoarseAggregate^2) + &quot;</span>,
+                    <span class="st">&quot;I(FineAggregate^2) + I(Age^2)&quot;</span>)
+
+modFormula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(modFormula)
+
+##==============================================================================================
+## 04. 컴퓨팅 기반 예측모형 
+##==============================================================================================
+
+<span class="co">#------------------------------------------------------------------------------------</span>
+<span class="co"># 제어변수 설정</span>
+
+controlObject &lt;-<span class="st"> </span><span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>,
+                              <span class="dt">repeats =</span> <span class="dv">1</span>, <span class="dt">number =</span> <span class="dv">1</span>, 
+                              <span class="dt">verboseIter =</span> <span class="ot">TRUE</span>)
+<span class="co"># 1. 선형회귀</span>
+linearReg &lt;-<span class="st"> </span><span class="kw">train</span>(modFormula, 
+                   <span class="dt">data =</span> trainingSet, 
+                   <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>, 
+                   <span class="dt">trControl =</span> controlObject)
+linearReg
+
+<span class="co"># 2. 부분최소자승</span>
+<span class="kw">library</span>(pls)
+plsModel &lt;-<span class="st"> </span><span class="kw">train</span>(modFormula, <span class="dt">data =</span> trainingSet, 
+                  <span class="dt">method =</span> <span class="st">&quot;pls&quot;</span>, 
+                  <span class="dt">preProc =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), 
+                  <span class="dt">tuneLength =</span> <span class="dv">15</span>, 
+                  <span class="dt">trControl =</span> controlObject)
+plsModel
+
+<span class="co"># 3. 부분 최소자승회귀</span>
+<span class="kw">library</span>(elasticnet)
+enetGrid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">.lambda =</span> <span class="kw">c</span>(<span class="dv">0</span>, .<span class="dv">001</span>, .<span class="dv">01</span>, .<span class="dv">1</span>), 
+                        <span class="dt">.fraction =</span> <span class="kw">seq</span>(<span class="fl">0.05</span>, <span class="dv">1</span>, <span class="dt">length =</span> <span class="dv">20</span>))
+
+enetModel &lt;-<span class="st"> </span><span class="kw">train</span>(modFormula, <span class="dt">data =</span> trainingSet, 
+                   <span class="dt">method =</span> <span class="st">&quot;enet&quot;</span>, 
+                   <span class="dt">preProc =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), 
+                   <span class="dt">tuneGrid =</span> enetGrid, 
+                   <span class="dt">trControl =</span> controlObject)
+enetModel
+
+<span class="co"># 4. MARS</span>
+earthModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., <span class="dt">data =</span> trainingSet, 
+                    <span class="dt">method =</span> <span class="st">&quot;earth&quot;</span>, 
+                    <span class="dt">tuneGrid =</span> <span class="kw">expand.grid</span>(<span class="dt">.degree =</span> <span class="dv">1</span>, 
+                                           <span class="dt">.nprune =</span> <span class="dv">2</span>:<span class="dv">25</span>),
+                    <span class="dt">trControl =</span> controlObject)
+earthModel
+
+<span class="co"># 5. SVM</span>
+svmRModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., <span class="dt">data =</span> trainingSet, 
+                   <span class="dt">method =</span> <span class="st">&quot;svmRadial&quot;</span>, 
+                   <span class="dt">tuneLength =</span> <span class="dv">15</span>, 
+                   <span class="dt">preProc =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>),
+                   <span class="dt">trControl =</span> controlObject)
+svmRModel  
+
+<span class="co"># 6. 신경망</span>
+nnetGrid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">.decay =</span> <span class="kw">c</span>(<span class="fl">0.001</span>, .<span class="dv">01</span>, .<span class="dv">1</span>), 
+                        <span class="dt">.size =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="dv">27</span>, <span class="dt">by =</span> <span class="dv">2</span>), 
+                        <span class="dt">.bag =</span> <span class="ot">FALSE</span>) 
+
+nnetModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                   <span class="dt">data =</span> trainingSet, 
+                   <span class="dt">method =</span> <span class="st">&quot;avNNet&quot;</span>, 
+                   <span class="dt">tuneGrid =</span> nnetGrid, 
+                   <span class="dt">preProc =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), 
+                   <span class="dt">linout =</span> <span class="ot">TRUE</span>, 
+                   <span class="dt">trace =</span> <span class="ot">FALSE</span>, 
+                   <span class="dt">maxit =</span> <span class="dv">1000</span>, 
+                   <span class="dt">trControl =</span> controlObject)
+nnetModel
+
+<span class="co"># 7. 나무 모형(Tree Model)</span>
+rpartModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                    <span class="dt">data =</span> trainingSet, 
+                    <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, 
+                    <span class="dt">tuneLength =</span> <span class="dv">30</span>, 
+                    <span class="dt">trControl =</span> controlObject)
+
+ctreeModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                    <span class="dt">data =</span> trainingSet, 
+                    <span class="dt">method =</span> <span class="st">&quot;ctree&quot;</span>, 
+                    <span class="dt">tuneLength =</span> <span class="dv">10</span>, 
+                    <span class="dt">trControl =</span> controlObject)
+
+mtModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                 <span class="dt">data =</span> trainingSet, 
+                 <span class="dt">method =</span> <span class="st">&quot;M5&quot;</span>, 
+                 <span class="dt">trControl =</span> controlObject)
+
+<span class="co"># 8. 나무 투표 모형</span>
+
+treebagModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                      <span class="dt">data =</span> trainingSet, 
+                      <span class="dt">method =</span> <span class="st">&quot;treebag&quot;</span>, 
+                      <span class="dt">trControl =</span> controlObject)
+
+treebagModel
+
+rfModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                 <span class="dt">data =</span> trainingSet, 
+                 <span class="dt">method =</span> <span class="st">&quot;rf&quot;</span>, 
+                 <span class="dt">tuneLength =</span> <span class="dv">10</span>, 
+                 <span class="dt">ntrees =</span> <span class="dv">1000</span>, 
+                 <span class="dt">n.minobsinnode =</span> <span class="dv">10</span>,
+                 <span class="dt">importance =</span> <span class="ot">TRUE</span>, 
+                 <span class="dt">trControl =</span> controlObject) 
+rfModel
+
+gbmGrid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">.interaction.depth =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="dv">7</span>, <span class="dt">by =</span> <span class="dv">2</span>), 
+                       <span class="dt">.n.trees =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dt">by =</span> <span class="dv">50</span>),
+                       <span class="dt">.n.minobsinnode =</span> <span class="dv">10</span>,
+                       <span class="dt">.shrinkage =</span> <span class="kw">c</span>(<span class="fl">0.01</span>, <span class="fl">0.1</span>)) 
+
+gbmModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                  <span class="dt">data =</span> trainingSet, 
+                  <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, 
+                  <span class="dt">tuneGrid =</span> gbmGrid, 
+                  <span class="dt">verbose =</span> <span class="ot">TRUE</span>, 
+                  <span class="dt">trControl =</span> controlObject)
+
+cubistGrid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">.committees =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">75</span>, <span class="dv">100</span>), 
+                          <span class="dt">.neighbors =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">9</span>))
+
+cbModel &lt;-<span class="st"> </span><span class="kw">train</span>(CompressiveStrength ~<span class="st"> </span>., 
+                 <span class="dt">data =</span> trainingSet, 
+                 <span class="dt">method =</span> <span class="st">&quot;cubist&quot;</span>, 
+                 <span class="dt">tuneGrid =</span> cubistGrid, 
+                 <span class="dt">verbose =</span> <span class="ot">TRUE</span>,
+                 <span class="dt">trControl =</span> controlObject)
+
+<span class="co">#------------------------------------------------------------------------------------</span>
+<span class="co"># 모형평가 시각화</span>
+
+allResamples &lt;-<span class="st"> </span><span class="kw">resamples</span>(<span class="kw">list</span>(<span class="st">&quot;Linear Reg&quot;</span> =<span class="st"> </span>linearReg, 
+                               <span class="st">&quot;PLS&quot;</span> =<span class="st"> </span>plsModel, 
+                               <span class="st">&quot;Elastic Net&quot;</span> =<span class="st"> </span>enetModel, 
+                               <span class="dt">MARS =</span> earthModel, 
+                               <span class="dt">SVM =</span> svmRModel, 
+                               <span class="st">&quot;Neural Networks&quot;</span> =<span class="st"> </span>nnetModel, 
+                               <span class="dt">CART =</span> rpartModel, 
+                               <span class="st">&quot;Cond Inf Tree&quot;</span> =<span class="st"> </span>ctreeModel, 
+                               <span class="st">&quot;Bagged Tree&quot;</span> =<span class="st"> </span>treebagModel, 
+                               <span class="st">&quot;Boosted Tree&quot;</span> =<span class="st"> </span>gbmModel, 
+                               <span class="st">&quot;Random Forest&quot;</span> =<span class="st"> </span>rfModel, 
+                               <span class="dt">Cubist =</span> cbModel))
+
+<span class="kw">bwplot</span>(allResamples,  <span class="dt">layout =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>),<span class="dt">scales =</span> <span class="kw">list</span>(<span class="dt">relation =</span> <span class="st">&quot;free&quot;</span>),
+       <span class="dt">xlim =</span> <span class="kw">list</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>)))</code></pre></div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">신용평점모형 탐색적 데이터 분석, 전처리</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="학습목표"><span class="glyphicon glyphicon-check"></span>학습목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>탐색적 데이터 분석 중 결측값 처리 등 데이터 전처리를 살펴본다.</li>
+<li>결측값 처리 전략에 대해 살펴본다.</li>
+<li>데이터 전처리 및 피쳐 엔지니어링(Feature Engineering)을 이해한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="채무-불이행-변수-설정">1. 채무 불이행 변수 설정</h3>
+<p><code>read_csv</code> 함수를 통해 데이터를 불러온 다음, 가장 중요할 수 있는 종속변수를 설정한다. <code>loan_status</code>는 다양한 상태정보를 담고 있어, 로지스틱 회귀, SVM, 확률숲(Random Forest), 의사결정나무 등 다양한 모형에 입력변수로 넣을 수 있도록 적절히 인코딩 부호화한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 07. 채무 불이행 예측
+##=====================================================================
+<span class="co"># 종속변수 탐색</span>
+
+bad_indicators &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Charged Off&quot;</span>,
+                    <span class="st">&quot;Default&quot;</span>,
+                    <span class="st">&quot;Does not meet the credit policy. Status:Charged Off&quot;</span>,
+                    <span class="st">&quot;In Grace Period&quot;</span>, 
+                    <span class="st">&quot;Default Receiver&quot;</span>, 
+                    <span class="st">&quot;Late (16-30 days)&quot;</span>,
+                    <span class="st">&quot;Late (31-120 days)&quot;</span>)
+
+loan.dat$loan_status_yn &lt;-<span class="st"> </span><span class="kw">ifelse</span>(loan.dat$loan_status %in%<span class="st"> </span>bad_indicators, <span class="dv">1</span>, <span class="dv">0</span>)</code></pre></div>
+<h3 id="채무-불이행-변수-중심-탐색적-데이터-분석">2. 채무 불이행 변수 중심 탐색적 데이터 분석</h3>
+<p><code>gmodels</code>는 <a href="https://cran.r-project.org/web/packages/gmodels/index.html">gmodels: Various R Programming Tools for Model Fitting</a>는 전통적으로 많이 사용되는 SPSS, SAS, 미니탭등 오랜시간 동안 데이터분석에 친숙하고 검증된 표형식으로 된 정보를 뽑아내고 해석하는데 유용하다.</p>
+<p><code>CrossTable</code> 함수를 사용해서 <code>prop.r = TRUE, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE</code> 인자값을 설정해서, 행/열/전체 비율과 카이제곱 통계량을 표에 표현할 수 있다. 물론, <code>DescTools</code> 팩키지의 <code>Desc</code> 함수를 사용해서, 단변량 및 변수 사이의 관계도 산점도, 막대그래프, 히스토그램, 분포도를 통해 확인가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 표를 통한 EDA 분석</span>
+<span class="kw">library</span>(gmodels)
+## 단변량 표
+<span class="kw">CrossTable</span>(loan.dat$loan_status_yn)</code></pre></div>
+<pre class="output"><code>
+ 
+   Cell Contents
+|-------------------------|
+|                       N |
+|         N / Table Total |
+|-------------------------|
+
+ 
+Total Observations in Table:  887379 
+
+ 
+          |         0 |         1 | 
+          |-----------|-----------|
+          |    819950 |     67429 | 
+          |     0.924 |     0.076 | 
+          |-----------|-----------|
+
+
+
+ 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 두변수 표
+<span class="kw">CrossTable</span>(loan.dat$grade, loan.dat$loan_status_yn, <span class="dt">prop.r =</span> <span class="ot">TRUE</span>, <span class="dt">prop.c=</span><span class="ot">FALSE</span>, <span class="dt">prop.t=</span><span class="ot">FALSE</span>, <span class="dt">prop.chisq=</span><span class="ot">FALSE</span>)</code></pre></div>
+<pre class="output"><code>
+ 
+   Cell Contents
+|-------------------------|
+|                       N |
+|           N / Row Total |
+|-------------------------|
+
+ 
+Total Observations in Table:  887379 
+
+ 
+               | loan.dat$loan_status_yn 
+loan.dat$grade |         0 |         1 | Row Total | 
+---------------|-----------|-----------|-----------|
+             A |    144539 |      3663 |    148202 | 
+               |     0.975 |     0.025 |     0.167 | 
+---------------|-----------|-----------|-----------|
+             B |    241079 |     13456 |    254535 | 
+               |     0.947 |     0.053 |     0.287 | 
+---------------|-----------|-----------|-----------|
+             C |    226806 |     19054 |    245860 | 
+               |     0.923 |     0.077 |     0.277 | 
+---------------|-----------|-----------|-----------|
+             D |    123683 |     15859 |    139542 | 
+               |     0.886 |     0.114 |     0.157 | 
+---------------|-----------|-----------|-----------|
+             E |     60960 |      9745 |     70705 | 
+               |     0.862 |     0.138 |     0.080 | 
+---------------|-----------|-----------|-----------|
+             F |     18663 |      4383 |     23046 | 
+               |     0.810 |     0.190 |     0.026 | 
+---------------|-----------|-----------|-----------|
+             G |      4220 |      1269 |      5489 | 
+               |     0.769 |     0.231 |     0.006 | 
+---------------|-----------|-----------|-----------|
+  Column Total |    819950 |     67429 |    887379 | 
+---------------|-----------|-----------|-----------|
+
+ 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. 그래프를 통한 EDA 분석</span>
+<span class="kw">library</span>(DescTools)
+## 단변량: 히스토그램
+<span class="kw">Desc</span>(loan.dat$loan_amnt, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>------------------------------------------------------------------------- 
+loan.dat$loan_amnt (numeric)
+
+     length          n        NAs     unique         0s       mean     meanSE
+      9e+05      9e+05          0      1e+03          0   1.48e+04   8.95e+00
+
+        .05        .10        .25     median        .75        .90        .95
+   3.60e+03   5.00e+03   8.00e+03   1.30e+04   2.00e+04   2.80e+04   3.20e+04
+
+      range         sd      vcoef        mad        IQR       skew       kurt
+   3.45e+04   8.44e+03   5.72e-01   8.60e+03   1.20e+04   6.82e-01  -2.57e-01
+ 
+lowest : 5.00e+02 (1e+01), 5.50e+02, 6.00e+02 (6e+00), 7.00e+02 (3e+00), 7.25e+02
+highest: 3.49e+04 (1e+01), 3.49e+04 (9e+00), 3.50e+04 (2e+01), 3.50e+04 (3e+01), 3.50e+04 (4e+04)
+</code></pre>
+<p><img src="fig/lendingclub-cross-table-1.png" title="plot of chunk lendingclub-cross-table" alt="plot of chunk lendingclub-cross-table" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">index_highincome &lt;-<span class="st"> </span><span class="kw">which</span>(loan.dat$annual_inc &gt;<span class="st"> </span><span class="fl">2e+06</span>)
+loan.dat2 &lt;-<span class="st"> </span>loan.dat[-index_highincome,]
+<span class="co"># Desc(loan.dat$annual_inc, plotit=TRUE)</span>
+<span class="kw">Desc</span>(loan.dat2$annual_inc, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>------------------------------------------------------------------------- 
+loan.dat2$annual_inc (numeric)
+
+    length         n       NAs    unique        0s      mean    meanSE
+     9e+05     9e+05     4e+00     5e+04     2e+00  7.48e+04  5.35e+01
+
+       .05       .10       .25    median       .75       .90       .95
+  2.80e+04  3.40e+04  4.50e+04  6.50e+04  9.00e+04  1.25e+05  1.50e+05
+
+     range        sd     vcoef       mad       IQR      skew      kurt
+  2.00e+06  5.04e+04  6.74e-01  3.08e+04  4.50e+04  5.89e+00  9.68e+01
+ 
+lowest : 0.0 (2e+00), 1.20e+03, 1.77e+03, 1.90e+03, 2.00e+03
+highest: 1.85e+06, 1.90e+06 (2e+00), 1.90e+06, 1.95e+06, 2.00e+06 (5e+00)
+</code></pre>
+<p><img src="fig/lendingclub-cross-table-2.png" title="plot of chunk lendingclub-cross-table" alt="plot of chunk lendingclub-cross-table" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 다변량: 산점도
+index_sample &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat2), <span class="fl">0.1</span>*<span class="kw">nrow</span>(loan.dat2))
+loan.plot.dat &lt;-<span class="st"> </span>loan.dat2[index_sample, ]
+<span class="kw">Desc</span>(loan.plot.dat$loan_amnt ~<span class="st"> </span>loan.plot.dat$annual_inc, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>------------------------------------------------------------------------- 
+loan.plot.dat$loan_amnt ~ loan.plot.dat$annual_inc
+
+Summary: 
+n pairs: 9e+04, valid: 9e+04 (100.0%), missings: 0 (0.0%)
+
+
+Pearson corr. : 4.196e-01
+Spearman corr.: 5.064e-01
+Kendall corr. : (sample too large)
+</code></pre>
+<p><img src="fig/lendingclub-cross-table-3.png" title="plot of chunk lendingclub-cross-table" alt="plot of chunk lendingclub-cross-table" style="display: block; margin: auto;" /></p>
+<h3 id="결측값">3. 결측값</h3>
+<p>결측값(Missing Value)는 의도적이지 않고, 별다른 정보가 없어 제거되어야 하는 경우도 있지만, 경우에 따라서 결측값이 중요한 정보를 갖는 경우도 있다. 이런 경우 피쳐 공학, 적절한 전처리 과정을 거쳐 정보의 손실이 최소화되고 유의미한 정보가 신용평점모형에 반영이 되도록 조치를 취해야 된다.</p>
+<p>크게 결측값을 제거하는 전략을 취하거나, 결측값을 채워 넣거나, 결측값을 적절한 전처리 과정을 거쳐 보존하는 절차를 취한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3. 결측값 처리</span>
+<span class="co"># 결측값 생성하기</span>
+<span class="kw">summary</span>(loan.dat$int_rate)</code></pre></div>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   5.32    9.99   12.99   13.25   16.20   28.99 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">na_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat), <span class="fl">0.1</span>*<span class="kw">nrow</span>(loan.dat))
+loan.dat[na_index, <span class="st">&quot;int_rate&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="kw">summary</span>(loan.dat$int_rate)</code></pre></div>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+   5.32    9.99   12.99   13.25   16.20   28.99   88737 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 전략1: 결측값 제거</span>
+int_na_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">is.na</span>(loan.dat$int_rate))
+loan.dat.delrow.na &lt;-<span class="st"> </span>loan.dat[-int_na_index, ]
+<span class="kw">dim</span>(loan.dat.delrow.na)</code></pre></div>
+<pre class="output"><code>[1] 798642     75
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 전략2: 결측값 채워넣기</span>
+median_ir &lt;-<span class="st"> </span><span class="kw">median</span>(loan.dat$int_rate, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+mean_ir &lt;-<span class="st"> </span><span class="kw">mean</span>(loan.dat$int_rate, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+loan.dat$int_rate[int_na_index] &lt;-<span class="st"> </span>median_ir
+loan.dat$int_rate[int_na_index] &lt;-<span class="st"> </span>mean_ir
+
+<span class="co"># 전략3: 결측값 보존 -- 중요한 정보를 갖음</span>
+loan.dat$ir_cat &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(loan.dat$int_rate))
+
+loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &lt;=<span class="st"> </span><span class="dv">8</span>)] &lt;-<span class="st"> &quot;0-8&quot;</span>
+loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="dv">8</span> &amp;<span class="st"> </span>loan.dat$int_rate &lt;=<span class="st"> </span><span class="dv">11</span>)] &lt;-<span class="st"> &quot;8-11&quot;</span>
+loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="dv">11</span> &amp;<span class="st"> </span>loan.dat$int_rate &lt;=<span class="st"> </span><span class="fl">13.5</span>)] &lt;-<span class="st"> &quot;11-13.5&quot;</span>
+loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="fl">13.5</span>)] &lt;-<span class="st"> &quot;13.5+&quot;</span>
+loan.dat$ir_cat[<span class="kw">which</span>(<span class="kw">is.na</span>(loan.dat$int_rate))] &lt;-<span class="st"> &quot;Missing&quot;</span>
+
+loan.dat$ir_cat &lt;-<span class="st"> </span><span class="kw">as.factor</span>(loan.dat$ir_cat)
+
+<span class="co"># Look at your new variable using plot()</span>
+<span class="kw">plot</span>(loan.dat$ir_cat)</code></pre></div>
+<p><img src="fig/lendingclub-missing-value-1.png" title="plot of chunk lendingclub-missing-value" alt="plot of chunk lendingclub-missing-value" style="display: block; margin: auto;" /></p>
+<h3 id="채무-불이행-종속변수와-설명변수-일별">4. 채무 불이행 종속변수와 설명변수 일별</h3>
+<p>설명변수와 채무 불이행 종속변수 관계를 살펴보기 위해서 <em>정상</em>과 <em>채무 불이행</em>을 각 설명변수와 비교하는 분포도를 통해 도식화한다.</p>
+<ol style="list-style-type: decimal">
+<li>설명변수 중 숫자형 변수를 추려낸다: <code>sapply(loan.dat, is.numeric)</code></li>
+<li>데이터프레임을 긴 형식(long format, 한 관측점마다 한 관측변수가 되도록 변환)으로 변환: <code>reshape</code> 혹은 <code>tidyr</code></li>
+<li><code>ggplot</code>으로 <code>facet_wrap</code> 기능 사용</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 심화 탐색</span>
+
+numeric_cols &lt;-<span class="st"> </span><span class="kw">sapply</span>(loan.dat, is.numeric)
+<span class="kw">library</span>(reshape2)
+loanbook.lng &lt;-<span class="st"> </span><span class="kw">melt</span>(loan.dat[,numeric_cols], <span class="dt">id=</span><span class="st">&quot;loan_status_yn&quot;</span>)
+<span class="kw">library</span>(ggplot2)
+p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value, <span class="dt">group =</span> loan_status_yn, <span class="dt">colour =</span> <span class="kw">factor</span>(loan_status_yn)), 
+            <span class="dt">data =</span> loanbook.lng)
+p +<span class="st"> </span><span class="kw">geom_density</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~variable, <span class="dt">scales=</span><span class="st">&quot;free&quot;</span>)</code></pre></div>
+<p><img src="fig/lendingclub-default_density-1.png" title="plot of chunk lendingclub-default_density" alt="plot of chunk lendingclub-default_density" style="display: block; margin: auto;" /></p>
+<p>또한 <code>DT</code> 팩키지를 활용하여 대용량 데이터도 채무불이행 변수(<code>loan_status_yn == '1'</code>)에 대해 연간소득(<code>annual_inc</code>), 이자율(<code>int_rate</code>), 대출상태(<code>loan_status</code>)와 함께 맞물려 확인할 수 있다. <code>DT</code>를 웹브라우져에서 잘 보기 위해서 <code>devtools::install_github(&quot;wch/webshot&quot;)</code>, <code>webshot::install_phantomjs()</code> 을 설치한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(&quot;DT&quot;)</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(DT))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+
+loan.dat %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(loan_status_yn ==<span class="st"> &#39;1&#39;</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(annual_inc, int_rate, loan_status) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">slice</span>(<span class="dv">1</span>:<span class="dv">1000</span>) %&gt;%
+<span class="st">  </span><span class="kw">datatable</span>(., <span class="dt">options =</span> <span class="kw">list</span>(<span class="dt">pageLength =</span> <span class="dv">10</span>))</code></pre></div>
+<p><img src="fig/lendingclub-data-table-1.png" title="plot of chunk lendingclub-data-table" alt="plot of chunk lendingclub-data-table" style="display: block; margin: auto;" /> ### 5. 훈련 데이터와 테스트 데이터</p>
+<p>전처리 과정과 피쳐 공학 과정을 거치게 되면, 다음 단계로 훈련 데이터와 테스트 데이터로 나눠 통계모형 개발 혹은 기계학습 모형 적합을 준비한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 03. 렌딩클럽 데이터 기계학습
+##=====================================================================
+
+<span class="co"># 0. 훈련과 테스트 데이터셋 분리</span>
+index_train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat), <span class="dv">2</span>/<span class="dv">3</span>*<span class="kw">nrow</span>(loan.dat))
+training_set &lt;-<span class="st"> </span>loan.dat[index_train, ]
+test_set &lt;-<span class="st"> </span>loan.dat[-index_train,]  </code></pre></div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

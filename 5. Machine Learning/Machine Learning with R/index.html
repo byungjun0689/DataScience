@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">데이터 과학자가 바라본 기계학습</h2>
+          <section class="challenge panel panel-success">
+<div class="panel-heading">
+<h3 id="기계와의-경쟁을-준비하며"><span class="glyphicon glyphicon-pencil"></span>기계와의 경쟁을 준비하며…</h3>
+</div>
+<div class="panel-body">
+<p>“The future is here, it’s just not evenly distributed yet.”<br />
+- William Gibson</p>
+</div>
+</section>
+<h2 id="학습-목차">학습 목차</h2>
+<ol style="list-style-type: decimal">
+<li><strong>환경설정</strong>
+<ol style="list-style-type: decimal">
+<li><a href="00-toolchain-cmd.html">명령라인 데이터 분석 맛보기</a>
+<ol style="list-style-type: decimal">
+<li><a href="ml-random-sampling.html">대용량 데이터 표본추출</a><br />
+</li>
+</ol></li>
+<li><a href="00-toolchain.html">파이썬기반 기계학습 툴체인(toolchain)</a>: 파이썬 기계학습 생태계</li>
+<li><a href="ml-taste-with-r.html">기계학습 (순수한) 맛보기</a>: 전통적인 통계모형 개발과정 맛보기<br />
+</li>
+</ol></li>
+<li><strong><a href="ml-map.html">기계학습 지도</a></strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-three-principles.html">3가지 기계학습 원리</a>
+<ol style="list-style-type: decimal">
+<li><a href="01-problem.html">(사업) 문제의 정의</a></li>
+<li><a href="02-data.html">데이터(Data)</a></li>
+<li><a href="03-process.html">데이터를 통한 문제풀이 과정</a></li>
+</ol></li>
+<li><a href="04-algorithm.html">기계학습 알고리즘</a>
+<ol style="list-style-type: decimal">
+<li><a href="ml-basic-dc.html">활용도 높은 기계학습 알고리즘 – 분류, 예측, 군집화</a></li>
+</ol></li>
+</ol></li>
+<li>기계학습 적용
+<ol style="list-style-type: decimal">
+<li><a href="31-ml-tdd.html">테스트 주도 기계학습</a></li>
+<li><a href="ml-assessment.html">알고리즘 성능평가</a></li>
+<li>데이터 전처리
+<ol style="list-style-type: decimal">
+<li><a href="ml-preprocessing.html">예측모형 적용을 위한 전처리</a></li>
+<li><a href="14-ml-data-munging.html">데이터 전처리 및 정제(파이썬)</a></li>
+</ol></li>
+<li><a href="ml-eda.html">탐색적 데이터 분석(EDA)</a><br />
+</li>
+<li><a href="ml-modeling.html">데이터에 무게를 둔 예측모형</a>
+<ol style="list-style-type: decimal">
+<li><strong>인간 중심 기계학습 모형</strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-linear-algebra-reg.html">선형대수와 함께하는 회귀분석 이해</a><br />
+</li>
+<li><a href="ml-modeling-basic.html">통계적 모형개발 기초</a></li>
+<li><a href="ml-modeling-titanic.html">전통방식 모형개발 -타이타닉 생존데이터</a><br />
+</li>
+</ol></li>
+<li><strong>인간과 기계가 함께하는 기계학습 예측모형</strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-predictive-modeling-basic.html">기계학습 예측모형 준비</a></li>
+<li><a href="ml-predictive-modeling.html">기계학습 예측모형 실습</a></li>
+<li><a href="ml-model-selection.html">모형식별 및 선택</a><br />
+</li>
+<li><a href="ml-pm-continuous.html">사례 - 도요타 중고차 가격 예측</a></li>
+<li><a href="ml-pm-continuous-concrete.html">사례 - 콘크리트 강도</a></li>
+<li><a href="ml-credit-greene.html">사례 - 카드발급</a></li>
+</ol></li>
+<li><strong>기계 중심 기계학습</strong><br />
+</li>
+</ol></li>
+</ol></li>
+<li><strong>데이터 유형별 기계학습 모형</strong>
+<ol style="list-style-type: decimal">
+<li><strong><a href="ml-network-overview.html">네트워크 데이터 들어가며 – 색상과 글꼴</a></strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-network-data.html">네트워크 데이터</a></li>
+<li><a href="ml-network-static-viz.html">정적 네트워크 데이터 시각화</a></li>
+<li><a href="ml-network-dynamic-viz.html">동적 네트워크 데이터 시각화</a></li>
+<li><a href="ml-network-etc.html">기타 네트워크 데이터 분석</a></li>
+<li><a href="ml-sna-r-ecosystem.html">R 팩키지 사회망 분석</a><br />
+</li>
+<li><a href="ml-network-data-ex.html">네트워크 데이터 연습문제</a></li>
+<li><a href="ml-network-user-guide.html">네트워크 분석 사용자 안내서</a></li>
+<li><a href="ml-network-type.html">네트워크 유형</a></li>
+<li><a href="ml-network-communities.html">네트워크 커뮤니티 탐지</a></li>
+</ol></li>
+<li><strong><a href="ml-text.html">텍스트 데이터</a></strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-text-twitter.html">텍스트 데이터 수집 – 트위터</a></li>
+<li><a href="ml-text-qdap.html">텍스트 데이터 전처리 – qdap</a><br />
+</li>
+<li><a href="ml-text-tdm.html">단어문서행렬 – 단어 빈도</a></li>
+<li><a href="ml-text-basic.html">소설 텍스트 데이터 분석 – 소나기</a></li>
+</ol></li>
+<li><strong><a href="ml-market-basket.html">장바구니 데이터 분석</a></strong><br />
+</li>
+<li><a href="ml-outlier.html">이상점(Outlier) 검출</a></li>
+</ol></li>
+<li><strong>기계학습 상용화</strong>
+<ol style="list-style-type: decimal">
+<li><a href="ml-credit-scoring-overview.html">신용평점모형 개발</a>
+<ol style="list-style-type: decimal">
+<li><a href="ml-credit-scoring-eda.html">신용평점모형 탐색적 데이터 분석, 전처리</a></li>
+<li><a href="ml-credit-scoring-model.html">신용평점모형 - 로지스틱 회귀모형과 의사결정나무</a></li>
+<li><a href="ml-credit-scoring-business.html">신용평가와 신용평점모형</a></li>
+<li><a href="ml-credit-scoring.html">소매금융 부도예측 - 독일신용 데이터</a></li>
+</ol></li>
+<li><a href="ml-css-lendingclub.html">랜딩클럽 - 채무불이행 예측모형</a><br />
+</li>
+<li><a href="ml-pm-applications.html">예측모형 활용분야</a></li>
+<li><a href="ml-pm-discrete.html">마케팅 반응 예측모형</a><br />
+</li>
+</ol></li>
+<li><a href="ml-production.html">기계학습 운영 및 자동화 - 파이프라인</a></li>
+</ol>
+<h2 id="기계학습-관련-정보-david-julian-2016">기계학습 관련 정보 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<ul>
+<li><a href="www.cs.ubc.ca/~murphyk/MLbook">Kevin Patrick Murphy, Machine Learning: a Probabilistic Perspective</a></li>
+<li><a href="http://metaoptimize.com/qa">metaoptimize.com</a></li>
+<li><a href="http://stats.stackexchange.com/">stats.stackexchange.com</a></li>
+<li><a href="http://blog.kaggle.com/">캐글 블로그</a></li>
+<li><a href="http://mlcomp.org/">MLcomp</a>: 기계학습 프로그램 비교 사이트</li>
+<li><a href="http://hunch.net">기계학습 이론 블로그</a></li>
+<li><a href="http://textanddatamining.blogspot.kr/">텍스트 &amp; 데이터 마이닝</a></li>
+<li><a href="https://work.caltech.edu/telecourse.html">Caltech MOOC, Yaser Abu-Mostafa, Introductory Machine Learning, 2012</a></li>
+<li><a href="https://www.coursera.org/learn/machine-learning/">Andrew Ng, Machine Learning, Stanford University</a></li>
+<li><a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">Trevor Hastie, Robert Tibshirani, Jerome Friedman, The Elements of Statistical Learning - Data Mining, Inference, and Prediction, 2009</a></li>
+</ul>
+<blockquote>
+<h3 id="xwmooc-오픈-교재">xwMOOC 오픈 교재</h3>
+<ul>
+<li><a href="http://unplugged.xwmooc.org">컴퓨터 과학 언플러그드</a><br />
+</li>
+<li><a href="http://reeborg.xwmooc.org">리보그</a>
+<ul>
+<li><a href="http://rur-ple.xwmooc.org">러플</a><br />
+</li>
+</ul></li>
+<li><a href="http://swcarpentry.github.io/python-novice-turtles/index-kr.html">파이썬 거북이</a><br />
+</li>
+<li><a href="http://python.xwmooc.org">정보과학을 위한 파이썬</a><br />
+</li>
+<li><a href="http://swcarpentry.xwmooc.org">소프트웨어 카펜트리 5.3</a></li>
+<li><a href="http://think-stat.xwmooc.org/">통계적 사고</a></li>
+<li><a href="http://raspberry-pi.xwmooc.org/">IoT 오픈 하드웨어(라즈베리 파이)</a>
+<ul>
+<li><a href="http://computer.xwmooc.org/">$100 오픈 컴퓨터</a><br />
+</li>
+<li><a href="http://computers.xwmooc.org/">$100 오픈 슈퍼컴퓨터</a></li>
+</ul></li>
+<li><a href="http://data-science.xwmooc.org/">R 데이터과학</a></li>
+<li><a href="http://r-pkgs.xwmooc.org/">R 팩키지</a></li>
+<li><a href="http://sympy.xwmooc.org/">기호 수학(Symbolic Math)</a></li>
+<li><a href="http://politics.xwmooc.org/">선거와 투표</a></li>
+</ul>
+</blockquote>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.packtpub.com/big-data-and-business-intelligence/building-machine-learning-systems-python">David Julian (2016), “Building Machine Learning Systems with Python”, Packt Publishing</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

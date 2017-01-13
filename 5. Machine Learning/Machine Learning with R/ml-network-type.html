@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">네트워크 유형</h2>
+          <h3 id="기본-네트워크-유형">1. 기본 네트워크 유형</h3>
+<p>기본 네트워크 유형을 먼저 살펴보자.</p>
+<ul>
+<li>연결없는 그래프</li>
+<li>전체 연결 그래프</li>
+<li>단순 별그래프</li>
+<li>나무 그래프</li>
+<li>원 그래프</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(igraph)))
+##================================================================================
+## 01. 기본 네트워크 유형
+##================================================================================
+<span class="kw">library</span>(igraph)
+
+<span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 01. 연결없는 그래프</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+eg &lt;-<span class="st"> </span><span class="kw">make_empty_graph</span>(<span class="dv">10</span>)
+<span class="kw">plot</span>(eg, <span class="dt">vertex.size=</span><span class="dv">3</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-type-basic-1.png" title="plot of chunk network-type-basic" alt="plot of chunk network-type-basic" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 02. 전체 연결 그래프</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+fg &lt;-<span class="st"> </span><span class="kw">make_full_graph</span>(<span class="dv">10</span>)
+<span class="kw">plot</span>(fg, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-type-basic-2.png" title="plot of chunk network-type-basic" alt="plot of chunk network-type-basic" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 03. 단순 별그래프(Star Graph)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+st &lt;-<span class="st"> </span><span class="kw">make_star</span>(<span class="dv">10</span>)
+<span class="kw">plot</span>(st, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>) </code></pre></div>
+<p><img src="fig/network-type-basic-3.png" title="plot of chunk network-type-basic" alt="plot of chunk network-type-basic" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 04. 나무 그래프(Tree Graph)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+tr &lt;-<span class="st"> </span><span class="kw">make_tree</span>(<span class="dv">20</span>, <span class="dt">children =</span> <span class="dv">3</span>, <span class="dt">mode =</span> <span class="st">&quot;undirected&quot;</span>)
+<span class="kw">plot</span>(tr, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>) </code></pre></div>
+<p><img src="fig/network-type-basic-4.png" title="plot of chunk network-type-basic" alt="plot of chunk network-type-basic" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 05. 원 그래프(Ring Graph)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+rn &lt;-<span class="st"> </span><span class="kw">make_ring</span>(<span class="dv">10</span>)
+<span class="kw">plot</span>(rn, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-type-basic-5.png" title="plot of chunk network-type-basic" alt="plot of chunk network-type-basic" style="display: block; margin: auto;" /></p>
+<h3 id="네트워크-모형">2. 네트워크 모형</h3>
+<ol style="list-style-type: decimal">
+<li>Erdos-Renyi 확률 그래프 모형</li>
+<li>Watts-Strogatz 작은세상 모형</li>
+<li>Barabasi-Albert 선호적 연결 모형 (무척도 그래프)</li>
+<li>역사적인 의미가 있는 그래프
+<ul>
+<li>Krackhardt, D. Assessing the Political Landscape: Structure, Cognition, and Power in Organizations. Admin. Sci. Quart. 35, 342-369, 1990.</li>
+<li>W. W. Zachary, An information flow model for conflict and fission in small groups, Journal of Anthropological Research 33, 452-473 (1977).</li>
+</ul></li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================================
+## 02. 네트워크 모형
+##================================================================================
+
+<span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 01. Erdos-Renyi 확률 그래프 모형 (n: 노드갯수, m: 엣지갯수)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+er &lt;-<span class="st"> </span><span class="kw">sample_gnm</span>(<span class="dt">n=</span><span class="dv">100</span>, <span class="dt">m=</span><span class="dv">40</span>) 
+<span class="kw">plot</span>(er, <span class="dt">vertex.size=</span><span class="dv">6</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)  </code></pre></div>
+<p><img src="fig/network-model-1.png" title="plot of chunk network-model" alt="plot of chunk network-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 02. Watts-Strogatz 작은세상 모형: </span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+sw &lt;-<span class="st"> </span><span class="kw">sample_smallworld</span>(<span class="dt">dim=</span><span class="dv">2</span>, <span class="dt">size=</span><span class="dv">10</span>, <span class="dt">nei=</span><span class="dv">1</span>, <span class="dt">p=</span><span class="fl">0.1</span>)
+<span class="kw">plot</span>(sw, <span class="dt">vertex.size=</span><span class="dv">6</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>, <span class="dt">layout=</span>layout_in_circle)</code></pre></div>
+<p><img src="fig/network-model-2.png" title="plot of chunk network-model" alt="plot of chunk network-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 03. Barabasi-Albert 선호적 연결 모형 (무척도 그래프)</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+ba &lt;-<span class="st">  </span><span class="kw">sample_pa</span>(<span class="dt">n=</span><span class="dv">100</span>, <span class="dt">power=</span><span class="dv">1</span>, <span class="dt">m=</span><span class="dv">1</span>,  <span class="dt">directed=</span>F)
+<span class="kw">plot</span>(ba, <span class="dt">vertex.size=</span><span class="dv">6</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-model-3.png" title="plot of chunk network-model" alt="plot of chunk network-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># 04. 역사적인 의미가 있는 그래프</span>
+<span class="co">#---------------------------------------------------------------------------------</span>
+<span class="co"># Krackhardt, D. Assessing the Political Landscape: Structure, Cognition, and Power in Organizations. Admin. Sci. Quart. 35, 342-369, 1990.</span>
+zach &lt;-<span class="st"> </span><span class="kw">graph</span>(<span class="st">&quot;Zachary&quot;</span>) <span class="co"># Zachary Karate Club</span>
+<span class="kw">plot</span>(zach, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-model-4.png" title="plot of chunk network-model" alt="plot of chunk network-model" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># W.W.Zachary, An information flow model for conflict and fission in small groups, Journal of Anthropological Research 33, 452-473 (1977).</span>
+kite &lt;-<span class="st"> </span><span class="kw">graph</span>(<span class="st">&quot;Krackhardt kite&quot;</span>)
+<span class="kw">plot</span>(kite, <span class="dt">vertex.size=</span><span class="dv">10</span>, <span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-model-5.png" title="plot of chunk network-model" alt="plot of chunk network-model" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

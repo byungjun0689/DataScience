@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">단어문서행렬 – 단어 빈도</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="텍스트-데이터-분석-목표"><span class="glyphicon glyphicon-check"></span>텍스트 데이터 분석 목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>트위터에서 트윗을 불러와서 단어문서행렬로 변환한다.</li>
+<li>전처리 과정을 거쳐 단어 빈도수를 단어문서행렬을 통해 산출한다.</li>
+<li>막대그래프로 빈도수 높은 단어를 시각화한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="트위터-인증">1. 트위터 인증</h3>
+<p><code>text_processing_fun.R</code> 함수내에 <code>twitter_auth()</code> 인증함수로 저장하여 인증과정을 캡슐화하여 숨겨놓는다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 01. 트위터 인증
+##======================================================================================================
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+
+<span class="kw">source</span>(<span class="st">&quot;text_processing_fun.R&quot;</span>)
+<span class="co"># twitter_auth(): 트위터 계정 인증</span>
+<span class="co"># twitter_clean_text(): 트위터 텍스트 전처리 </span>
+<span class="co"># twitter_word_cloud(): 단어구름 시각</span>
+
+<span class="kw">twitter_auth</span>()</code></pre></div>
+<pre class="output"><code>[1] &quot;Using direct authentication&quot;
+</code></pre>
+<h3 id="트위터-데이터-불러오기">2. 트위터 데이터 불러오기</h3>
+<p><code>twitter_auth()</code>를 통해 인증을 거친 뒤에 <code>searchTwitter</code> 함수를 통해 <code>#rstats</code> 해쉬태그를 갖는 트윗을 불러온다. 원활한 데이터 작업을 위해 <code>twListToDF</code> 함수로 트윗 리스트를 데이터프레임으로 변환한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 02. 트위터 데이터 가져오기
+##======================================================================================================
+
+tw &lt;-<span class="st"> </span><span class="kw">searchTwitter</span>(<span class="st">&#39;#rstats&#39;</span>, <span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">lang=</span><span class="st">&quot;en&quot;</span>, <span class="dt">since =</span> <span class="st">&#39;2016-04-01&#39;</span>)
+tw_rd_df &lt;-<span class="st"> </span><span class="kw">twListToDF</span>(tw)</code></pre></div>
+<h3 id="트위터-데이터-전처리">3. 트위터 데이터 전처리</h3>
+<p><code>twitter_clean_text</code> 함수를 통해 텍스트 트윗 메시지를 전처리한다. 전처리 과정에는 소문자 변환, 구두점 제거, 불용어 처리 등등이 포함된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 03. 트위터 데이터 전처리
+##======================================================================================================
+tw_df &lt;-<span class="st"> </span><span class="kw">twitter_clean_text</span>(tw_rd_df$text)</code></pre></div>
+<h3 id="단어문서행렬">4. 단어문서행렬</h3>
+<p>단어분석행렬을 통한 방법이 일반적으로 많이 사용된다. 이를 위해 입력값이 데이터프레임인 경우 <code>DataframeSource</code>, 벡터인 경우 <code>VectorSource</code>를 사용하여 말뭉치(Corpus)로 변환하고, 이를 <code>TermDocumentMatrix</code> 함수에 넣어 단어문서행렬을 생성한다.</p>
+<p>물론 텍스트를 바로 넣어 <code>wfm</code> 단어빈도행렬(Word Frequency Matrix)을 생성시켜 분석을 하기도 하지만 일반적인 방식은 아니다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 04. TDM, DTM
+##======================================================================================================
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(tm))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(qdap))</code></pre></div>
+<pre class="output"><code>Warning: package &#39;qdap&#39; was built under R version 3.2.5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#tw_corpus &lt;- VCorpus(DataframeSource(tw_rd_df[,1:2]))</span>
+tw_corpus &lt;-<span class="st"> </span><span class="kw">Corpus</span>(<span class="kw">VectorSource</span>(tw_df))
+
+<span class="co"># tdm</span>
+tw_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(tw_corpus)
+
+<span class="co"># dtm</span>
+tw_dtm &lt;-<span class="st"> </span><span class="kw">DocumentTermMatrix</span>(tw_corpus)
+
+<span class="co"># wfm</span>
+<span class="kw">library</span>(qdap)
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))</code></pre></div>
+<pre class="output"><code>Warning: package &#39;dplyr&#39; was built under R version 3.2.5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tw_wfm &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">wfm</span>(tw_df))
+tw_wfm$term &lt;-<span class="st"> </span><span class="kw">rownames</span>(tw_wfm)
+tw_wfm %&gt;%<span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(all)) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
+<pre class="output"><code>   all    term
+1   50  rstats
+2   37     for
+3   36       r
+4   27      in
+5   25     the
+6   25    with
+7   20      to
+8   16       a
+9   15     new
+10  15 package
+</code></pre>
+<h3 id="빈도수-분석-및-시각화">5. 빈도수 분석 및 시각화</h3>
+<p>단어문서행렬이 생성되면 이를 행렬로 변환하여 행방향으로 합을 구하면 단어빈도수가 계산되고, 열방향으로 합을 구하면 문서빈도수가 계산된다. 단어 빈도수를 내림차순으로 계산하고 나서, 가장 많이 사용되는 단여 10개를 골라 막대그래프로 시각화한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 단어주머니 빈도 분석</span>
+tw_tdm_m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tw_tdm)
+term_freq &lt;-<span class="st"> </span><span class="kw">rowSums</span>(tw_tdm_m)
+term_freq &lt;-<span class="st"> </span><span class="kw">sort</span>(term_freq, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)
+
+<span class="kw">barplot</span>(term_freq[<span class="dv">1</span>:<span class="dv">10</span>], <span class="dt">col =</span> <span class="st">&quot;tan&quot;</span>, <span class="dt">las=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="fig/twitter-freq-1.png" title="plot of chunk twitter-freq" alt="plot of chunk twitter-freq" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

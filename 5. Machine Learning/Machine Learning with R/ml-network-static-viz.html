@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">정적 네트워크 데이터 시각화</h2>
+          <h3 id="네트워크-데이터-시각화">1. 네트워크 데이터 시각화</h3>
+<p><code>plot(net)</code> 명령어를 통해 시각화를 할 경우, 중복되는 엣지도 많고 해서 간략화할 필요가 있다. 이때 사용되는 명령어가 <code>simplify()</code> 함수다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot(net)</span>
+net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span class="dt">remove.multiple =</span> <span class="ot">FALSE</span>, <span class="dt">remove.loops =</span> <span class="ot">TRUE</span>) 
+<span class="co"># net &lt;- simplify(net, edge.attr.comb=list(Weight=&quot;sum&quot;,&quot;ignore&quot;))</span>
+<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-viz-simplify-1.png" title="plot of chunk network-viz-simplify" alt="plot of chunk network-viz-simplify" style="display: block; margin: auto;" /></p>
+<p><code>dev.off()</code>로 장치를 초기화하고, <code>vertex.label.family</code> 인자를 통해 글꼴도 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dev.off</span>()</code></pre></div>
+<pre class="output"><code>null device 
+          1 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)
+<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>, <span class="dt">vertex.label.family=</span><span class="st">&quot;NanumMyeongjo&quot;</span>)</code></pre></div>
+<h4 id="igraph-주요-설정-매개변수">1.1. <code>igraph</code> 주요 설정 매개변수</h4>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="74%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">노드(Node)</th>
+<th align="left">노드 매개변수 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">vertex.color</td>
+<td align="left">Node color</td>
+</tr>
+<tr class="even">
+<td align="left">vertex.frame.color</td>
+<td align="left">Node border color</td>
+</tr>
+<tr class="odd">
+<td align="left">vertex.shape</td>
+<td align="left">One of “none”, “circle”, “square”, “csquare”, “rectangle”, “crectangle”, “vrectangle”, “pie”, “raster”, or “sphere”</td>
+</tr>
+<tr class="even">
+<td align="left">vertex.size</td>
+<td align="left">Size of the node (default is 15)</td>
+</tr>
+<tr class="odd">
+<td align="left">vertex.size2</td>
+<td align="left">The second size of the node (e.g. for a rectangle)</td>
+</tr>
+<tr class="even">
+<td align="left">vertex.label</td>
+<td align="left">Character vector used to label the nodes</td>
+</tr>
+<tr class="odd">
+<td align="left">vertex.label.family</td>
+<td align="left">Font family of the label (e.g.“Times”, “Helvetica”)</td>
+</tr>
+<tr class="even">
+<td align="left">vertex.label.font</td>
+<td align="left">Font: 1 plain, 2 bold, 3, italic, 4 bold italic, 5 symbol</td>
+</tr>
+<tr class="odd">
+<td align="left">vertex.label.cex</td>
+<td align="left">Font size (multiplication factor, device-dependent)</td>
+</tr>
+<tr class="even">
+<td align="left">vertex.label.dist</td>
+<td align="left">Distance between the label and the vertex</td>
+</tr>
+<tr class="odd">
+<td align="left">vertex.label.degree</td>
+<td align="left">The position of the label in relation to the vertex, where 0 right, “pi” is left, “pi/2” is below, and “-pi/2” is above</td>
+</tr>
+</tbody>
+</table>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="74%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">엣지(Edge)</th>
+<th align="left">엣지 매개변수 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">edge.color</td>
+<td align="left">Edge color</td>
+</tr>
+<tr class="even">
+<td align="left">edge.width</td>
+<td align="left">Edge width, defaults to 1</td>
+</tr>
+<tr class="odd">
+<td align="left">edge.arrow.size</td>
+<td align="left">Arrow size, defaults to 1</td>
+</tr>
+<tr class="even">
+<td align="left">edge.arrow.width</td>
+<td align="left">Arrow width, defaults to 1</td>
+</tr>
+<tr class="odd">
+<td align="left">edge.lty</td>
+<td align="left">Line type, could be 0 or “blank”, 1 or “solid”, 2 or “dashed”, 3 or “dotted”, 4 or “dotdash”, 5 or “longdash”, 6 or “twodash”</td>
+</tr>
+<tr class="even">
+<td align="left">edge.label</td>
+<td align="left">Character vector used to label edges</td>
+</tr>
+<tr class="odd">
+<td align="left">edge.label.family</td>
+<td align="left">Font family of the label (e.g.“Times”, “Helvetica”)</td>
+</tr>
+<tr class="even">
+<td align="left">edge.label.font</td>
+<td align="left">Font: 1 plain, 2 bold, 3, italic, 4 bold italic, 5 symbol</td>
+</tr>
+<tr class="odd">
+<td align="left">edge.label.cex</td>
+<td align="left">Font size for edge labels</td>
+</tr>
+<tr class="even">
+<td align="left">edge.curved</td>
+<td align="left">Edge curvature, range 0-1 (FALSE sets it to 0, TRUE to 0.5)</td>
+</tr>
+<tr class="odd">
+<td align="left">arrow.mode</td>
+<td align="left">Vector specifying whether edges should have arrows, possible values: 0 no arrow, 1 back, 2 forward, 3 both</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th align="left">기타</th>
+<th align="left">기타 매개변수 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">margin</td>
+<td align="left">Empty space margins around the plot, vector with length 4</td>
+</tr>
+<tr class="even">
+<td align="left">frame</td>
+<td align="left">if TRUE, the plot will be framed</td>
+</tr>
+<tr class="odd">
+<td align="left">main</td>
+<td align="left">If set, adds a title to the plot</td>
+</tr>
+<tr class="even">
+<td align="left">sub</td>
+<td align="left">If set, adds a subtitle to the plot</td>
+</tr>
+</tbody>
+</table>
+<h4 id="노드와-엣지에-매개변수-반영">1.2. 노드와 엣지에 매개변수 반영</h4>
+<p>노드와 엣지를 네트워크 시각화에 매개변수를 통해 반영하는 방식은 두가지가 있다. 먼저 <code>plot()</code> 함수에 노드와 엣지 매개변수를 적어 넣는다.</p>
+<p><code>edge.arrow.size=.4</code> 엣지 화살표 크기를 .4로 설정하고, 엣지에 곡선을 .3으로 반영한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">4</span>, <span class="dt">edge.curved=</span>.<span class="dv">3</span>)</code></pre></div>
+<p><img src="fig/network-node-edge-param-type1-ex01-1.png" title="plot of chunk network-node-edge-param-type1-ex01" alt="plot of chunk network-node-edge-param-type1-ex01" style="display: block; margin: auto;" /></p>
+<p>엣지 색상은 오렌지색상으로, 노드는 회색으로, 노드 외곽 색상은 흰색으로 설정한다. 노드 라벨을 <code>V(net)$media</code> 변수를 사용하고 노드 라벨 색상은 검정색으로 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">2</span>, <span class="dt">edge.color=</span><span class="st">&quot;orange&quot;</span>,
+     <span class="dt">vertex.color=</span><span class="st">&quot;dark gray&quot;</span>, <span class="dt">vertex.frame.color=</span><span class="st">&quot;#ffffff&quot;</span>,
+     <span class="dt">vertex.label=</span><span class="kw">V</span>(net)$media, <span class="dt">vertex.label.color=</span><span class="st">&quot;black&quot;</span>) </code></pre></div>
+<p><img src="fig/network-node-edge-param-type1-ex02-1.png" title="plot of chunk network-node-edge-param-type1-ex02" alt="plot of chunk network-node-edge-param-type1-ex02" style="display: block; margin: auto;" /></p>
+<p>두번째 방식은 igraph 객체에 속성으로 추가하는 것이다. 예를 들어, 미디어 유형에 따라 네트워크 노드에 색상을 추가하고, 연결 중앙성(Degree Centrality, 링크가 많으면 더 큰 노드)에 따라 크기를 조정한다. 가중치(weight)에 따라 엣지 선폭도 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 03.02. 첫번째 방식: igraph 객체에 속성으로 적용</span>
+
+<span class="co"># 미디어 유형에 따른 색상 생성:</span>
+colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>)
+<span class="kw">V</span>(net)$color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)$media.type]
+
+<span class="co"># 노드 연결 중앙성에 따른 노드 크기 설정:</span>
+deg &lt;-<span class="st"> </span>igraph::<span class="kw">degree</span>(net, <span class="kw">V</span>(net), <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>)
+<span class="kw">V</span>(net)$size &lt;-<span class="st"> </span>deg*<span class="dv">3</span>
+
+<span class="co"># audience size 값을 사용해서 노드 크기 설정:</span>
+<span class="kw">V</span>(net)$size &lt;-<span class="st"> </span><span class="kw">V</span>(net)$audience.size*<span class="fl">0.6</span>
+
+<span class="co"># 노드 ID로 현재 라벨이 설정되어 있는데, 라벨이 표시되지 않도록 설정:</span>
+<span class="kw">V</span>(net)$label &lt;-<span class="st"> </span><span class="ot">NA</span>
+
+<span class="co"># 엣지 선폭을 가중치(weight)에 따라 설정:</span>
+<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="kw">E</span>(net)$weight/<span class="dv">2</span>
+
+<span class="co"># 화살표 크기와 엣지 색상을 변경:</span>
+<span class="kw">E</span>(net)$arrow.size &lt;-<span class="st"> </span>.<span class="dv">2</span>
+<span class="kw">E</span>(net)$edge.color &lt;-<span class="st"> &quot;gray80&quot;</span>
+<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="dv">1</span>+<span class="kw">E</span>(net)$weight/<span class="dv">12</span>
+
+<span class="kw">plot</span>(net) 
+colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>)
+<span class="kw">legend</span>(<span class="dt">x=</span>-<span class="fl">1.5</span>, <span class="dt">y=</span>-<span class="fl">1.1</span>, <span class="kw">c</span>(<span class="st">&quot;Newspaper&quot;</span>,<span class="st">&quot;Television&quot;</span>, <span class="st">&quot;Online News&quot;</span>), <span class="dt">pch=</span><span class="dv">21</span>,
+       <span class="dt">col=</span><span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.bg=</span>colrs, <span class="dt">pt.cex=</span><span class="dv">2</span>, <span class="dt">cex=</span>.<span class="dv">8</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">ncol=</span><span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/network-node-edge-param-type2-1.png" title="plot of chunk network-node-edge-param-type2" alt="plot of chunk network-node-edge-param-type2" style="display: block; margin: auto;" /></p>
+<p>노드 라벨을 적용하는 것이 의미론적인 면에서 더 의미가 있을 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 03.03. 노드 라벨를 활용한 네트워크 시각화</span>
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))
+<span class="kw">plot</span>(net, <span class="dt">vertex.shape=</span><span class="st">&quot;none&quot;</span>, <span class="dt">vertex.label=</span><span class="kw">V</span>(net)$media, 
+     <span class="dt">vertex.label.font=</span><span class="dv">2</span>, <span class="dt">vertex.label.color=</span><span class="st">&quot;gray40&quot;</span>, <span class="dt">edge.arrow.size=</span>.<span class="dv">1</span>,
+     <span class="dt">vertex.label.cex=</span>.<span class="dv">7</span>, <span class="dt">edge.color=</span><span class="st">&quot;gray85&quot;</span>, <span class="dt">edge.width   =</span> <span class="dv">1</span>+<span class="kw">E</span>(net)$weight/<span class="dv">12</span>)</code></pre></div>
+<p><img src="fig/network-node-edge-param-label-1.png" title="plot of chunk network-node-edge-param-label" alt="plot of chunk network-node-edge-param-label" style="display: block; margin: auto;" /></p>
+<p>엣지 색상을 노드와 맞춰 시각화를 함으로써 노드와 엣지를 함께 이해하는 것도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 03.04. 엣지를 노드에 맞춰 색상을 맞춤</span>
+
+edge.start &lt;-<span class="st"> </span><span class="kw">ends</span>(net, <span class="dt">es=</span><span class="kw">E</span>(net), <span class="dt">names=</span>F)[,<span class="dv">1</span>] <span class="co"># get the &quot;from&quot; node</span>
+edge.col &lt;-<span class="st"> </span><span class="kw">V</span>(net)$color[edge.start]
+
+<span class="kw">plot</span>(net, <span class="dt">edge.color=</span>edge.col, <span class="dt">edge.curved=</span>.<span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/network-node-edge-param-color-1.png" title="plot of chunk network-node-edge-param-color" alt="plot of chunk network-node-edge-param-color" style="display: block; margin: auto;" /></p>
+<h3 id="네트워크-배치layout">2. 네트워크 배치(Layout)</h3>
+<p>네트워크 배치(Layout)는 네트워크 노드에 대한 좌표를 반환하는 단순히 알고리즘이라고 볼 수 있다.</p>
+<p><code>barabasi.game</code> 함수를 사용해서 80개 노드를 갖는 그래프를 통해 네트워크 배치에 대한 탐색을 시작해 본다. 선호적 연결원리(Preferential attachment)를 따라 노드 하나에서 시작해서 체계적으로 증가시켜 나간다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=======================================================================
+## 01. 네트워크 배치
+##=======================================================================
+<span class="kw">source</span>(<span class="st">&quot;02.code/01-clean.R&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in file(filename, &quot;r&quot;, encoding = encoding): 커넥션을 열 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;02.code/04-network-viz.R&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in file(filename, &quot;r&quot;, encoding = encoding): 커넥션을 열 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 바라바시 게임 (Preferential attachment)</span>
+<span class="kw">library</span>(igraph)
+
+net.bg &lt;-<span class="st"> </span><span class="kw">barabasi.game</span>(<span class="dv">80</span>) 
+<span class="kw">V</span>(net.bg)$frame.color &lt;-<span class="st"> &quot;white&quot;</span>
+<span class="kw">V</span>(net.bg)$color &lt;-<span class="st"> &quot;orange&quot;</span>
+<span class="kw">V</span>(net.bg)$label &lt;-<span class="st"> &quot;&quot;</span> 
+<span class="kw">V</span>(net.bg)$size &lt;-<span class="st"> </span><span class="dv">10</span>
+<span class="kw">E</span>(net.bg)$arrow.mode &lt;-<span class="st"> </span><span class="dv">0</span>
+<span class="kw">plot</span>(net.bg)</code></pre></div>
+<p><img src="fig/network-layout-barabasi-1.png" title="plot of chunk network-layout-barabasi" alt="plot of chunk network-layout-barabasi" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># layout 설정</span>
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>layout.random)</code></pre></div>
+<p><img src="fig/network-layout-barabasi-2.png" title="plot of chunk network-layout-barabasi" alt="plot of chunk network-layout-barabasi" style="display: block; margin: auto;" /></p>
+<p>사전에 네트워크 배치에 대해 설정하고 이를 적용하는 것도 가능하다. 내장된 네트워크 배치 기능은 다음과 같다.</p>
+<ul>
+<li><code>layout.random()</code> : 임의 네트워크 배치</li>
+<li><code>layout.circle()</code> : 원형태 네트워크 배치</li>
+<li><code>layout.sphere()</code> : 구형태 네트워크 배치</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 사전에 노드좌표를 설정</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.circle</span>(net.bg)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-setting-1.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 개발자가 직접 설정</span>
+l &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>:<span class="kw">vcount</span>(net.bg), <span class="kw">c</span>(<span class="dv">1</span>, <span class="kw">vcount</span>(net.bg):<span class="dv">2</span>)), <span class="kw">vcount</span>(net.bg), <span class="dv">2</span>)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-setting-2.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드 배치 내장함수: 무작위</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.random</span>(net.bg)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-setting-3.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드 배치 내장함수: 원</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.circle</span>(net.bg)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-setting-4.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드 배치 내장함수: 구</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.sphere</span>(net.bg)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-setting-5.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
+<h4 id="네트워크-배치-알고리즘">2.1. 네트워크 배치 알고리즘</h4>
+<p>심미적으로 보기 좋은 네트워크 그래프를 얻기 위해 많은 알고리즘이 제안되었고, Fruchterman-Reingold 알고리즘을 비롯한 다양한 알고리즘이 존재한다. 물리학에서 가져온 스프링, 힘 등의 개념을 노드와 엣지에 적용하여 컴퓨터의 도움을 얻어 데이터가 크지 않은 경우 빠른 시간내에 시각화가 가능하다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h4 id="force-directed-graph-drawing-wiki-force-directed-graph"><span class="glyphicon glyphicon-pushpin"></span>Force-directed graph drawing <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h4>
+</div>
+<div class="panel-body">
+<p>Force-directed graph drawing algorithms are a class of algorithms for drawing graphs in an aesthetically pleasing way. Their purpose is to position the nodes of a graph in two-dimensional or three-dimensional space so that all the edges are of more or less equal length and there are as few crossing edges as possible, by assigning forces among the set of edges and the set of nodes, based on their relative positions, and then using these forces either to simulate the motion of the edges and nodes or to minimize their energy.</p>
+</div>
+</aside>
+<p>Force-directed 네트워크 배치 알고리즘은 엣지 길이가 유사하게 하고 엣지가 가능하면 서로 겹치지 않도록 그래프를 생성하는데 물리시스템으로 모의시험을 수행한다. 노드는 서로 가까워지면 서로 밀어내는 성질을 갖는 전기적 입자이며, 엣지는 스피링처럼 동작해서 서로 연결된 노드를 잡아댕긴다.</p>
+<p>결과적으로 노드는 시각화 평면에 넓게 고르게 분산되어 퍼지게 되고, 더 많은 연결점을 갖는 노드는 서로 더 가까이 모이게 되어 직관적으로 이해가 된다. 이런 유형의 알고리즘이 갖는 단점은 수렴에 시간이 오래 걸리고, ~ 1,000 개보다 큰 노드를 갖는 그래프에는 잘 사용되지 않는다. 일부 모수를 조정해서 네트워크 그래프를 조정하는 것도 가능하다.</p>
+<ul>
+<li><code>area</code> : 기본 설정값으로 노드 제곱</li>
+<li><code>repulserad</code> : 밀어내는 반경</li>
+<li><code>weight</code> : 노드 사이 끌림을 증대</li>
+</ul>
+<p><code>fruchterman.reingold.grid</code>는 <code>fruchterman.reingold</code>와 유사하지만 속도가 더 빠르다.</p>
+<p><strong>Kamada Kawai</strong> 알고리즘도 많이 사용되는 Force-directed 네트워크 알고리즘으로 스프링 시스템에 에너지를 최소화하는 방향으로 그래프를 생성시킨다. 이와 연관된 <code>igraph</code> 팩키지에 포함된 알고리듬이 <code>layout.spring()</code>이다.</p>
+<p>LGL 배치 알고리즘은 대형 연결 그래프를 시각화하는데 개발되었다. 루트 뿌리를 설정해야 하는데 배치 중앙에 위치한 노드가 그것이다.</p>
+<p>기본 디폴트 설정으로, 그래프 좌표는 <code>x</code>, <code>y</code> 모두 <strong>[-1,1]</strong> 사이 위치한다. 좌표를 변경할 경우 <code>rescale=FALSE</code> 설정하고 수작업으로 좌표를 변경하는 것도 가능하다. <code>layout.norm</code> 으로 그래프 가장자리를 정규화할 수도 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. Fruchterman-Reingold: Force-directed 배치 알고리즘</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</span>(net.bg, <span class="dt">repulserad=</span><span class="kw">vcount</span>(net.bg)^<span class="dv">3</span>, 
+                                 <span class="dt">area=</span><span class="kw">vcount</span>(net.bg)^<span class="fl">2.4</span>)
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),  <span class="dt">mar=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>layout.fruchterman.reingold)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-algorithm-1.png" title="plot of chunk network-layout-algorithm" alt="plot of chunk network-layout-algorithm" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. Kamada Kawai 배치 알고리즘</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.kamada.kawai</span>(net.bg)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)
+
+l &lt;-<span class="st"> </span><span class="kw">layout.spring</span>(net.bg, <span class="dt">mass=</span>.<span class="dv">5</span>)
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
+<p><img src="fig/network-layout-algorithm-2.png" title="plot of chunk network-layout-algorithm" alt="plot of chunk network-layout-algorithm" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3. LGL 배치 알고리즘</span>
+<span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>layout.lgl)
+
+<span class="co"># 4. Fruchterman-Reingold: 수동 설정</span>
+
+l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</span>(net.bg)
+l &lt;-<span class="st"> </span><span class="kw">layout.norm</span>(l, <span class="dt">ymin=</span>-<span class="dv">1</span>, <span class="dt">ymax=</span><span class="dv">1</span>, <span class="dt">xmin=</span>-<span class="dv">1</span>, <span class="dt">xmax=</span><span class="dv">1</span>)
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="dt">mar=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</code></pre></div>
+<p><img src="fig/network-layout-algorithm-3.png" title="plot of chunk network-layout-algorithm" alt="plot of chunk network-layout-algorithm" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net.bg, <span class="dt">rescale=</span>F, <span class="dt">layout=</span>l*<span class="fl">0.4</span>)
+<span class="kw">plot</span>(net.bg, <span class="dt">rescale=</span>F, <span class="dt">layout=</span>l*<span class="fl">0.6</span>)
+<span class="kw">plot</span>(net.bg, <span class="dt">rescale=</span>F, <span class="dt">layout=</span>l*<span class="fl">0.8</span>)
+<span class="kw">plot</span>(net.bg, <span class="dt">rescale=</span>F, <span class="dt">layout=</span>l*<span class="fl">1.0</span>)</code></pre></div>
+<p><img src="fig/network-layout-algorithm-4.png" title="plot of chunk network-layout-algorithm" alt="plot of chunk network-layout-algorithm" style="display: block; margin: auto;" /></p>
+<p><code>igraph</code> 팩키지에 적용된 네트워크 배치 알고리즘은 <code>layout.auto</code>를 사용한다. 자동으로 적절한 배치 알고리즘이 자동 선정되는데 네트워크 크기와 연결강도를 고려한다.</p>
+<p><code>igraph</code> 팩키지에 내장된 네트워크 배치 알고리즘은 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># igraph 내장 배치 알고리즘</span>
+
+layouts &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;^layout</span><span class="ch">\\</span><span class="st">.&quot;</span>, <span class="kw">ls</span>(<span class="st">&quot;package:igraph&quot;</span>), <span class="dt">value=</span><span class="ot">TRUE</span>) 
+layouts &lt;-<span class="st"> </span>layouts[!<span class="kw">grepl</span>(<span class="st">&quot;bipartite|merge|norm|sugiyama|gem&quot;</span>, layouts)]
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">6</span>), <span class="dt">mar=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))
+for(layout in layouts) {
+  <span class="kw">print</span>(layout)
+  l &lt;-<span class="st"> </span><span class="kw">do.call</span>(layout, <span class="kw">list</span>(net))
+  <span class="kw">plot</span>(net, <span class="dt">edge.arrow.mode=</span><span class="dv">0</span>, <span class="dt">layout=</span>l, <span class="dt">main=</span>layout) }</code></pre></div>
+<pre class="output"><code>[1] &quot;layout.auto&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.circle&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.davidson.harel&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.drl&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.fruchterman.reingold&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.fruchterman.reingold.grid&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.graphopt&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.grid&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.grid.3d&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.kamada.kawai&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.lgl&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.mds&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.random&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.reingold.tilford&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.sphere&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.spring&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.star&quot;
+</code></pre>
+<pre class="output"><code>[1] &quot;layout.svd&quot;
+</code></pre>
+<p><img src="fig/network-layout-algorithms-1.png" title="plot of chunk network-layout-algorithms" alt="plot of chunk network-layout-algorithms" style="display: block; margin: auto;" /></p>
+<h3 id="네트워크-하이라이트highlight">3. 네트워크 하이라이트(Highlight)</h3>
+<p>네트워크 배치 및 매개변수를 변경하여 다양하게 네트워크 시각화가 가능하지만, 다소 부족한 점이 있다. 노드 유형과 크기를 식별할 수 있지만, 엣지 링크가 조밀해서 전체적인 구조를 파악하기에 부족한 점이 있다.</p>
+<p>이에 대한 해법은 가장 중요한 연결만 묶고 나머지는 제거해서, 네트워크를 성기게 만들면 구조를 보는 것이 더 낫게 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net)</code></pre></div>
+<p><img src="fig/network-why-highlight-1.png" title="plot of chunk network-why-highlight" alt="plot of chunk network-why-highlight" style="display: block; margin: auto;" /></p>
+<p>중요 엣지 연결을 추출하는 정교한 방식이 있지만, 가장 단순하게 네트워크 평균적 연결보다 큰 것만 연결을 정의하고, 나머지는 <code>delete.edges(net, edges)</code>를 사용해서 연결을 제거한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 01.01. 엣지 제거</span>
+
+<span class="co"># 엣지 연결 현황 파악</span>
+<span class="kw">hist</span>(links$weight)</code></pre></div>
+<p><img src="fig/network-remove-edge-1.png" title="plot of chunk network-remove-edge" alt="plot of chunk network-remove-edge" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(links$weight)</code></pre></div>
+<pre class="output"><code>[1] 12.40816
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sd</span>(links$weight)</code></pre></div>
+<pre class="output"><code>[1] 9.905635
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 중요 엣지 연결 추출</span>
+cut.off &lt;-<span class="st"> </span><span class="kw">mean</span>(links$weight) 
+net.sp &lt;-<span class="st"> </span>igraph::<span class="kw">delete.edges</span>(net, <span class="kw">E</span>(net)[weight&lt;cut.off])
+l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</span>(net.sp, <span class="dt">repulserad=</span><span class="kw">vcount</span>(net)^<span class="fl">2.1</span>)
+<span class="kw">plot</span>(net.sp, <span class="dt">layout=</span>l) </code></pre></div>
+<p><img src="fig/network-remove-edge-2.png" title="plot of chunk network-remove-edge" alt="plot of chunk network-remove-edge" style="display: block; margin: auto;" /></p>
+<h4 id="엣지-제거-또다른-방법">3.1. 엣지 제거 또다른 방법</h4>
+<p>엣지를 제거하는 다른 방법으로 하이퍼링크(hyperlink) 네트워크와 언급(mention) 네트워크를 별도로 설정하여 이를 네트워크 배치 알고리즘에 넣어 시각화를 하는 것도 가능한 방법이다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 02. 원배치 : 하이퍼링크, 언급</span>
+
+<span class="co"># 원배치 하이퍼링크</span>
+<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="fl">1.5</span>
+<span class="kw">plot</span>(net, <span class="dt">edge.color=</span><span class="kw">c</span>(<span class="st">&quot;dark red&quot;</span>, <span class="st">&quot;slategrey&quot;</span>)[(<span class="kw">E</span>(net)$type==<span class="st">&quot;hyperlink&quot;</span>)+<span class="dv">1</span>],
+     <span class="dt">vertex.color=</span><span class="st">&quot;gray40&quot;</span>, <span class="dt">layout=</span>layout.circle)</code></pre></div>
+<p><img src="fig/network-remove-edge-method-1.png" title="plot of chunk network-remove-edge-method" alt="plot of chunk network-remove-edge-method" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 하이퍼링크, 언급</span>
+net.m &lt;-<span class="st"> </span>net -<span class="st"> </span><span class="kw">E</span>(net)[<span class="kw">E</span>(net)$type==<span class="st">&quot;hyperlink&quot;</span>] <span class="co"># 엣지를 제거하는 또다른 방법</span>
+net.h &lt;-<span class="st"> </span>net -<span class="st"> </span><span class="kw">E</span>(net)[<span class="kw">E</span>(net)$type==<span class="st">&quot;mention&quot;</span>]
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+<span class="kw">plot</span>(net.h, <span class="dt">vertex.color=</span><span class="st">&quot;orange&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Tie: Hyperlink&quot;</span>)
+<span class="kw">plot</span>(net.m, <span class="dt">vertex.color=</span><span class="st">&quot;lightsteelblue2&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Tie: Mention&quot;</span>)</code></pre></div>
+<p><img src="fig/network-remove-edge-method-2.png" title="plot of chunk network-remove-edge-method" alt="plot of chunk network-remove-edge-method" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fruchterman.Reingold 배치 알고리즘</span>
+l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</span>(net)
+<span class="kw">plot</span>(net.h, <span class="dt">vertex.color=</span><span class="st">&quot;orange&quot;</span>, <span class="dt">layout=</span>l, <span class="dt">main=</span><span class="st">&quot;Tie: Hyperlink&quot;</span>)
+<span class="kw">plot</span>(net.m, <span class="dt">vertex.color=</span><span class="st">&quot;lightsteelblue2&quot;</span>, <span class="dt">layout=</span>l, <span class="dt">main=</span><span class="st">&quot;Tie: Mention&quot;</span>)</code></pre></div>
+<p><img src="fig/network-remove-edge-method-3.png" title="plot of chunk network-remove-edge-method" alt="plot of chunk network-remove-edge-method" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 커뮤니티 반영</span>
+<span class="kw">V</span>(net)$community &lt;-<span class="st"> </span><span class="kw">optimal.community</span>(net)$membership
+colrs &lt;-<span class="st"> </span><span class="kw">adjustcolor</span>( <span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>, <span class="st">&quot;yellowgreen&quot;</span>), <span class="dt">alpha=</span>.<span class="dv">6</span>)
+<span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>colrs[<span class="kw">V</span>(net)$community])</code></pre></div>
+<p><img src="fig/network-remove-edge-method-4.png" title="plot of chunk network-remove-edge-method" alt="plot of chunk network-remove-edge-method" style="display: block; margin: auto;" /></p>
+<h4 id="특정-노드-혹은-엣지-하이라이트-강조">3.2. 특정 노드 혹은 엣지 하이라이트 강조</h4>
+<p><code>shortest.paths</code> 함수는 해당 네트워크 노드 간에 최단경로 행렬정보를 처리하여 반환한다. 예를 들어, NYT와 다른 언론기관간에 거리를 시각화보자.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 01. 최단거리</span>
+
+dist.from.NYT &lt;-<span class="st"> </span><span class="kw">shortest.paths</span>(net, <span class="dt">algorithm=</span><span class="st">&quot;unweighted&quot;</span>)[<span class="dv">1</span>,]
+oranges &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;dark red&quot;</span>, <span class="st">&quot;gold&quot;</span>))
+col &lt;-<span class="st"> </span><span class="kw">oranges</span>(<span class="kw">max</span>(dist.from.NYT)+<span class="dv">1</span>)[dist.from.NYT<span class="dv">+1</span>]
+
+<span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>col, <span class="dt">vertex.label=</span>dist.from.NYT, <span class="dt">edge.arrow.size=</span>.<span class="dv">6</span>, 
+     <span class="dt">vertex.label.color=</span><span class="st">&quot;white&quot;</span>)</code></pre></div>
+<p><img src="fig/network-hl-shortest-path-1.png" title="plot of chunk network-hl-shortest-path" alt="plot of chunk network-hl-shortest-path" style="display: block; margin: auto;" /></p>
+<p>WSJ 주변을 시각화할 수도 있다. <code>neighbors</code> 함수를 통해 특정 언론사와 한 단계 더 걸친 언론사를 찾아내기 좋다. 특정 노드와 연결된 모든 엣지링크를 찾는 함수로 <code>incident</code>가 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 02. WSJ 인접 노드</span>
+
+col &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))
+col[<span class="kw">V</span>(net)$media==<span class="st">&quot;Wall Street Journal&quot;</span>] &lt;-<span class="st"> &quot;#ff5100&quot;</span>
+
+neigh.nodes &lt;-<span class="st"> </span><span class="kw">neighbors</span>(net, <span class="kw">V</span>(net)[media==<span class="st">&quot;Wall Street Journal&quot;</span>], <span class="dt">mode=</span><span class="st">&quot;out&quot;</span>)
+
+col[neigh.nodes] &lt;-<span class="st"> &quot;#ff9d00&quot;</span>
+<span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>col)</code></pre></div>
+<p><img src="fig/network-hl-adjacency-1.png" title="plot of chunk network-hl-adjacency" alt="plot of chunk network-hl-adjacency" style="display: block; margin: auto;" /></p>
+<p>또다른 방법은 특정 노드 집단을 <code>mark</code>를 통해 표식하는 것이다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 03. 표식 Mark</span>
+
+<span class="co"># 표식 Mark : 1 집단</span>
+<span class="kw">plot</span>(net, <span class="dt">mark.groups=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">8</span>), <span class="dt">mark.col=</span><span class="st">&quot;#C5E5E7&quot;</span>, <span class="dt">mark.border=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-hl-mark-1.png" title="plot of chunk network-hl-mark" alt="plot of chunk network-hl-mark" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 표식 Mark : 2 집단</span>
+<span class="kw">plot</span>(net, <span class="dt">mark.groups=</span><span class="kw">list</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">8</span>), <span class="kw">c</span>(<span class="dv">15</span>:<span class="dv">17</span>)), 
+     <span class="dt">mark.col=</span><span class="kw">c</span>(<span class="st">&quot;#C5E5E7&quot;</span>,<span class="st">&quot;#ECD89A&quot;</span>), <span class="dt">mark.border=</span><span class="ot">NA</span>)</code></pre></div>
+<p><img src="fig/network-hl-mark-2.png" title="plot of chunk network-hl-mark" alt="plot of chunk network-hl-mark" style="display: block; margin: auto;" /></p>
+<p>네트워크 특정 경로를 하이라이트하는 것도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 04. 경로 표시</span>
+
+news.path &lt;-<span class="st"> </span><span class="kw">get.shortest.paths</span>(net, <span class="kw">V</span>(net)[media==<span class="st">&quot;MSNBC&quot;</span>], 
+                                <span class="kw">V</span>(net)[media==<span class="st">&quot;New York Post&quot;</span>],
+                                <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>, <span class="dt">output=</span><span class="st">&quot;both&quot;</span>)
+
+
+<span class="co"># 엣지 변수 색상 생성:</span>
+ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))
+ecol[<span class="kw">unlist</span>(news.path$epath)] &lt;-<span class="st"> &quot;orange&quot;</span>
+
+<span class="co"># 엣지 변수 선폭 생성:</span>
+ew &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">2</span>, <span class="kw">ecount</span>(net))
+ew[<span class="kw">unlist</span>(news.path$epath)] &lt;-<span class="st"> </span><span class="dv">4</span>
+
+<span class="co"># 노드 색상변수 생성:</span>
+vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray40&quot;</span>, <span class="kw">vcount</span>(net))
+vcol[<span class="kw">unlist</span>(news.path$vpath)] &lt;-<span class="st"> &quot;gold&quot;</span>
+
+<span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>vcol, <span class="dt">edge.color=</span>ecol, 
+     <span class="dt">edge.width=</span>ew, <span class="dt">edge.arrow.mode=</span><span class="dv">0</span>)</code></pre></div>
+<p><img src="fig/network-hl-path-1.png" title="plot of chunk network-hl-path" alt="plot of chunk network-hl-path" style="display: block; margin: auto;" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://en.wikipedia.org/wiki/Force-directed_graph_drawing">Force-directed graph drawing</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

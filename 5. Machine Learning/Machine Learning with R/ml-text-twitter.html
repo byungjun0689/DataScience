@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">텍스트 데이터 수집 – 트위터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>텍스트 문자 데이터 분석을 위해 텍스트 데이터를 가져온다.</li>
+<li>트위터 서비스를 통해 텍스트 문자 데이터를 R로 불러온다.</li>
+</ul>
+</div>
+</section>
+<h3 id="트위터-서비스">1. 트위터 서비스</h3>
+<p>“트윗(tweet)”이란 말은 작은 새가 지저귀는 소리를 나타내는 영어 낱말로, <a href="https://www.twitter.com/">트위터(영어: Twitter)</a>는 <strong>소셜 네트워크 서비스(SNS)</strong>이자 <strong>마이크로블로그</strong> 서비스로 볼 수 있다.</p>
+<p>단문 메시지 서비스(SMS), 인스턴트 메신저, 전자 우편(e-mail) 등을 통해 “트윗(tweet)”를 전송할 수 있고, 글 한 편에 해당하는 단위는 트윗으로 140자가 한도가 된다. 한글이든 영문이든, 공백과 기호를 포함해 한 번에 140 까지 글자를 올릴 수 있다.</p>
+<h4 id="트위터-계정과-핸드폰-번호-등록">1.1. 트위터 계정과 핸드폰 번호 등록</h4>
+<p>텍스트 문자 데이터를 R로 받아오기 위해서는 먼저 트위터 계정을 생성하고 핸드폰 번호를 등록하고 인증과정을 거쳐야 된다.</p>
+<p><code>Settings</code> → <code>Mobile</code> 로 들어가서 핸드폰 번호 인증을 받는다.</p>
+<p>인증된 핸드폰 번호가 있어야 <a href="https://dev.twitter.com/">트위터 개발자 페이지</a>에서 앱개발에 대한 키값을 받을 수 있다.</p>
+<h4 id="트위터-개발자-페이지">1.2. 트위터 개발자 페이지</h4>
+<p>트위터 계정을 생성하고, 핸드폰 인증을 마친 뒤에 <a href="https://dev.twitter.com/">트위터 개발자 페이지</a>에서 <strong>TOOLS</strong> 메뉴를 찾아 <a href="https://apps.twitter.com/">Manage Your Apps</a>로 들어간다. 이유는 트위터 데이터를 통해 부가적인 가치를 창출하는 응용프로그램을 개발해야 되기 때문이다.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Create New App</strong> 을 클릭하여 신규 응용프로그램을 개발한다.
+<ul>
+<li>굳이 응용프로그램 개발하는 경우가 아니고, 향후 응용프로그램을 개발하는 것을 대비해서 기본적인 정보를 적어 놓는다.</li>
+<li>모든 정보를 다 넣을 필요는 없다. <code>Name</code>, <code>Description</code>, <code>Website</code>는 필수 값으로 기재를 하고, <code>Website</code>는 정확한 주소 정보가 아니더라도 상관없다.</li>
+</ul></li>
+<li><strong>Create your Twitter application</strong> 을 클릭하면 트위터 응용프로그램이 생성된다.
+<ul>
+<li>핸드폰 번호를 등록하지 않는 경우 다음으로 넘어가지 않아서 상기 “트위터 계정과 핸드폰 번호 등록”을 통해 필히 핸드폰을 등록한다.</li>
+</ul></li>
+</ol>
+<h4 id="키값과-접속-토큰">1.3. 키값과 접속 토큰</h4>
+<p>응용프로그램이 생성되었으면 다음으로 남은 단계는 <strong>고객 키(Consumer Key)</strong> 와 <strong>비밀번호(Consumer Secret)</strong> 와 더불어 <strong>접속 토큰(Access Token)</strong> 과 <strong>접속 토큰 비밀번호(Access Secret)</strong> 를 확인한다. 만약 의심스러운 경우 지체없이 <code>Regenerate</code> 버튼을 눌러 재생성한다.</p>
+<ul>
+<li>consumer_key<br />
+</li>
+<li>consumer_secret</li>
+<li>access_token<br />
+</li>
+<li>access_secret</li>
+</ul>
+<h3 id="twitter-트위터-데이터-긁어오기">2. <code>twitteR</code> 트위터 데이터 긁어오기</h3>
+<p>오랜기간동안 트위터가 서비스 되었고, R을 활용한 데이터 분석이 인기를 끌어 쉽게 텍스트 문자정보를 긁어와서 분석을 수월하게 진행할 수 있다. <code>twitteR</code>과 <code>ROAuth</code> 팩키지를 설치하고 트위터 개발자 페이지, 앱 개발 페이지에서 수집한 고객키값과 접속토큰값을 <code>twitterOAuth.R</code> 파일에 저장한다.</p>
+<p>그리고, <code>source</code> 명령어로 파일을 불러와서 메모리에 올리고 <code>setup_twitter_oauth</code> 명령어를 통해 트위터 인증을 한다.</p>
+<p><code>searchTwitter</code> 명령어로 검색어를 넣고 <strong><span class="citation">@HQ_sohn</span></strong> 넣고, 한글로 언어를 설정하고, <code>lang='ko'</code>, 긁어올 트윗 갯수를 <code>n=100</code>으로 지정한다. 긁어온 데이터는 리스트 정보라 이를 <code>twListToDF</code> 명령어를 통해 데이터프레임으로 변환한다.</p>
+<p><code>head(hq_tweets_df$text)</code> 명령어를 통해 트위터를 잘 긁어왔는지 확인한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 01. 트위터 데이터 가져오기
+##======================================================================================================
+
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+
+<span class="kw">library</span>(twitteR)
+<span class="kw">library</span>(ROAuth)
+
+<span class="kw">source</span>(<span class="st">&quot;twitterOAuth.R&quot;</span>)
+
+<span class="co"># twitterOAuth.R 파일에 담겨있는 정보</span>
+<span class="co">#</span>
+<span class="co"># consumer_key    &lt;- &quot;...............&quot;</span>
+<span class="co"># consumer_secret &lt;- &quot;...............&quot;</span>
+<span class="co"># access_token    &lt;- &quot;...............&quot;</span>
+<span class="co"># access_secret   &lt;- &quot;...............&quot;</span>
+
+<span class="kw">setup_twitter_oauth</span>(consumer_key, consumer_secret, access_token, access_secret)</code></pre></div>
+<pre class="output"><code>[1] &quot;Using direct authentication&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hq_tweets &lt;-<span class="st"> </span><span class="kw">searchTwitter</span>(<span class="st">&quot;@HQ_sohn&quot;</span>, <span class="dt">lang=</span><span class="st">&#39;ko&#39;</span>, <span class="dt">n=</span><span class="dv">100</span>)
+hq_tweets_df &lt;-<span class="st"> </span><span class="kw">twListToDF</span>(hq_tweets)
+<span class="kw">head</span>(hq_tweets_df$text)</code></pre></div>
+<pre class="output"><code>[1] &quot;RT @justice7200: 손학규 @HQ_Sohn  고문님 역할 기대돼요. 정권교체 주역도, 킹메이커도 가능한 분. 다만 국민의 당은 잊으세요. https://t.co/ff8mXcopfg&quot;                                                                                
+[2] &quot;RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…&quot;
+[3] &quot;RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…&quot;
+[4] &quot;RT @justice7200: 손학규 @HQ_Sohn  고문님 역할 기대돼요. 정권교체 주역도, 킹메이커도 가능한 분. 다만 국민의 당은 잊으세요. https://t.co/ff8mXcopfg&quot;                                                                                
+[5] &quot;RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…&quot;
+[6] &quot;안철수, 1박2일 호남행…박지원은 손학규와 회동&amp;lt;=손학규(@HQ_Sohn)님,모바일 부정의혹으로 대선후보 앗아간 문재인에게 미련갖지 마시길,공정경선하고,여의치 않으면 길을 돌아 가는 것도 생각해 보셨으면^^ https://t.co/CuIJ0NDnDt&quot;     
+</code></pre>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

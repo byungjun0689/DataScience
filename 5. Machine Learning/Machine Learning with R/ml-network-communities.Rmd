@@ -1,0 +1,115 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 네트워크 커뮤니티 탐지
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+### 1. 하위집단과 커뮤니티
+
+네트워크 분석에서 하위집단, 커뮤니티 식별은 관심이 가는 흥미로운 주제중 하나다.
+하위집단, 커뮤니티 탐지 분석작업을 위해서 먼저 방향성 없는 그래프로 변환이 필요한데 3가지 방법이 있다.
+
+1. `mode="collapse"` 방법을 통해 방향성 없는 엣지를 생성.
+1. `mode="each"` 방법을 통해 멀티플렉스 그래프의 경우 방향성 없는 엣지를 생성
+1. `mode="mutual"` 방법을 통해 대칭 링크로 방향성 없는 엣지를 생성.
+
+
+``` {r network-communities-undirected-link, warning=FALSE}
+##================================================================================
+## 01. 하위집단과 커뮤니티
+##================================================================================
+suppressWarnings(suppressMessages(library(igraph)))
+suppressWarnings(suppressMessages(library(readr)))
+suppressWarnings(suppressMessages(library(dplyr)))
+
+nodes <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv", col_names = TRUE)
+links <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv", col_names = TRUE)
+
+links <- aggregate(links[,3], links[,-3], sum)
+links <- links[order(links$from, links$to),]
+colnames(links)[4] <- "weight"
+rownames(links) <- NULL
+
+net <- graph.data.frame(links, nodes, directed=T)
+
+#---------------------------------------------------------------------------------
+# 01. 사전 정지작업: 방향성 없는 그래프로 변환
+#---------------------------------------------------------------------------------
+net.sym <- as.undirected(net, mode= "collapse", edge.attr.comb=list(weight="sum", "ignore"))
+```
+
+### 2. 클리크
+
+클리크(cliques)를 통해 방향성 없는 그래프 전체가 연결된 하위집단을 식별한다.
+
+``` {r network-communities-cliques, warning=FALSE}
+#---------------------------------------------------------------------------------
+# 02. 클리크(Cliques)
+#---------------------------------------------------------------------------------
+
+cliques(net.sym) %>% tail # 클리크 목록
+sapply(cliques(net.sym), length) # 클리크 길이
+largest_cliques(net.sym) # 최대 클리크
+
+# 시각화
+vcol <- rep("grey80", vcount(net.sym))
+vcol[unlist(largest_cliques(net.sym))] <- "gold"
+plot(as.undirected(net.sym), vertex.label=V(net.sym)$name, vertex.color=vcol)
+```
+
+### 3. 커뮤니티 탐지
+
+다양한 알고리즘이 커뮤니티 탐지를 위해 개발되었다. 커뮤니티 사이는 링크연결이 최소화되고,
+커뮤니티 내에는 연결이 조밀하게 많아야 된다.
+
+1. Newman-Girvan
+1. 라벨 전파(Propagating labels)
+1. Greedy optimization of modularity
+1. K-core 분해
+
+
+``` {r network-communities-communities, warning=FALSE}
+#---------------------------------------------------------------------------------
+# 03. 커뮤니티 탐지
+#---------------------------------------------------------------------------------
+
+# 1. Newman-Girvan
+ceb <- cluster_edge_betweenness(net) 
+dendPlot(ceb, mode="hclust")
+
+# 시각화
+plot(ceb, net)
+
+# igraph 객체 살펴보기
+class(ceb)
+length(ceb)  
+modularity(ceb)
+
+crossing(ceb, net) 
+
+# 2. Propagating labels
+clp <- cluster_label_prop(net)
+plot(clp, net)
+
+# 3. Greedy optimization of modularity
+cfg <- igraph::cluster_fast_greedy(as.undirected(net))
+plot(cfg, as.undirected(net))
+
+V(net)$community <- cfg$membership
+colrs <- adjustcolor( c("gray50", "tomato", "gold", "yellowgreen"), alpha=.6)
+plot(net, vertex.color=colrs[V(net)$community])
+
+# 4. K-core 분해
+kc <- coreness(net, mode="all")
+plot(net, vertex.size=kc*6, vertex.label=kc, vertex.color=colrs[kc])
+```

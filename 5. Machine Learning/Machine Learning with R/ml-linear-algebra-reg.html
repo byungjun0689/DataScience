@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">선형대수와 함께하는 회귀분석</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>기초 선형대수를 통해 회귀분석을 이해한다.</li>
+<li>선형대수 수학식을 R 언어로 구현한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="회귀분석-advanced-linear-model">1. 회귀분석 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>회귀분석은 갤톤(Galton) 부모와 자식의 신장간의 관계를 회귀식으로 표현한 데이터셋이 유명하다.</p>
+<p>부모의 신장을 기초로 자녀의 신장을 예측하는 회귀식을 구하기 전에 산점도를 통해 관계를 살펴보면 다음과 같다. 성별에 대한 신장의 차이도 산점도를 통해 시각적으로 확인된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(HistData)
+<span class="kw">data</span>(GaltonFamilies)
+
+<span class="kw">library</span>(ggplot2)
+
+## 1. 산점도 
+<span class="co"># 성별 색상으로 구분</span>
+<span class="kw">ggplot</span>(GaltonFamilies) +
+<span class="st">  </span><span class="kw">aes</span>(midparentHeight, childHeight) +
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>gender)) +
+<span class="st">  </span><span class="kw">stat_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>) +
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Average Height of the Parents (in inches)&quot;</span>) +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Height of the Child (in inches)&quot;</span>)</code></pre></div>
+<p><img src="fig/r-galton-hegith-scatterplot-1.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 다른 산점도로 성별 구분</span>
+<span class="kw">ggplot</span>(GaltonFamilies) +
+<span class="st">  </span><span class="kw">aes</span>(midparentHeight, childHeight, <span class="dt">colours=</span>gender) +
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>gender)) +
+<span class="st">  </span><span class="kw">stat_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>) +
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Average Height of the Parents (in inches)&quot;</span>) +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Height of the Child (in inches)&quot;</span>) +
+<span class="st">  </span><span class="kw">facet_wrap</span>(~gender)</code></pre></div>
+<p><img src="fig/r-galton-hegith-scatterplot-2.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 성별 상관없는 회귀직선</span>
+<span class="kw">ggplot</span>(GaltonFamilies) +
+<span class="st">  </span><span class="kw">aes</span>(midparentHeight, childHeight) +
+<span class="st">  </span><span class="kw">geom_point</span>() +
+<span class="st">  </span><span class="kw">stat_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>) +
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Average Height of the Parents (in inches)&quot;</span>) +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Height of the Child (in inches)&quot;</span>)</code></pre></div>
+<p><img src="fig/r-galton-hegith-scatterplot-3.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" /></p>
+<p>선형대수로 회귀계수를 추정하는 문제를 풀면 다음과 같이 정의된다. 한번 미분해서 <span class="math inline">\(\nabla f(\beta ) = -2Xy + X^t X \beta =0\)</span> 0으로 놓고 푼 값은 최소값이 되는데 이유는 <span class="math inline">\(\beta\)</span>에 대해서 두번 미분하게 되면 <span class="math inline">\(2 X^t X\)</span> 로 양수가 되기 때문이다.</p>
+<p><span class="math display">\[f(\beta ) = ||y - \beta X ||^2 = (y - \beta X)^t (y - \beta X) = y^t y - 2 y^t X^t \beta + \beta^t X^t X \beta\]</span></p>
+<p><span class="math display">\[\nabla f(\beta ) = -2Xy + X^t X \beta\]</span></p>
+<p><span class="math display">\[\beta = (X^t X)^{-1} X^t y \]</span></p>
+<p>위에서 정의된 방식으로 수식을 정의하고 이를 R로 코딩하면 회귀계수를 다음과 같이 구할 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 2. 회귀분석
+<span class="co"># 선형대수 수식으로 계산</span>
+
+x &lt;-<span class="st"> </span>GaltonFamilies$midparentHeight
+y &lt;-<span class="st"> </span>GaltonFamilies$childHeight
+
+x &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dv">1</span>, x)
+
+<span class="kw">solve</span>(<span class="kw">t</span>(x) %*%<span class="st"> </span>x) %*%<span class="st"> </span><span class="kw">t</span>(x) %*%<span class="st"> </span>y</code></pre></div>
+<pre class="output"><code>        [,1]
+  22.6362405
+x  0.6373609
+</code></pre>
+<p>이를 <code>lm</code> 함수를 사용해서 다시 풀면 위에서 선형대수 수식으로 계산한 것과 동일함을 확인하게 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># lm 함수를 통해 계</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+<span class="kw">lm</span>(childHeight ~<span class="st"> </span>midparentHeight, <span class="dt">data=</span>GaltonFamilies) %&gt;%<span class="st"> </span><span class="kw">coef</span>()</code></pre></div>
+<pre class="output"><code>    (Intercept) midparentHeight 
+     22.6362405       0.6373609 
+</code></pre>
+<h3 id="데이터셋">데이터셋</h3>
+<ul>
+<li><a href="http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/00Index.html">The R Datasets Package</a></li>
+<li><a href="https://cran.r-project.org/web/packages/HistData/">HistData - Data Sets from the History of Statistics and Data Visualization</a></li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://leanpub.com/lm">Brian Caffo (2015), Advanced Linear Models for Data Science, Leanpub</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

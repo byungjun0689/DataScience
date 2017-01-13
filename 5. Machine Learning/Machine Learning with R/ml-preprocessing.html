@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">예측모형 적용을 위한 전처리</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>예측모형을 위한 데이터 전처리 과정에 대해 이해한다.</li>
+<li>데이터 전처리가 필요한 이유를 살펴본다.</li>
+<li>예측모형 개발을 위한 데이터 전처리 파이프라인을 실습한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="예측모형을-위한-데이터-전처리-과정">1. 예측모형을 위한 데이터 전처리 과정</h3>
+<p>예측모형 개발 과정에 빠지지 않고 등장하는 것이 데이터 전처리(Data Preprocessing) 과정이다. <code>readr</code> 등을 통해 데이터를 R이나 모형개발 환경을 가져오게 되면 <code>tidy</code> 깔끔화과정을 거치게 되는데, 데이터를 가져온 다음 혹은 깔끔화 과정이 완료된 후에 <strong>데이터 전처리(Data Preprocessing)</strong> 과정을 수행한다.</p>
+<p>각 변수별 전처리 과정을 살펴보면, 결측값 대체를 통해 빠진 결측값을 채워넣는 과정과 중심화와 척도조정을 통해 통계모형에 예측력을 향상시키기 위한 과정이 필요하다.</p>
+<p>또한, 분산이 없거나 매우 낮은 분산을 갖는 변수를 제거하고 변수간 상관관계가 높은 변수를 추출하는 과정도 변수간 전처리 과정에 포함된다.</p>
+<ul>
+<li>분산이 없거나, 매우 낮은 분산을 갖는 변수 제거
+<ul>
+<li>결측값 대체: 중위수 대체법, knn 대체</li>
+<li>중심화(Centering)</li>
+<li>척도조정(Scaling)</li>
+</ul></li>
+<li>분산이 낮거나 상관변수를 추출: PCA</li>
+</ul>
+<p><img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="97%" /></p>
+<h3 id="예측모형-개발-전-데이터-전처리-과정이-필요한-이유">2. 예측모형 개발 전 데이터 전처리 과정이 필요한 이유</h3>
+<p>예측모형 대부분은 숫자만을 입력값으로 받아야 하는데, 결측값이 입력값으로 전달되는 경우 이를 처리할 수 없다. 이런 문제를 해결하기 위해 결측값을 제거하는데 이런 경우 데이터에 편향이 발생하여 모형신뢰성이 떨어진다.</p>
+<h4 id="결측값-대체">2.1. 결측값 대체</h4>
+<p>데이터에 결측값이 존재하는 경우 결측값이 <strong>임의결측(Missing at Random, MAR)</strong>인 경우 중위수 대체법(Median Imputation)을 사용하고, 그렇지 않은 경우, 근처 값을 결측점에 채워넣는 knn 대체법(knn Imputation)을 사용한다.</p>
+<h3 id="결측값-대체-사례-boston">3. 결측값 대체 사례 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>회귀분석 사례로 많이 사용되는 보스터 집값 사례를 살펴보자. 데이터를 불러와서 <code>glimpse</code>, <code>summary</code> 함수로 일별한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 00. 환경설정
+##==========================================================================================
+<span class="co"># Classification and Regression Training 팩키지</span>
+<span class="co"># install.packages(&quot;caret&quot;)</span>
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret)))
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr)))
+
+##==========================================================================================
+## 01. 데이터 가져오기
+##==========================================================================================
+<span class="co"># 보스톤 주택가격</span>
+<span class="co"># install.packages(&quot;mlbench&quot;)</span>
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(mlbench)))
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+
+<span class="co"># 데이터 살펴보기</span>
+<span class="kw">glimpse</span>(BostonHousing)</code></pre></div>
+<pre class="output"><code>Observations: 506
+Variables: 14
+$ crim    &lt;dbl&gt; 0.00632, 0.02731, 0.02729, 0.03237, 0.06905, 0.02985, ...
+$ zn      &lt;dbl&gt; 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12.5, 12.5, 12.5, 12.5,...
+$ indus   &lt;dbl&gt; 2.31, 7.07, 7.07, 2.18, 2.18, 2.18, 7.87, 7.87, 7.87, ...
+$ chas    &lt;fctr&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+$ nox     &lt;dbl&gt; 0.538, 0.469, 0.469, 0.458, 0.458, 0.458, 0.524, 0.524...
+$ rm      &lt;dbl&gt; 6.575, 6.421, 7.185, 6.998, 7.147, 6.430, 6.012, 6.172...
+$ age     &lt;dbl&gt; 65.2, 78.9, 61.1, 45.8, 54.2, 58.7, 66.6, 96.1, 100.0,...
+$ dis     &lt;dbl&gt; 4.0900, 4.9671, 4.9671, 6.0622, 6.0622, 6.0622, 5.5605...
+$ rad     &lt;dbl&gt; 1, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, ...
+$ tax     &lt;dbl&gt; 296, 242, 242, 222, 222, 222, 311, 311, 311, 311, 311,...
+$ ptratio &lt;dbl&gt; 15.3, 17.8, 17.8, 18.7, 18.7, 18.7, 15.2, 15.2, 15.2, ...
+$ b       &lt;dbl&gt; 396.90, 396.90, 392.83, 394.63, 396.90, 394.12, 395.60...
+$ lstat   &lt;dbl&gt; 4.98, 9.14, 4.03, 2.94, 5.33, 5.21, 12.43, 19.15, 29.9...
+$ medv    &lt;dbl&gt; 24.0, 21.6, 34.7, 33.4, 36.2, 28.7, 22.9, 27.1, 16.5, ...
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(BostonHousing)</code></pre></div>
+<pre class="output"><code>      crim                zn             indus       chas   
+ Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   0:471  
+ 1st Qu.: 0.08204   1st Qu.:  0.00   1st Qu.: 5.19   1: 35  
+ Median : 0.25651   Median :  0.00   Median : 9.69          
+ Mean   : 3.61352   Mean   : 11.36   Mean   :11.14          
+ 3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10          
+ Max.   :88.97620   Max.   :100.00   Max.   :27.74          
+      nox               rm             age              dis        
+ Min.   :0.3850   Min.   :3.561   Min.   :  2.90   Min.   : 1.130  
+ 1st Qu.:0.4490   1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100  
+ Median :0.5380   Median :6.208   Median : 77.50   Median : 3.207  
+ Mean   :0.5547   Mean   :6.285   Mean   : 68.57   Mean   : 3.795  
+ 3rd Qu.:0.6240   3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188  
+ Max.   :0.8710   Max.   :8.780   Max.   :100.00   Max.   :12.127  
+      rad              tax           ptratio            b         
+ Min.   : 1.000   Min.   :187.0   Min.   :12.60   Min.   :  0.32  
+ 1st Qu.: 4.000   1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38  
+ Median : 5.000   Median :330.0   Median :19.05   Median :391.44  
+ Mean   : 9.549   Mean   :408.2   Mean   :18.46   Mean   :356.67  
+ 3rd Qu.:24.000   3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23  
+ Max.   :24.000   Max.   :711.0   Max.   :22.00   Max.   :396.90  
+     lstat            medv      
+ Min.   : 1.73   Min.   : 5.00  
+ 1st Qu.: 6.95   1st Qu.:17.02  
+ Median :11.36   Median :21.20  
+ Mean   :12.65   Mean   :22.53  
+ 3rd Qu.:16.95   3rd Qu.:25.00  
+ Max.   :37.97   Max.   :50.00  
+</code></pre>
+<h4 id="임의-결측값-대체-전략---중위수-대체">3.1. 임의 결측값 대체 전략 - 중위수 대체</h4>
+<p><code>sample</code> 함수를 사용해서 임의 결측값을 생성하여 <code>crim</code> 변수에 10개 넣는다. <code>caret</code> 팩키지 <code>train</code> 함수를 사용해서 randomForest 모형을 적합시킨다. 하지만 결측값이 학습시킬 데이터에 포함되어 더이상 학습이 되지 않고 오류가 나오게 된다.</p>
+<p><code>preProcess = &quot;medianImpute&quot;</code> 인자를 <code>train</code> 함수에 넣어 중위수 대체를 하게 되면 결측값에 따른 문제가 해소된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 02. 데이터 전처리
+##==========================================================================================
+
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.01. 중위수 대체</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(randomForest)))
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">5</span>]
+<span class="co"># caret 예측모형 적합</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;rf&quot;</span>)</code></pre></div>
+<pre class="output"><code>Something is wrong; all the RMSE metric values are missing:
+      RMSE        Rsquared  
+ Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA  
+ NA&#39;s   :3     NA&#39;s   :3    
+</code></pre>
+<pre class="output"><code>Error in train.default(x = X, y = Y, method = &quot;rf&quot;): Stopping
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="co"># Something is wrong; all the RMSE metric values are missing:</span>
+  <span class="co">#   RMSE        Rsquared  </span>
+  <span class="co"># Min.   : NA   Min.   : NA  </span>
+  <span class="co"># 1st Qu.: NA   1st Qu.: NA  </span>
+  <span class="co"># Median : NA   Median : NA  </span>
+  <span class="co"># Mean   :NaN   Mean   :NaN  </span>
+  <span class="co"># 3rd Qu.: NA   3rd Qu.: NA  </span>
+  <span class="co"># Max.   : NA   Max.   : NA  </span>
+  <span class="co"># NA&#39;s   :3     NA&#39;s   :3    </span>
+  <span class="co"># Error in train.default(x = X, y = Y, method = &quot;rf&quot;) : Stopping</span>
+  <span class="co"># In addition: There were 50 or more warnings (use warnings() to see the first 50)</span>
+
+<span class="co"># 해결책 : 중위수 대체</span>
+model &lt;-<span class="st"> </span>caret::<span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;rf&quot;</span>, <span class="dt">preProcess =</span> <span class="st">&quot;medianImpute&quot;</span>)
+model</code></pre></div>
+<pre class="output"><code>Random Forest 
+
+506 samples
+  5 predictor
+
+Pre-processing: median imputation (4), ignore (1) 
+Resampling: Bootstrapped (25 reps) 
+Summary of sample sizes: 506, 506, 506, 506, 506, 506, ... 
+Resampling results across tuning parameters:
+
+  mtry  RMSE      Rsquared 
+  2     6.241130  0.5666617
+  3     6.303959  0.5586426
+  5     6.536000  0.5299183
+
+RMSE was used to select the optimal model using  the smallest value.
+The final value used for the model was mtry = 2. 
+</code></pre>
+<h4 id="임의-랜덤이-아닌-결측값---knn-대체">3.2. 임의 랜덤이 아닌 결측값 - knn 대체</h4>
+<p>데이터에 결측값이 랜덤으로 임의적으로 만들어진 것이 아닌 경우, 예를 들어 법죄가 0.5 이상인 경우 모드 결측값이 된 경우가 존재한다. 이런 경우 <code>preProcess = &quot;knnImpute&quot;</code> 인자는 다른 설명변수를 이용하여 결측값을 추정하여 채워넣게 된다. RMSE 값을 비교하면 더 향상된 것(RMSE 오차가 축소)이 확인된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 02.02. knn 대체 : 결측값이 임의가 아님</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 범죄가 0.5 이상 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>) 
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[BostonHousing$crim &gt;<span class="st"> </span><span class="fl">0.5</span>, <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">3</span>,<span class="dv">5</span>)]
+
+model_median &lt;-<span class="st"> </span>caret::<span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method =</span> <span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="st">&quot;medianImpute&quot;</span>)
+<span class="kw">print</span>(<span class="kw">min</span>(model_median$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 8.250787
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(&quot;RANN&quot;)</span>
+model_knn &lt;-<span class="st"> </span>caret::<span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method =</span> <span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="st">&quot;knnImpute&quot;</span>)
+<span class="kw">print</span>(<span class="kw">min</span>(model_knn$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 7.775939
+</code></pre>
+<h3 id="변수-전처리-파이프라인">4. 변수 전처리 파이프라인</h3>
+<p>각 변수별로 결측값이 존재하는 경우 중위수 대체와 knn 대체 방법을 통해 가능하면 많은 변수를 모형에 활용할 수 있다. 결측값 처리 외에도 중심화, 척도조정 등 일련의 전처리 과정을 통해 예측모형 성능을 개선시켜 나간다.</p>
+<p>이와 같은 결측값 처리, 중심화, 척도조정 작업이 <code>caret</code> 팩키지 <code>preProcess</code> 인자를 순차적으로 연결하여 자동화한다. 이런 경우 작업 순서가 매우 중요하다.</p>
+<ol style="list-style-type: decimal">
+<li>분산이 없거나, 매우 낮은 분산을 갖는 변수 제거 → <code>zv</code>, <code>nzv</code></li>
+<li>결측값 대체, 중위수 대체법, knn 대체 → <code>medianImpute</code>, <code>knnImpute</code></li>
+<li>중심화(Centering) → <code>center</code></li>
+<li>척도조정(Scaling) → <code>scale</code></li>
+<li>분산이 낮거나 상관변수를 추출, PCA → <code>pca</code>, <code>spatialSign</code></li>
+</ol>
+<p><img src="fig/ml-preprocessing-workflow.png" alt="변수제거, 결측값, 중복정보 제거" width="77%" /></p>
+<p>임의 결측값을 보스턴집값 데이터셋에 10개 넣은 후에 중위수 대체만 적용시켜 전처리하여 예측모형에 적합시킨 결과, 중위수 대체+중심화+척도조정 전처리하여 예측모형에 적합시킨 결과, 중위수 대체+중심화+척도조정+PCA 전처리하여 예측모형에 적합시킨 결과 RMSE 값을 비교하여 가장 적합한 전처리 방법을 선정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 데이터 전처리 파이프라인
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 전처리 파이프라인</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+<span class="co"># caret 예측모형 적합: 기준</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 4.957745
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 기본 파이프라인 적용</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 4.919155
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.395042
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;spatialSign&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.535754
+</code></pre>
+<h3 id="변수-제거와-중복-변수-제거">5. 변수 제거와 중복 변수 제거</h3>
+<p>일부 변수에 정보가 없거나 매우 낮은 경우가 있다. 이를 기반으로 예측모형을 개발할 경우 쓸모 없는 변수가 예측모형에 포함되어 기대하지 않은 많은 문제가 야기된다.</p>
+<ul>
+<li>상수 변수: 분산이 <code>0</code> 으로 변수의 모든 값이 동일.</li>
+<li>거의 상수 변수: 분산이 매우 작아 변수의 모든 값이 특정 값에 몰려있는 경우.</li>
+</ul>
+<p><code>&quot;zv&quot;</code>, <code>&quot;nzv&quot;</code> 값을 <code>preProcess</code> 인자로 넣는 경우 상수 변수와 거의 상수 변수를 처리할 수 있다.</p>
+<ul>
+<li><code>&quot;zv&quot;</code> : 상수 변수 제거</li>
+<li><code>&quot;nzv&quot;</code> : 거의 상수 변수 제거</li>
+</ul>
+<h4 id="상수-변수-제거">5.1. 상수 변수 제거</h4>
+<p><code>X$variance_zero &lt;- 7</code> 명령어로 임의로 상수 변수를 생성시킨다. <code>glm</code> 모형을 적합시키면 오류가 생성된다. <code>preProcess</code>에서 <code>&quot;zv&quot;</code> 인자를 넣어 분산이 0 인 변수를 전처리하여 제거한 후 예측모형을 개발하면 모형적합이 제대로 됨이 확인된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 05. 변수 전처리 - 변수제거와 차원축소
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.01. 상수 변수: 분산이 0</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+<span class="co"># 상수값으로만 구성된 변수 추가</span>
+X$variance_zero &lt;-<span class="st"> </span><span class="dv">7</span>
+
+## 모형적합
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))</code></pre></div>
+<pre class="output"><code>Something is wrong; all the RMSE metric values are missing:
+      RMSE        Rsquared  
+ Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA  
+ NA&#39;s   :1     NA&#39;s   :1    
+</code></pre>
+<pre class="output"><code>Error in train.default(x = X, y = Y, method = &quot;glm&quot;, preProcess = c(&quot;medianImpute&quot;, : Stopping
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;zv&quot;</span>, <span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.24353
+</code></pre>
+<h4 id="거의-상수-변수-제거">5.2. 거의 상수 변수 제거</h4>
+<p><code>&quot;zv&quot;</code> 인자 대신에 <code>&quot;nzv&quot;</code> 인자를 넣어도 좋지만, 명시적으로 <code>nearZeroVar()</code> 함수로 거의 상수 변수를 추출하여 이를 예측변수에 넣어 예측모형을 개발한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.02. 거의 상수 변수: 분산이 거의 0에 가까움</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+## 거의 상수 변수 정의: freqCut
+remove &lt;-<span class="st"> </span><span class="kw">nearZeroVar</span>(X, <span class="dt">freqCut =</span> <span class="dv">20</span>/<span class="dv">5</span>, <span class="dt">saveMetrics=</span><span class="ot">TRUE</span>)
+
+X_small &lt;-<span class="st"> </span>X[ , <span class="kw">setdiff</span>(<span class="kw">names</span>(X), remove)]
+
+## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X_small, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.228813
+</code></pre>
+<h4 id="중복변수-제거">5.3. 중복변수 제거</h4>
+<p>주성분 분석(Principal Component Analysis, PCA)을 통해 서로 상관관계가 높은 변수를 제거하여 다공선성(Collinearity) 문제를 해결하여 예측모형의 안정성을 높인다. <code>preProcess = c(&quot;pca&quot;)</code> 를 넣어주면 변수간에 상관관계가 높은 문제에 대한 전처리를 수행하게 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.03. 중복변수 제거: PCA</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.228813
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Harrison, D. and Rubinfeld, D.L. (1978) Hedonic prices and the demand for clean air. J. Environ. Economics and Management 5, 81–102.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

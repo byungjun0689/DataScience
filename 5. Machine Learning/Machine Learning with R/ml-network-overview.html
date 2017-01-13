@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">네트워크 데이터 들어가며 – 색상과 글꼴</h2>
+          <h3 id="네트워크-시각화-katherine-ognyanova">1. 네트워크 시각화 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p>네트워크 시각화는 다양한 목표를 갖고 있다.</p>
+<ul>
+<li>주요 행위자를 식별하고 관계를 찾아냄</li>
+<li>구조적 특성(Structural Properties)</li>
+<li>관계 강도(Relationship Strength)</li>
+<li>커뮤니티 식별</li>
+<li>지도로 역할하는 네트워크</li>
+<li>확산 패턴(Diffusion Patterns)</li>
+</ul>
+<p><img src="fig/network-viz-types.png" alt="네트워크 시각화 유형" width="70%" /></p>
+<p>네트워크 시각화 목표를 구현한 일부 사례가 다음에 나타나 있다. 목표를 구현하는데 있어 결과를 제어하는데 사용되는 핵심 요소에는 다음이 포함된다.</p>
+<ul>
+<li>색상</li>
+<li>위치</li>
+<li>크기</li>
+<li>형태</li>
+</ul>
+<p>색상, 위치, 크기, 형태 외에도 화살표를 통해 방향을 나타내고 라벨을 달아 표식을 한다.</p>
+<p><img src="fig/network-viz-control.png" alt="네트워크 시각화 제어" width="70%" /></p>
+<p>최근에 개발된 그래프 배치는 속도와 심미적인 면을 고려하여 최적화 된다. 특히, 겹치는 것과 엣지 교차(Edge Crossing)을 최소화하고 그래프에 전반에 엣지 길이가 비슷하도록 조정한다.</p>
+<p><img src="fig/network-viz-aesthetics.png" alt="심미적인 면을 고려한 네트워크 배치" width="70%" /></p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h4 id="네트워크-시각화-핵심-팩키지"><span class="glyphicon glyphicon-pushpin"></span>네트워크 시각화 핵심 팩키지</h4>
+</div>
+<div class="panel-body">
+<ul>
+<li><a href="http://igraph.org/">igraph - The network analysis package</a></li>
+<li><a href="https://cran.r-project.org/web/packages/sna/">sna - Tools for Social Network Analysis</a></li>
+<li><a href="https://cran.r-project.org/web/packages/network/">network - Classes for Relational Data</a></li>
+<li><a href="https://cran.r-project.org/web/packages/ndtv/">ndtv - Network Dynamic Temporal Visualizations</a></li>
+</ul>
+</div>
+</aside>
+<h3 id="기본-색상">2. 기본 색상</h3>
+<p>Base R에 포함된 시각화를 할 경우 시각화 요소를 제어하는데 사용되는 기본요소는 다음과 같다. 자세한 사항은 <code>? par</code> 도움말을 참조한다.</p>
+<ul>
+<li><code>x</code>, <code>y</code> : 점 좌표</li>
+<li><code>pch</code> : 점 기호모양</li>
+<li><code>cex</code> : 점 크기</li>
+<li><code>col</code> : 점 색상</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;dark red&quot;</span>)
+<span class="kw">points</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">6</span>, <span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;557799&quot;</span>)
+<span class="kw">points</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">4</span>, <span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="kw">rgb</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">3</span>))</code></pre></div>
+<p><img src="fig/network-viz-basic-1.png" title="plot of chunk network-viz-basic" alt="plot of chunk network-viz-basic" style="display: block; margin: auto;" /></p>
+<p>Base R에 포함된 그래프 기능에는 RGB 값이 0 – 1 사이 값을 갖게 된다. 만약 0 – 255 값으로 변환하고자 할 경우 <code>rgb(10, 100, 100, maxColorValue=255)</code> 처럼 <code>maxColorValue=255</code>로 설정한다.</p>
+<p>0 – 1 범위를 갖는 <code>alpha</code> 값을 조정하여 불투명도/투명도를 제어한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">12</span>, <span class="dt">col=</span><span class="kw">rgb</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">3</span>, <span class="dt">alpha=</span>.<span class="dv">5</span>), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">6</span>))</code></pre></div>
+<p><img src="fig/network-viz-alpha-1.png" title="plot of chunk network-viz-alpha" alt="plot of chunk network-viz-alpha" style="display: block; margin: auto;" /></p>
+<p><a href="http://www.color-hex.com/" class="uri">http://www.color-hex.com/</a> 웹사이트에서 16진수 색상체계를 사용해서도 R에서 색상을 표현할 수 있다. 앞에서 투명도 알파값을 사용하고, <code>grDevices</code> 팩키지에 포함된 <code>adjustcolor</code> 함수도 사용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">bg=</span><span class="st">&quot;gray40&quot;</span>)
+col.tr &lt;-<span class="st"> </span>grDevices::<span class="kw">adjustcolor</span>(<span class="st">&quot;#e14150&quot;</span>, <span class="dt">alpha=</span><span class="fl">0.7</span>)
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">12</span>, <span class="dt">col=</span>col.tr, <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">6</span>))</code></pre></div>
+<p><img src="fig/network-viz-hex-1.png" title="plot of chunk network-viz-hex" alt="plot of chunk network-viz-hex" style="display: block; margin: auto;" /></p>
+<p><code>rainbow()</code>, <code>heat.colors()</code>, <code>terrain.colors()</code>, <code>topo.colors()</code>, <code>cm.colors()</code> 팔레트가 <code>grDevices</code> 팩키지에 포함되어 있다. 예를 들어, <code>heat.colors(5, alpha=1)</code> 명령어는 heat 팔레트에서 불투명한 색상 5개를 갖는 팔레트를 생성한다는 의미가 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># heat 팔레트에서 불투명한 색상 5개 생성</span>
+pal1 &lt;-<span class="st"> </span><span class="kw">heat.colors</span>(<span class="dv">5</span>, <span class="dt">alpha=</span><span class="dv">1</span>)
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span>pal1)</code></pre></div>
+<p><img src="fig/network-viz-palette-1.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 무지개 팔레트에서 투명한 색상 7개 생성</span>
+pal2 &lt;-<span class="st"> </span><span class="kw">rainbow</span>(<span class="dv">7</span>, <span class="dt">alpha=</span>.<span class="dv">5</span>)
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span>pal2)</code></pre></div>
+<p><img src="fig/network-viz-palette-2.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" /></p>
+<p><code>colorRampPalette</code>를 통해 계조도(Gradient) 색상을 설정하는 것도 가능하다. 즉, 회색에서 어두운 붉은색으로 계조를 두어 색상을 점차적으로 변화해 나가는 팔레트를 통해 색상을 만들어낸다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 계조도(gradient) 적용</span>
+palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;gray80&quot;</span>, <span class="st">&quot;dark red&quot;</span>))
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span><span class="kw">palf</span>(<span class="dv">10</span>))</code></pre></div>
+<p><img src="fig/network-viz-gradient-1.png" title="plot of chunk network-viz-gradient" alt="plot of chunk network-viz-gradient" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 투명도를 가미한 계조도 적용</span>
+palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="kw">rgb</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>, .<span class="dv">2</span>),<span class="kw">rgb</span>(.<span class="dv">8</span>,<span class="dv">0</span>,<span class="dv">0</span>, .<span class="dv">7</span>)), <span class="dt">alpha=</span><span class="ot">TRUE</span>)
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span><span class="kw">palf</span>(<span class="dv">10</span>))</code></pre></div>
+<p><img src="fig/network-viz-gradient-alpha-1.png" title="plot of chunk network-viz-gradient-alpha" alt="plot of chunk network-viz-gradient-alpha" style="display: block; margin: auto;" /></p>
+<h4 id="rcolorbrewer-팔레트">2.1. <code>RColorBrewer</code> 팔레트</h4>
+<p>적절한 색상 조합을 비전문가가 찾아내는 것은 쉬운 일이 아니다. 내장된 R 색상 팔레트는 다소 제한된 감이 없지 않다. 다행스럽게도 <code>RColorBrewer</code> 팔레트를 사용하는 것이 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RColorBrewer)
+<span class="kw">display.brewer.all</span>()</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-1.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Set3&quot;</span>)</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-2.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Spectral&quot;</span>)</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-3.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Blues&quot;</span>)</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-4.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
+<p><code>brewer.pal</code> 색상 팔레트를 활용하여 시각화가 가능하다.</p>
+<p><code>rev()</code> 함수를 조합해서 역순으로도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pal_set3 &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">10</span>, <span class="st">&quot;Set3&quot;</span>)
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">6</span>, <span class="dt">col=</span>pal_set3)</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-ex-1.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">6</span>, <span class="dt">col=</span><span class="kw">rev</span>(pal_set3))</code></pre></div>
+<p><img src="fig/network-viz-rColorBrewer-ex-2.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" /></p>
+<h3 id="글꼴-폰트-pdf-hangul-pdf-hangul-freesearch">3. 글꼴 폰트 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h3>
+<p>R에서 다양한 폰트를 사용하려면 사전 정지작업이 필요하다. <code>extrafont</code> 팩키지가 다양한 폰트를 사용하는데 도움이 된다. 특히, 윈도우 사용자가 많은 한국에서 다소 번거로운 과정이 필요한데, 맥이나 리눅스 사용자는 이를 건너 뛰어도 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(extrafont)</code></pre></div>
+<pre class="output"><code>Registering fonts with R
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시간이 많이 소요</span>
+<span class="co"># font_import()</span>
+<span class="co"># 가져온 글꼴 폰트 확인</span>
+<span class="co"># fonts()</span>
+<span class="kw">grep</span>(<span class="st">&quot;Nanum&quot;</span>, <span class="kw">fonts</span>(), <span class="dt">value=</span>T)</code></pre></div>
+<pre class="output"><code>[1] &quot;NanumGothic_Coding&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># windowsFonts(NanumGothicCoding=windowsFont(&quot;NanumGothicCoding&quot;))</span>
+<span class="co"># windowsFonts(NanumPenScript=windowsFont(&quot;`Nanum Pen Script`&quot;))</span>
+<span class="co"># windowsFonts(NanumBrushScript=windowsFont(&quot;`Nanum Brush Script`&quot;))</span>
+<span class="co"># windowsFonts(NanumMyeongjo=windowsFont(&quot;NanumMyeongjo&quot;))</span>
+
+<span class="co"># PDF 플롯을 찍을 경우 device=&quot;pdf&quot; 를 사용</span>
+<span class="co"># loadfonts(device = &quot;win&quot;)</span></code></pre></div>
+<p>원하는 글꼴 폰트를 활용하여 시각화한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------</span>
+<span class="co"># 한글 그래프</span>
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>,
+     <span class="dt">main=</span><span class="st">&quot;한글 그래프: 글꼴 폰트&quot;</span>, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>,
+     <span class="dt">family=</span><span class="st">&quot;MGungHeulim&quot;</span> )</code></pre></div>
+<p><img src="fig/network-viz-font-hangul-1.png" title="plot of chunk network-viz-font-hangul" alt="plot of chunk network-viz-font-hangul" style="display: block; margin: auto;" /></p>
+<p>pdf 파일에 글꼴폰트를 내장하는 과정은 다음과 같다. 먼저, <a href="http://ghostscript.com/download/">Ghostscript, GhostPCL, GhostXPS and MuPDF Downloads</a> 다운로드 사이트에서 고스트스크립트를 다운로드하여 설치한다.</p>
+<p>R에서 고스트스크립트 존재를 인식하도록 환경을 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 고스트스크립트를 R에 연결하는 환경설정</span>
+<span class="kw">Sys.setenv</span>(<span class="dt">R_GSCMD =</span> <span class="st">&quot;C:/Program Files/gs/gs9.19/bin/gswin64c.exe&quot;</span>)
+
+<span class="co"># cairo_pdf()함수는 dev.off()가 발생되기 전까지 모든 출력결과를 pdf 파일로 전송</span>
+<span class="kw">cairo_pdf</span>(<span class="st">&quot;NanumMyeongjo.pdf&quot;</span>, <span class="dt">family =</span> <span class="st">&quot;NanumMyeongjo&quot;</span>, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">5</span>, <span class="dt">antialias =</span> <span class="st">&quot;subpixel&quot;</span>)
+
+<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">main=</span><span class="st">&quot;한글 그래프 - 나눔 고딕 글꼴&quot;</span>, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>)
+<span class="kw">dev.off</span>()
+<span class="kw">embed_fonts</span>(<span class="st">&quot;NanumMyeongjo.pdf&quot;</span>, <span class="dt">outfile=</span><span class="st">&quot;NanumMyeongjo_embed.pdf&quot;</span>)</code></pre></div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://kateto.net/networks-r-igraph">Katherine Ognyanova, Network Analysis and Visualization with R and igraph, Sunbelt 2016 Workshop, Newport Beach, CA</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://using.tistory.com/66">R PDF생성 시 한글폰트 깨짐 문제</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://freesearch.pe.kr/archives/3275">R로 그래프 플로팅을 하기 위한 몇 가지 팁</a><a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

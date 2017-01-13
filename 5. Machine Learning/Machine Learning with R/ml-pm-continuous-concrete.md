@@ -1,0 +1,242 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 사례 - 콘크리트 강도 데이터
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * UCI 콘크리트 강도 데이터로 예측모형을 개발한다.
+
+
+
+## 1. UCI 콘크리트 데이터
+
+UCI 콘크리트 강도 데이터는 [Concrete Compressive Strength Data Set ](https://archive.ics.uci.edu/ml/datasets/Concrete+Compressive+Strength) 데이터를 사용해서 강도를 예측한다.
+
+* Name -- Data Type -- Measurement -- Description 
+    * 
+    * Cement (component 1) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Blast Furnace Slag (component 2) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Fly Ash (component 3) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Water (component 4) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Superplasticizer (component 5) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Coarse Aggregate (component 6) -- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Fine Aggregate (component 7)	-- quantitative -- kg in a m3 mixture -- Input Variable 
+    * Age -- quantitative -- Day (1~365) -- Input Variable 
+    * **Concrete compressive strength** -- quantitative -- MPa -- Output Variable 
+
+예측변수 및 종속변수 모두 연속형 변수이며 결측값도 없고 전형적인 공학 데이터 형태를 띄고 있다.
+
+## 2. 콘크리트 데이터 예측모형 적용
+
+데이터는 `AppliedPredictiveModeling` 팩키지에 `concrete`로 저장되어 있고, 
+**Applied Predictive Modeling** 책에 적용된 모형을 그대로 실행한다.
+
+`mixtures` 데이터셋은 `concrete` 데이터의 짝꿍으로 이해하면 된다.
+
+
+~~~{.r}
+# 0.0 환경설정, 각자 컴퓨터 코어 숫자를 확인하고 설정한다.
+# 기본원칙은 최대 코어숫자에서 1개를 뺀 숫자를 작업에 할당한다.
+suppressMessages(library(doMC))
+registerDoMC(cores=7)
+
+# 1.1. 데이터 불러오기
+suppressMessages(library(caret))
+suppressMessages(library(AppliedPredictiveModeling))
+suppressMessages(library(dplyr))
+suppressMessages(library(plyr))
+data(concrete) 
+str(concrete)
+
+# 1.2. 훈련데이터, 검증데이터
+averaged <- ddply(mixtures, 
+                  .(Cement, BlastFurnaceSlag, FlyAsh, Water, 
+                    Superplasticizer, CoarseAggregate, 
+                    FineAggregate, Age), 
+                  function(x) c(CompressiveStrength = 
+                                  mean(x$CompressiveStrength)))
+
+forTraining <- createDataPartition(averaged$CompressiveStrength, 
+                                   p = 3/4)[[1]] 
+trainingSet <- averaged[ forTraining,] 
+testSet <- averaged[-forTraining,]
+
+##==============================================================================================
+## 02. EDA
+##==============================================================================================
+# describe in Hmisc 
+# featurePlot in caret
+featurePlot(x = concrete[, -9], 
+            y = concrete$CompressiveStrength, 
+            between = list(x = 1, y = 1), 
+            type = c("g", "p", "smooth"))
+
+##==============================================================================================
+## 03. 예측 모형 적합
+##==============================================================================================
+# 모형 공식 생성
+modFormula <- paste("CompressiveStrength ~ (.)^2 + I(Cement^2) + ", 
+                    "I(BlastFurnaceSlag^2) + I(FlyAsh^2) + I(Water^2) +", 
+                    " I(Superplasticizer^2) + I(CoarseAggregate^2) + ",
+                    "I(FineAggregate^2) + I(Age^2)")
+
+modFormula <- as.formula(modFormula)
+
+##==============================================================================================
+## 04. 컴퓨팅 기반 예측모형 
+##==============================================================================================
+
+#------------------------------------------------------------------------------------
+# 제어변수 설정
+
+controlObject <- trainControl(method = "repeatedcv",
+                              repeats = 1, number = 1, 
+                              verboseIter = TRUE)
+# 1. 선형회귀
+linearReg <- train(modFormula, 
+                   data = trainingSet, 
+                   method = "lm", 
+                   trControl = controlObject)
+linearReg
+
+# 2. 부분최소자승
+library(pls)
+plsModel <- train(modFormula, data = trainingSet, 
+                  method = "pls", 
+                  preProc = c("center", "scale"), 
+                  tuneLength = 15, 
+                  trControl = controlObject)
+plsModel
+
+# 3. 부분 최소자승회귀
+library(elasticnet)
+enetGrid <- expand.grid(.lambda = c(0, .001, .01, .1), 
+                        .fraction = seq(0.05, 1, length = 20))
+
+enetModel <- train(modFormula, data = trainingSet, 
+                   method = "enet", 
+                   preProc = c("center", "scale"), 
+                   tuneGrid = enetGrid, 
+                   trControl = controlObject)
+enetModel
+
+# 4. MARS
+earthModel <- train(CompressiveStrength ~ ., data = trainingSet, 
+                    method = "earth", 
+                    tuneGrid = expand.grid(.degree = 1, 
+                                           .nprune = 2:25),
+                    trControl = controlObject)
+earthModel
+
+# 5. SVM
+svmRModel <- train(CompressiveStrength ~ ., data = trainingSet, 
+                   method = "svmRadial", 
+                   tuneLength = 15, 
+                   preProc = c("center", "scale"),
+                   trControl = controlObject)
+svmRModel  
+
+# 6. 신경망
+nnetGrid <- expand.grid(.decay = c(0.001, .01, .1), 
+                        .size = seq(1, 27, by = 2), 
+                        .bag = FALSE) 
+
+nnetModel <- train(CompressiveStrength ~ ., 
+                   data = trainingSet, 
+                   method = "avNNet", 
+                   tuneGrid = nnetGrid, 
+                   preProc = c("center", "scale"), 
+                   linout = TRUE, 
+                   trace = FALSE, 
+                   maxit = 1000, 
+                   trControl = controlObject)
+nnetModel
+
+# 7. 나무 모형(Tree Model)
+rpartModel <- train(CompressiveStrength ~ ., 
+                    data = trainingSet, 
+                    method = "rpart", 
+                    tuneLength = 30, 
+                    trControl = controlObject)
+
+ctreeModel <- train(CompressiveStrength ~ ., 
+                    data = trainingSet, 
+                    method = "ctree", 
+                    tuneLength = 10, 
+                    trControl = controlObject)
+
+mtModel <- train(CompressiveStrength ~ ., 
+                 data = trainingSet, 
+                 method = "M5", 
+                 trControl = controlObject)
+
+# 8. 나무 투표 모형
+
+treebagModel <- train(CompressiveStrength ~ ., 
+                      data = trainingSet, 
+                      method = "treebag", 
+                      trControl = controlObject)
+
+treebagModel
+
+rfModel <- train(CompressiveStrength ~ ., 
+                 data = trainingSet, 
+                 method = "rf", 
+                 tuneLength = 10, 
+                 ntrees = 1000, 
+                 n.minobsinnode = 10,
+                 importance = TRUE, 
+                 trControl = controlObject) 
+rfModel
+
+gbmGrid <- expand.grid(.interaction.depth = seq(1, 7, by = 2), 
+                       .n.trees = seq(100, 1000, by = 50),
+                       .n.minobsinnode = 10,
+                       .shrinkage = c(0.01, 0.1)) 
+
+gbmModel <- train(CompressiveStrength ~ ., 
+                  data = trainingSet, 
+                  method = "gbm", 
+                  tuneGrid = gbmGrid, 
+                  verbose = TRUE, 
+                  trControl = controlObject)
+
+cubistGrid <- expand.grid(.committees = c(1, 5, 10, 50, 75, 100), 
+                          .neighbors = c(0, 1, 3, 5, 7, 9))
+
+cbModel <- train(CompressiveStrength ~ ., 
+                 data = trainingSet, 
+                 method = "cubist", 
+                 tuneGrid = cubistGrid, 
+                 verbose = TRUE,
+                 trControl = controlObject)
+
+#------------------------------------------------------------------------------------
+# 모형평가 시각화
+
+allResamples <- resamples(list("Linear Reg" = linearReg, 
+                               "PLS" = plsModel, 
+                               "Elastic Net" = enetModel, 
+                               MARS = earthModel, 
+                               SVM = svmRModel, 
+                               "Neural Networks" = nnetModel, 
+                               CART = rpartModel, 
+                               "Cond Inf Tree" = ctreeModel, 
+                               "Bagged Tree" = treebagModel, 
+                               "Boosted Tree" = gbmModel, 
+                               "Random Forest" = rfModel, 
+                               Cubist = cbModel))
+
+bwplot(allResamples,  layout = c(2, 1),scales = list(relation = "free"),
+       xlim = list(c(0, 10), c(0.5, 1)))
+~~~
+
+

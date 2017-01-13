@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">예측모형 활용분야</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>예측모형 활용분야에 대해 살펴본다.</li>
+<li>예측모형과 적용분야에 대한 관계를 추론한다.</li>
+<li>거시에서 미시로, 미시에서 거시로 들어가는 고객분석에 대해 이해한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="예측모형과-고객">1. 예측모형과 고객</h2>
+<p>고객에 대한 정의는 게임산업에서는 게임사용자가 될 수 있고, 교육분야에서는 학생이 될 수 있고, 자동차회사에서는 자동차 구매자가 될 수 있고, 병원에서는 환자가 될 수 있다. 고객이 누구든지 관계없이 고객을 취득(Acquistion)하고 개발(Development)하고, 유지(Retention)하는 것이 우리가 살고 있는 지금 세상에서는 일상적으로 일어나고 있고, 열심히 경주하는 일이라고도 볼 수 있다.</p>
+<p><img src="fig/ml-macro2micro.png" alt="거시에서 미시로 바라보는 고객" width="77%"></p>
+<p>거시에서 미시로 들어가는 모형에 대해 살펴보자. 모집단에 대한 이해를 하고, 연관성을 파악하고자 할 경우 RFM 분석모형이 제시되고 있다. 고객집단과 세분화결과 생긴 군집에 대한 인과추론 작업도 만약 대조군/실험군을 통한 제어를 했다면 가능하다. 모집단에서 개인으로 넘어가서 심하게는 각 개인별 연관성에 초점을 맞추거나 맞춤형 실험처리하는 경우 다양한 모형과 통계적 이론을 접목하여 이해한다.</p>
+<h2 id="거시에서-미시로-들어가는-고객분석-pm-lift-pm-uplift">2. 거시에서 미시로 들어가는 고객분석 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<h3 id="rfm-요약">2.1. RFM 요약</h3>
+<p>RFM(Recency, Frequency, Monetary)은 고객의 가치(매출???)를 다음 세가지 측도로 평가하고, 이 모형을 바탕으로 연관성과 더불어 필요하면 가설을 도출할 수도 있다.</p>
+<ul>
+<li><strong>R</strong> ecency- 거래 최근성: 고객이 얼마나 최근에 구입했는가?</li>
+<li><strong>F</strong> requency- 거래빈도: 고객이 얼마나 빈번하게 우리 상품을 구입했나?</li>
+<li><strong>M</strong> onetary- 거래규모: 고객이 구입했던 총 금액은 어느 정도인가?</li>
+</ul>
+<p><span class="math display">\[\begin{align*} V_{고객가치} &amp;= f(거래 최근성, 거래빈도, 거래규모)\\
+&amp;= \beta_0 + \beta_1 \times 거래 최근성 + \beta_2 \times 거래빈도
++ \beta_3 \times 거래규모 + \epsilon \end{align*}\]</span></p>
+<h3 id="반응성향-모형">2.2. 반응/성향 모형</h3>
+<p>예측모형은 다양한 분야에 활용되었는데 고객관계관리(CRM, Customer Relationship Management)에서 <strong>고객유치(acqusition)</strong>, <strong>교차판매(cross-sell)나 상향판매(upsell)</strong>, <strong>고객유지율(retention)</strong> 향상을 통해 나타난다. 일반적 캠페인의 예를 들면,</p>
+<p>신규고객을 유치(미성년자 → 성년)하거나, 남의 집 고객을 다시 되찾아 오거나(KT → SKT), 문제 혹은 고비용 고객을 안내하여 타사 고객으로 바꾸는 등 다양한 사례가 존재한다.</p>
+<p>고객이 유치되면 고객에 대해 더 고급진 제품과 서비스를 통해 매출을 신장(upsell)하거나 다른 제품을 소개하거나 끼워팔기(cross-sell) 등을 통해 고객에 대한 제품 및 서비스를 강화한다.</p>
+<p>신규고객 유치비용은 기존고객을 유지하는 것에 비해 훨씬 비용이 많이 드는 경우가 많다. 이유는 신규고객유치를 위해 중간 판매대리점에 보조금과 지원금을 지원하고 추가 광고비를 집행 때문에 그렇다. 따라서 고객을 이탈을 최소화하고 다르게 보면 고객 유지를 잘 해야하는 것도 같은 맥락에서 이해될 수 있다.</p>
+<h4 id="제조사유통사-관점">제조사/유통사 관점</h4>
+<p>제조사/유통사에서 바라볼 때, 중요한 기능은 서비스에 대한 고객만족도, 제품범주에 있어 브래드 가치, 제품에 대한 고급성 등이 존재한다.</p>
+<ul>
+<li>서비스에 대한 고객만족도(customer satisfaction)</li>
+<li>제품범주에 대한 브랜드 통솔력(brand leadership)</li>
+<li>제품에 대한 고급성(luxury)</li>
+</ul>
+<h4 id="고객-관점-ml-pm">고객 관점 <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h4>
+<p>고객이냐 고객이 아니냐가 중요한게 아니다. 미국 대선에서 공화당을 지지하느냐, 민주당을 지지하느냐가 예측 모형의 핵심이 아니라, 우리나라의 경우 무조건 새누리, 더민주인 사람에게 예측모형을 적용하는 것은 무의미하고, 어찌보녀 접촉했을 때만 반응하는 고객을 찾아내는 것이 문제의 핵심이 될 수 있다.</p>
+<ul>
+<li>Persuadables – 목표고객으로 설정해서 접촉했기 때문에 마케팅 행사에 반응하는 고객</li>
+<li>Sure Things – 목표고객으로 설정이 되든 말든 마케팅 행사에 반응하는 고객</li>
+<li>Lost Causes – 목표고객으로 설정이 되든 말든 마케팅 행사에 반응하지 않는 고객</li>
+<li>Do Not Disturbs or Sleeping Dogs – 목표고객으로 설정되었기 때문에 마케팅 행사에 더 반응하지 않는 고객</li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://en.wikipedia.org/wiki/Uplift_modelling">Uplift modelling</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.slideshare.net/odsc/victor-lomachinelearningpresentation">Uplift Modeling Workshop</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="https://www.youtube.com/watch?v=YVJ5cbRRvNc">Predictive Analytics: The Power to Predict Who Will Click, Buy, Lie, or Die</a><a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

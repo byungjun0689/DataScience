@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">알고리즘 성능평가</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>기계학습 알고리듬 성능평가를 이해한다.</li>
+<li>범주형, 연속형, 지도학습/비지도학습 알고리듬 성능평가를 이해한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="기계학습-알고리즘-성능평가">기계학습 알고리즘 성능평가</h2>
+<p>기계학습 알고리즘 성능평가는 데이터를 이용해서 풀려는 문제에 따라 다르다.</p>
+<ul>
+<li>분류</li>
+<li>예측</li>
+</ul>
+<h3 id="범주형-성능평가">1. 범주형 성능평가</h3>
+<p>전자우편을 스팸(spam)이냐 정상햄(ham)이냐를 분류한 기계학습 알고리즘의 성능을 평가할 때 정량화된 측도가 필요하다. 일견 스팸전자우편을 스팸이라고 분류하고, 정상 전자우편을 정상으로 분류하면 되는 간단한 문제로 보이지만 사실 그렇게 간단한 것은 아니다. 기업부도예측이나, 신용분량, 사기탐지 등을 보면, 정상적인 사례가 99% 이상이고, 사기나 해킹, 신용분량, 부도 등의 사례는 채 1%가 되지 않는 경우가 허다하다. 통계학 이항 회귀분석 및 검색엔진, 의학정보학 등 다양한 분야에서 이 문제에 관심을 가지고 다뤄왔다.</p>
+<p>먼저, 용어정의를 정의하자.</p>
+<ul>
+<li>TP(True Positive) : <strong>참양성</strong>, 통계상 실제 양성인데 검사 결과 양성.</li>
+<li>FP(False Positive) : <strong>거짓양성(1종 오류)</strong>, 통계상 실제로는 음성인데 검사 결과는 양성. 위양성, 거짓 경보(False Alarm).</li>
+<li>FN(False Negative) : <strong>거짓음성(2종 오류)</strong>, 통계상 실제로는 양성인데 검사 결과는 음성</li>
+<li>TN(True Negative) : <strong>참음성</strong>, 통계상 실제 음성인데 검사 결과 음성.</li>
+</ul>
+<p>기계학습을 통해 나온 결과를 상기 옹어로 정리한 것이 <strong>오차행렬(confusion matrix)</strong> 이 된다. 2가지 이상되는 분류문제에도 적용될 수 있다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"></th>
+<th align="left"><strong>실제 정답</strong></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">참(True)</td>
+<td align="left">거짓(False)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>실험 결과</strong></td>
+<td align="left">양성(Positive)</td>
+<td align="left">TP(True Positive)</td>
+<td align="left">FP(False Positive)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">음성(Negative)</td>
+<td align="left">FN(False Negative)</td>
+<td align="left">TN(True Negative)</td>
+</tr>
+</tbody>
+</table>
+<p><img src="fig/ml-precision-recall.svg" alt="정밀도와 재현율 도식화" width="50%"> <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>범주형 자료를 목적으로 분류하는 기계학습 알고리즘의 경우 정밀도, 재현율, 정확도를 통상적인 추적 모니터링 대상 측도가 된다.</p>
+<ul>
+<li>정밀도(Precision): 선택된 항목이 얼마나 연관성이 있나를 측정. <span class="math display">\[정밀도 = \frac{TP}{TP+FP}\]</span></li>
+<li>재현율(Recall) 혹은 민감도(Sensitivity): 예를 들어, 환자가 실제 암이 있는데, 양성으로 검진될 확률. 연관된 항목이 얼마나 많이 선택되었는지 측정. <span class="math display">\[재현율 = \frac{TP}{TP+FN}\]</span></li>
+<li>정확도(Accuracy): 1 에서 빼면 오분류율이 된다. <span class="math display">\[정확도 = \frac{TP+TN}{TP+TN+FP+FN}\]</span></li>
+<li>특이성(Specificity): 예를 들어, 환자가 정상인데, 음성으로 검질될 확률. <span class="math display">\[특이성 = \frac{TN} {TN+FP}\]</span></li>
+</ul>
+<p>이를 하나의 숫자로 바꾼것이 <span class="math inline">\(F_1\)</span> 점수(<span class="math inline">\(F_1\)</span> Score, <span class="math inline">\(F\)</span>-Score, <span class="math inline">\(F\)</span>-Measure)로 불리는 것으로 정밀도와 재현율을 조화평균한 것이다.</p>
+<p><span class="math display">\[F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}\]</span></p>
+<h4 id="범주형-예측-모형-평가">1.1. 범주형 예측 모형 평가</h4>
+<p>범주형 예측모형의 성능평가를 위해 도입되는 척도는 다음과 같다.</p>
+<ul>
+<li>정확도</li>
+<li>카파(<span class="math inline">\(\kappa\)</span>) 통계량</li>
+<li>범주가 두가지인 경우 수신자 조작 특성(ROC, Receiver Operating Characteristic) 곡선</li>
+</ul>
+<p>카파(<span class="math inline">\(\kappa\)</span>) 통계량은 최초 두평가자가 일치하는지에 대한 척도로 개발되었으나, 예측모형에서는 예측모형의 일치여부를 판정하는 통계량으로 사용한다.</p>
+<p><span class="math display">\[\kappa = \frac {O - E}{1- E}\]</span></p>
+<h4 id="roc-곡선-pr-그래프">1.2. ROC 곡선, PR 그래프</h4>
+<p><a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC 곡선</a>은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.</p>
+<h4 id="독일신용평가-데이터-사례">1.2. 독일신용평가 데이터 사례</h4>
+<p><code>caret</code> 팩키지에 포함된 <code>data(&quot;GermanCredit&quot;)</code> 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.</p>
+<ol style="list-style-type: decimal">
+<li>데이터 준비 단계
+<ul>
+<li>훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터</li>
+</ul></li>
+<li>이항회귀모형 적합
+<ul>
+<li>이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.</li>
+<li>이항회귀모형 적합</li>
+</ul></li>
+<li>신용불량확률 예측
+<ul>
+<li>훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측</li>
+</ul></li>
+<li>모형 성능평가
+<ul>
+<li><code>ggplot</code> 통한 신용불량고객과 정상고객 확률분포 도식화</li>
+<li>컷오프 75% 설정 시 모형이 갖는 함의 파악</li>
+</ul></li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 팩키지 및 데이터 준비</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">data</span>(<span class="st">&quot;GermanCredit&quot;</span>)
+
+<span class="co"># 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터</span>
+d &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">sample</span>(<span class="kw">nrow</span>(GermanCredit), <span class="kw">nrow</span>(GermanCredit)*.<span class="dv">7</span>))
+train.df &lt;-<span class="st"> </span>GermanCredit[d,]
+test.df &lt;-<span class="st"> </span>GermanCredit[-d,]
+
+<span class="co"># 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.</span>
+credit.var &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">colnames</span>(train.df), <span class="kw">list</span>(<span class="st">&#39;Class&#39;</span>))
+credit.formula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>(<span class="st">&#39;Class&#39;</span>, <span class="kw">paste</span>(credit.var,<span class="dt">collapse=</span><span class="st">&#39; + &#39;</span>), <span class="dt">sep=</span><span class="st">&#39; ~ &#39;</span>))
+
+<span class="co"># 이항회귀모형 적합</span>
+credit.m &lt;-<span class="st"> </span><span class="kw">glm</span>(credit.formula, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train.df)
+
+<span class="co"># 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측</span>
+train.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(credit.m, <span class="dt">newdata=</span>train.df, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)</code></pre></div>
+<pre class="output"><code>Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(credit.m, <span class="dt">newdata=</span>test.df, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)</code></pre></div>
+<pre class="output"><code>Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 검증데이터 속 신용고객 확률밀도분포 도식화</span>
+<span class="kw">ggplot</span>(<span class="dt">data=</span>test.df) +
+<span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">x=</span>pred, <span class="dt">color=</span>Class, <span class="dt">linetype=</span>Class))</code></pre></div>
+<p><img src="fig/german-credit-logit-1.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 컷오프를 75%로 설정했을 경우, 오차행렬</span>
+test.df$results75 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(test.df$pred &gt;<span class="st"> </span><span class="fl">0.75</span>, <span class="st">&quot;Good&quot;</span>, <span class="st">&quot;Bad&quot;</span>)
+
+<span class="kw">confusionMatrix</span>(<span class="dt">data=</span>test.df$results75, <span class="dt">reference=</span>test.df$Class, <span class="dt">positive =</span> <span class="st">&quot;Good&quot;</span>)</code></pre></div>
+<pre class="output"><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction Bad Good
+      Bad   69   50
+      Good  25  156
+                                        
+               Accuracy : 0.75          
+                 95% CI : (0.697, 0.798)
+    No Information Rate : 0.6867        
+    P-Value [Acc &gt; NIR] : 0.009618      
+                                        
+                  Kappa : 0.4582        
+ Mcnemar&#39;s Test P-Value : 0.005584      
+                                        
+            Sensitivity : 0.7573        
+            Specificity : 0.7340        
+         Pos Pred Value : 0.8619        
+         Neg Pred Value : 0.5798        
+             Prevalence : 0.6867        
+         Detection Rate : 0.5200        
+   Detection Prevalence : 0.6033        
+      Balanced Accuracy : 0.7457        
+                                        
+       &#39;Positive&#39; Class : Good          
+                                        
+</code></pre>
+<h3 id="연속형-성능평가">2. 연속형 성능평가</h3>
+<h4 id="연속형-성능평가-측정-rmse">2.1. 연속형 성능평가 측정 → RMSE</h4>
+<p>평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다. 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다. 따라서, 고객당 오차가 10,000원 아래가 되는 고객평생가치(Lifetime value) 모형을 개발하시오… 이런 주문이 가능하다.</p>
+<p><span class="math display">\[\operatorname{RMSE}=\sqrt{\frac{\sum_{t=1}^n (\hat y_t - y_t)^2}{n}}\]</span></p>
+<p><span class="math inline">\(y = x^2\)</span> 모형에서 나온 데이터를 <span class="math inline">\(y=\alpha + \beta \times x\)</span> 모형으로 학습시킬 때 오차를 확인하면 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 데이터프레임 데이터 생성</span>
+yvalue.v &lt;-<span class="st"> </span>(<span class="dv">1</span>:<span class="dv">10</span>)**<span class="dv">2</span>
+xvalue.v &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="dv">10</span>
+
+dat.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(xvalue.v, yvalue.v)
+
+<span class="co"># 선형모형 적합</span>
+reg.m &lt;-<span class="st"> </span><span class="kw">lm</span>(yvalue.v ~<span class="st"> </span>xvalue.v, <span class="dt">data=</span>dat.df)
+
+<span class="co"># 데이터 프레임에 선형모형 적합값을 부착</span>
+dat.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg.m, <span class="dt">newdata=</span>dat.df)
+
+<span class="co"># ggplot2 팩키지로 선형모형 적합에 따른 오차를 시각화</span>
+<span class="kw">library</span>(<span class="st">&#39;ggplot2&#39;</span>)
+
+<span class="kw">ggplot</span>(<span class="dt">data=</span>dat.df) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>yvalue.v), <span class="dt">color=</span><span class="st">&#39;purple&#39;</span>) +
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>pred), <span class="dt">color=</span><span class="st">&#39;red&#39;</span>) +
+<span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>pred, <span class="dt">yend=</span>yvalue.v, <span class="dt">xend=</span>xvalue.v), <span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) +
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&#39;&#39;</span>)</code></pre></div>
+<p><img src="fig/linear-reg-error-1.png" title="plot of chunk linear-reg-error" alt="plot of chunk linear-reg-error" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 평균제곱근 오차</span>
+<span class="kw">sqrt</span>(<span class="kw">mean</span>((dat.df$pred-dat.df$yvalue.v)^<span class="dv">2</span>))</code></pre></div>
+<pre class="output"><code>[1] 7.266361
+</code></pre>
+<h4 id="연속형-성능평가-모니터링">2.2. 연속형 성능평가 모니터링</h4>
+<p>회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.</p>
+<p><span class="math inline">\((\hat{y} -y)^2 = \epsilon\)</span>으로 오차가 되고, 오차 평균은 <span class="math inline">\(\bar{\epsilon}_n = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n}{n}\)</span> 와 같이 되고, 새로 추가되는 오차는 <span class="math inline">\(\overline{\epsilon_{n+1}} = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n + \epsilon_{n+1}}{n+1}\)</span>와 같이 되고, 정리하면,</p>
+<p><span class="math display">\[\overline{\epsilon_{n+1}} = \frac{n\times\bar{\epsilon_n} + \epsilon_{n+1}}{n+1}\]</span></p>
+<p>기계학습 알고리즘이 새로운 데이터에서 산출해내는 평균제곱오차를 상기 공식에 맞춰 추적 모니터링한다.</p>
+<h3 id="오분류-비용-혹은-수익-고려">3. 오분류 비용 혹은 수익 고려</h3>
+<p>과학기술분야에서 정확도, 재현율, 정밀도, <span class="math inline">\(F_1\)</span> 점수가 중요한 측도가 되지만, <strong>1종 오류</strong>, <strong>2종 오류</strong> 함의도 중요하다.</p>
+<h4 id="종-오류가-중요한-기계학습-알고리즘-설계">3.1. 1종 오류가 중요한 기계학습 알고리즘 설계</h4>
+<p>보안이 중요한 경우 1종 오류가 매우 중요할 수 있다. 왜냐하면, 1종오류를 범하게 되면, 들어오지 말아야 되는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 될 수 있기 때문이다. 이런 경우, 1종오류에 대한 비용을 매우 높게 잡는 반면에, 2종오류는 낮게 잡는다. 이유는 들어와야 하는 사람인데 기계학습 알고리즘이 거절신호를 보내는 것으로 추후 적절한 조치를 취하면 된다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"></th>
+<th align="left"><strong>실제 결과</strong></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">참(True)</td>
+<td align="left">거짓(False)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>모형 예측</strong></td>
+<td align="left">양성</td>
+<td align="left">0</td>
+<td align="left">100 (1종오류)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">음성</td>
+<td align="left">1 (2종오류)</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<h4 id="종-오류가-중요한-기계학습-알고리즘-설계-1">3.2. 2종 오류가 중요한 기계학습 알고리즘 설계</h4>
+<p>반대의 경우로 2종 오류가 더 중요할 수도 있다. 왜냐하면, 전형적인 마케팅 사례가 여기에 해당된다. 1종오류를 범하게 되면, 캠페인에 포함되지 않는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 되지 않는다. 캠페인 비용만큼만 손해가 발생되고, 혹시나 나중에 충성심 높은 고객이 될 수도 있다. 반면에, 이런 경우 2종오류는 큰 문제가 될 수 있다. 당연히 캠페인에 포함되어 초대를 받은 고객이 지속적으로 기계학습 알고리즘에 의해서 거절되면, 화를 내고 고객센터에 연락을 취하거나, 다른 회사로 고객이 도망가게 된다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left"></th>
+<th align="left"><strong>실제 결과</strong></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">참(True)</td>
+<td align="left">거짓(False)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>모형 예측</strong></td>
+<td align="left">양성</td>
+<td align="left">0</td>
+<td align="left">1 (1종오류)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">음성</td>
+<td align="left">10 (2종오류)</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://commons.wikimedia.org/wiki/File:Precisionrecall.svg">Precision and recall SVG 파일</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

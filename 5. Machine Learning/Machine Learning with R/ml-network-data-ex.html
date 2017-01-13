@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">네트워크 데이터 연습문제</h2>
+          <h3 id="네드워크-데이터-연습문제-r-network-ex-r-network-sol">네드워크 데이터 연습문제 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 1. 연결되지 않은 5개 노드를 갖는 그래프를 생성하시오. 모든 노드는 노랑색이며, 형태는 구형태를 갖도록 한다.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="kw">library</span>(igraph)
+g &lt;-<span class="st"> </span><span class="kw">make_empty_graph</span>(<span class="dt">n=</span><span class="dv">5</span>, <span class="dt">directed=</span><span class="ot">TRUE</span>)
+<span class="kw">V</span>(g)$color =<span class="st"> &quot;yellow&quot;</span>
+<span class="kw">V</span>(g)$shape =<span class="st"> &quot;sphere&quot;</span>
+
+<span class="kw">plot</span>(g)</code></pre></div>
+<p><img src="fig/network-ex01-1.png" title="plot of chunk network-ex01" alt="plot of chunk network-ex01" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 2. 1-&gt;2, 1-&gt;3, 2-&gt;4, 3-&gt;4, 4-&gt;5 엣지연결을 갖는 그래프를 추가하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+g &lt;-<span class="st"> </span><span class="kw">add_edges</span>(g, <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>, <span class="dv">1</span>,<span class="dv">3</span>, <span class="dv">2</span>,<span class="dv">4</span>, <span class="dv">3</span>,<span class="dv">4</span>, <span class="dv">4</span>,<span class="dv">5</span>))
+
+<span class="kw">plot</span>(g, <span class="dt">edge.arrow.size=</span>.<span class="dv">05</span>)</code></pre></div>
+<p><img src="fig/network-ex02-1.png" title="plot of chunk network-ex02" alt="plot of chunk network-ex02" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 3. 노드를 추가하고 색상은 빨강, 형태는 구형태를 갖고, 해당 노드는 3-&gt;6, 6-&gt;5 엣지 연결을 시키시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+g &lt;-<span class="st"> </span><span class="kw">add_vertices</span>(g, <span class="dv">1</span>, <span class="dt">color=</span><span class="st">&quot;red&quot;</span>, <span class="dt">shape=</span><span class="st">&quot;sphere&quot;</span>)
+g &lt;-<span class="st"> </span><span class="kw">add_edges</span>(g, <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">6</span>, <span class="dv">6</span>,<span class="dv">5</span>))
+<span class="kw">plot</span>(g, <span class="dt">edge.arrow.size=</span>.<span class="dv">05</span>)</code></pre></div>
+<p><img src="fig/network-ex03-1.png" title="plot of chunk network-ex03" alt="plot of chunk network-ex03" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 4. 엣지 연결 1-&gt;3을 3-&gt;1로 교체하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+<span class="kw">E</span>(g)</code></pre></div>
+<pre class="output"><code>+ 7/7 edges:
+[1] 1-&gt;2 1-&gt;3 2-&gt;4 3-&gt;4 4-&gt;5 3-&gt;6 6-&gt;5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">g &lt;-<span class="st"> </span><span class="kw">delete_edges</span>(g, <span class="kw">c</span>(<span class="dv">2</span>))
+g &lt;-<span class="st"> </span><span class="kw">add_edges</span>(g, <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>))
+
+<span class="kw">plot</span>(g, <span class="dt">edge.arrow.size=</span>.<span class="dv">05</span>)</code></pre></div>
+<p><img src="fig/network-ex04-1.png" title="plot of chunk network-ex04" alt="plot of chunk network-ex04" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 5. 노드에 A-F 라벨을 붙이시오. 모든 노드와 엣지를 목록으로 출력하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+<span class="kw">V</span>(g)$name &lt;-<span class="st"> </span>LETTERS[<span class="dv">1</span>:<span class="dv">6</span>]
+
+<span class="kw">V</span>(g)</code></pre></div>
+<pre class="output"><code>+ 6/6 vertices, named:
+[1] A B C D E F
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(g)</code></pre></div>
+<pre class="output"><code>+ 7/7 edges (vertex names):
+[1] A-&gt;B B-&gt;D C-&gt;D D-&gt;E C-&gt;F F-&gt;E C-&gt;A
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(g, <span class="dt">edge.arrow.size=</span>.<span class="dv">05</span>)</code></pre></div>
+<p><img src="fig/network-ex05-1.png" title="plot of chunk network-ex05" alt="plot of chunk network-ex05" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 6. 노드 A에서 노드 E로 최단거리를 구하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+<span class="kw">shortest_paths</span>(g, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;E&quot;</span>, <span class="dt">output=</span><span class="st">&quot;epath&quot;</span>)$epath[<span class="dv">1</span>]</code></pre></div>
+<pre class="output"><code>[[1]]
++ 3/7 edges (vertex names):
+[1] A-&gt;B B-&gt;D D-&gt;E
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 시각화
+short.path &lt;-<span class="st"> </span><span class="kw">get.shortest.paths</span>(g, <span class="kw">V</span>(g)[<span class="st">&quot;A&quot;</span>], <span class="kw">V</span>(g)[<span class="st">&quot;E&quot;</span>], <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>, <span class="dt">output=</span><span class="st">&quot;both&quot;</span>)
+
+<span class="co"># 엣지 변수 색상 생성:</span>
+ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(g))
+ecol[<span class="kw">unlist</span>(short.path$epath)] &lt;-<span class="st"> &quot;orange&quot;</span>
+
+<span class="co"># 엣지 변수 선폭 생성:</span>
+ew &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">2</span>, <span class="kw">ecount</span>(g))
+ew[<span class="kw">unlist</span>(short.path$epath)] &lt;-<span class="st"> </span><span class="dv">4</span>
+
+<span class="co"># 노드 색상변수 생성:</span>
+vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray40&quot;</span>, <span class="kw">vcount</span>(g))
+vcol[<span class="kw">unlist</span>(short.path$vpath)] &lt;-<span class="st"> &quot;gold&quot;</span>
+
+<span class="kw">plot</span>(g, <span class="dt">vertex.color=</span>vcol, <span class="dt">edge.color=</span>ecol, 
+     <span class="dt">edge.width=</span>ew, <span class="dt">edge.arrow.mode=</span><span class="dv">0</span>)</code></pre></div>
+<p><img src="fig/network-ex06-1.png" title="plot of chunk network-ex06" alt="plot of chunk network-ex06" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 7. 지금까지 작성한 네트워크를 시각화하시오. 노드 크기는 인입되는 엣지연결 숫자에 따라 크기를 반영하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+<span class="kw">plot</span>(g, <span class="dt">layout=</span>layout_nicely, <span class="dt">vertex.size=</span><span class="kw">degree</span>(g, <span class="kw">V</span>(g), <span class="st">&quot;in&quot;</span>)*<span class="dv">15+15</span>,
+     <span class="dt">vertex.label.dist=</span><span class="fl">0.5</span>, <span class="dt">edge.arrow.size=</span><span class="fl">0.05</span>)</code></pre></div>
+<pre class="output"><code>Error in FUN(X[[i]], ...): as.edgelist.sna input must be an adjacency matrix/array, edgelist matrix, network, or sparse matrix, or list thereof.
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 8. 노드 연결분포를 플롯으로 그리시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+dd &lt;-<span class="st"> </span><span class="kw">degree_distribution</span>(g)
+<span class="kw">plot</span>(dd, <span class="dt">main=</span><span class="st">&quot;Degree distribution&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Degree&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Frequency&quot;</span>)</code></pre></div>
+<p><img src="fig/network-ex08-1.png" title="plot of chunk network-ex08" alt="plot of chunk network-ex08" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 9. 적외선 열지도 그래프(Heatmap)을 생성하시오.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+
+pal &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;blue&quot;</span>))
+a &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(<span class="kw">get.adjacency</span>(g))
+<span class="kw">heatmap</span>(a, <span class="dt">Rowv=</span><span class="ot">NA</span>, <span class="dt">Colv=</span><span class="st">&quot;Rowv&quot;</span>, <span class="dt">col=</span><span class="kw">pal</span>(<span class="dv">100</span>))</code></pre></div>
+<p><img src="fig/network-ex09-1.png" title="plot of chunk network-ex09" alt="plot of chunk network-ex09" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------------------------------</span>
+<span class="co"># 10. 인입 엣지가 1개 이상되는 노드를 갖는 그래프를 생성하고 이를 도식화한다. 노드 크기는 나가는 </span>
+<span class="co">#     링크 연결갯수를 반영해야 한다.</span>
+<span class="co">#---------------------------------------------------------------------------------------------</span>
+sg &lt;-<span class="st"> </span><span class="kw">induced_subgraph</span>(g, <span class="kw">V</span>(g)[igraph::<span class="kw">degree</span>(g, <span class="kw">V</span>(g), <span class="st">&quot;in&quot;</span>) &gt;=<span class="st"> </span><span class="dv">1</span>])
+<span class="kw">plot</span>(sg, <span class="dt">layout=</span>layout_nicely, <span class="dt">vertex.size=</span>igraph::<span class="kw">degree</span>(sg, <span class="kw">V</span>(sg), <span class="st">&quot;out&quot;</span>)*<span class="dv">10+15</span>,
+     <span class="dt">vertex.color=</span><span class="st">&quot;green&quot;</span>, <span class="dt">vertex.shape=</span><span class="st">&quot;square&quot;</span>, <span class="dt">vertex.label.dist=</span><span class="fl">0.5</span>, <span class="dt">edge.arrow.size=</span><span class="fl">0.05</span>)</code></pre></div>
+<p><img src="fig/network-ex10-1.png" title="plot of chunk network-ex10" alt="plot of chunk network-ex10" style="display: block; margin: auto;" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://r-exercises.com/2016/09/15/network-analysis-part-1-exercises/">Network Analysis Part 1 Exercises</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://r-exercises.com/2016/09/15/network-analysis-part-1-solutions/">Network Analysis Part 1 Solutions</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

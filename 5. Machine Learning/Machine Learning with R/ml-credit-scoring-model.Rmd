@@ -1,0 +1,377 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 신용평점모형 - 로지스틱 회귀모형과 의사결정나무
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+> ### 학습목표 {.getready}
+>
+> * 신용평점모형을 위해 사용되는 로지스틱 회귀모형과 의사결정나무를 이해한다.
+> * 렌딩클럽 대출 데이터에 로지스틱 회귀모형을 적합시키고 계수 및 모형성능에 대해 살펴본다.
+
+
+### 1. 로지스틱 회귀 [^lendingclub-nyc-data-science] [^lendingclub-yhat]
+
+[^lendingclub-nyc-data-science]: [LendingClub Loan Data Analysis and Visualization using Lending Club Data](http://blog.nycdatascience.com/r/p2p-loan-data-analysis-using-lending-club-data/)
+[^lendingclub-yhat]: [Machine Learning for Predicting Bad Loans](http://blog.yhat.com/posts/machine-learning-for-predicting-bad-loans.html)
+
+앞선 탐색적 데이터 분석과정과 피쳐 공학 등을 통해 모형적합을 시킬 준비는 사전에 맞춰졌다고 가정한다. 
+따라서, 종속변수 채무 불이행에 대한 정의가 완료되었고, 기계학습 모형론을 적합시킬 준비 즉, 훈련데이터와 테스트 데이터 구분도 마무리했다. 이제
+로지스틱 회귀분석을 실행하여 모형적합결과를 해석하는 과정을 거쳐본다.
+
+``` {r lendingclub-logistic-basic, warning=FALSE, tidy=FALSE}
+
+##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
+
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+setwd("~")
+loan.dat <- read_csv("lending-club-loan-data/loan.csv", col_names = TRUE)
+
+##=====================================================================
+## 02. 렌딩클럽 데이터 변환
+##=====================================================================
+library(gmodels)
+
+# 종속변수 설정
+bad_indicators <- c("Charged Off",
+                    "Default",
+                    "Does not meet the credit policy. Status:Charged Off",
+                    "In Grace Period", 
+                    "Default Receiver", 
+                    "Late (16-30 days)",
+                    "Late (31-120 days)")
+
+loan.dat$loan_status_yn <- ifelse(loan.dat$loan_status %in% bad_indicators, 1, 0)
+
+##=====================================================================
+## 03. 렌딩클럽 데이터 기계학습
+##=====================================================================
+
+# 0. 훈련과 테스트 데이터셋 분리
+index_train <- sample(1:nrow(loan.dat), 2/3*nrow(loan.dat))
+training_set <- loan.dat[index_train, ]
+test_set <- loan.dat[-index_train,]
+
+#---------------------------------------------------------------------
+# 01. 이항 로지스틱 회귀 모형
+#---------------------------------------------------------------------
+
+logit_mod <- glm(loan_status_yn ~ int_rate, family="binomial", data=training_set)
+summary(logit_mod)
+```
+
+이항 로지스틱 회귀분석은 종속변수가 `0`과 `1`, 즉 정상(`0`) 혹은 채무불이행(`1`)이 되고
+이를 다수의 설명변수 혹은 예측변수로 적합시키는 모형이다.
+
+$$P(\text{loan_status_yn} = 1 | x_1 , x_2 , \cdots , x_m ) = \frac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m)}}$$
+
+회귀분석의 결과는 확률값로 표현되고, $x_1 , x_2 , \cdots , x_m$은 설명변수, 즉 데이터가 되고, 
+$\beta_0 , \beta_1 , \cdots , \beta_m$은 추정해야 되는 회귀 계수가 되고 이를 결합한
+$\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m$은 선형 예측변수가 된다.
+
+
+#### 1.1. 로지스틱 회귀 적합과 예측
+
+로지스틱 회귀분석에 데이터를 넣어 적합시킬 경우 `glm` 함수를 사용하고 `family=binomial`을 인자로 넣고 종속변수와 설명변수는 R 모형식에 맞춰 집어넣는다. 그리고 결과를 `logit_mod` 모형에 저장하면 로지스틱 회귀모형에 대한 모든 
+정보가 담기게 된다.
+
+`summary(logit_mod)` 명령어로 이자율로 채무 불이행을 예측한 모형을 살펴본다.
+$\beta_0$ `(Intercept)` 절편은 -4.498306, $\beta_1$ `int_rate` 이자율은 0.139891 으로 추정되고 이를 수식으로 표현하면 다음과 같다.
+
+$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) 
+= \frac{1}{1+e^{-(-4.498306+0.139891 \times 
+  \text{이자율(int_rate)} )}}$$
+
+로지스틱 모형이 완성되어 이자율에 따른 채무 불이행 확률을 계산해본다.
+
+
+``` {r lendingclub-logistic-basic-pred, warning=FALSE, tidy=FALSE}
+check.obs <- as.data.frame(training_set[1,]) # 이자율 19.99
+predict(logit_mod, check.obs)
+predict(logit_mod, check.obs, type="response")
+summary(logit_mod)
+
+1/(1+exp(-(-4.498306+0.139891*19.99)))
+```
+
+이자율을 설명변수로 넣어 채무불이행을 예측하는데 `predict` 함수를 사용한다.
+먼저 예측에 사용될 데이터를 준비한다. `check.obs`로 `training_set`에서 첫번째 관측점을 뽑아낸다.
+그리고 나서 `predict(logit_mod, check.obs)` 명령어를 실행시키면 `-1.701879` 값이 나온다. 
+이는 선형 예측변수 값과 일치(소수점 아래 4자리 까지)한다.
+
+$\beta_0 + \beta_1 \times \text{이자율(int_rate)  = -4.498306+0.139891*19.99 = -1.701885 $
+
+원하는 확률을 계산하기 위해서는 `predict(logit_mod, check.obs, type="response")` 처럼 `type="response"`
+인자를 전달하면 확률값이 계산된다.
+
+R로 계산된 이자율 19.99에 대한 채무 불이행 확률은 `0.15422`으로 확인된다.
+수식으로 확인하면 거의 동일한 결과를 얻게 된다.
+
+$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) = 
+\frac{1}{1+e^{-(-4.498306+0.139891 \times \text{이자율(int_rate)} )}} = \frac{1}{1+e^{-(-4.498306+0.139891 \times 19.99 )}} = 0.1542192$$
+
+#### 1.2. $\beta$ 회귀계수 해석
+
+통계모형이 다른 기계학습 모형 혹은 알고리즘과 비교해서 많이 사랑받는 이유 중의 하나가 설명이 가능하다는 점이다.
+즉, $\beta$가 갖는 의미를 이해하고 이를 기반으로 설명이 가능하다.
+
+$$P(\text{loan_status_yn} = 1 | x_1 , x_2 , \cdots , x_m ) = \frac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m)}} = \frac{e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m}}{1+e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m}}$$
+
+$$P(\text{loan_status_yn} = 0 | x_1 , x_2 , \cdots , x_m ) = 1- \frac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m)}} = \frac{1}{1+e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m}}$$
+
+`loan_status_yn` 이 `0`에 대한 `1`의 비율을 오즈비(Odds Ratio)라고 정의하고, 채무불이행이 없는 것과 비교하여 채무불이행이 얼마나 높은지 혹은 낮은지를 정량화한다.
+
+$$\frac {P(\text{loan_status_yn} = 1 | x_1 , x_2 , \cdots , x_m )} {P(\text{loan_status_yn} = 0 | x_1 , x_2 , \cdots , x_m )} = e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m}$$
+
+* 만약 $x_i$ 가 1 단위 증가하게 되면, $e^{\beta_i}$을 오즈값에 곱하게 된다.
+    * $\beta_i < 0$ 작게 되면, $e^{\beta_i}<1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 감소한다. 
+    * $\beta_i > 0$ 크게 되면, $e^{\beta_i}>1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 증가한다.
+* 이자율 모형에 적용하면, 다음과 같은 결과가 도출된다.
+    * 이자율이 1만큼 증가하게 되면 (1% 증가하게 되면), 회귀계수 `0.139891`을 곱해야 되고 양수이기 때문에 채무불이행은 확률은 높아진다.
+    * 오즈에 $e^{0.139891}$ 을 곱하게 되면, `1.150148` 값이 도출되고, 동일한 조건에 정상인과 비교하여 약 15% 높게 채무 불이행 확률이 예측된다.
+
+#### 1.3. 로지스틱 회귀 모형 성능평가
+
+로지스틱 회귀모형에 대한 성능을 평가하기 위해서 채무불이행은 채무불이행으로, 정상고객은 정상고객으로 예측하는가를 갖고 성능을 평가한다. 이를 위해서 예측된 확률값(0에서 1사이)을 정상(`0`)과 채무불이행(`1`)으로 구분하는 것이 필요하다. 이를 위해서 도입되는 것이 **컷오프(cutoff)** 혹은 **임계값(threshold value)**을 설정하게 된다. 0.5를 임계값으로 설정하여 채무불이행 확률값이 이보다 작으면 채무불이행 위험 없음 `0`으로 0.5 보다 크면 `1` 채무불이행으로 각기 설정한다.
+
+하지만, 채무불이행은 흔하지 않은 사건으로 0.5 보다 훨씬 적은 값을 설정하여 채무불이행 여부를 판단하고 이를 기준으로 **오차행렬(Confusion Matrix)** 을 생성하여 성능을 평가하는 것이 일반적이다.
+
+
+``` {r lendingclub-logistic-prediction, warning=FALSE, tidy=FALSE}
+logit_mod_two_var <- glm(loan_status_yn ~ revol_util + int_rate, family="binomial", data=training_set)
+pred_two_var <- predict(logit_mod_two_var, newdata = test_set, type = "response")
+
+pred_cutoff_15 <- ifelse(pred_two_var > 0.15, 1, 0)
+table(test_set$loan_status_yn, pred_cutoff_15)
+
+
+data.frame(training_set[1:10, c("loan_status_yn", "revol_util", "int_rate")], 
+           pred_two_var[1:10], pred_cutoff_15[1:10])
+```
+
+`loan_status_yn` 채무불이행 종속변수와 `revol_util`, `int_rate` 설명변수가 함께 나와 있다.
+두 설명변수를 통해 예측한 채무불이행 확률과 컷오프로 15%를 적용한 결과 채무불이행 모형예측 결과가 
+`0`과 `1`로 나타나 있고 실제 채무불이행 데이터와 비교도 가능하다.
+
+``` {r lendingclub-logistic-confusion, warning=FALSE, tidy=FALSE}
+cutoff <- 0.15
+pred_cutoff_logit <- ifelse(pred_two_var > cutoff, 1, 0)
+
+tab_class_logit <- table(test_set$loan_status_yn, pred_cutoff_15)
+sum(diag(tab_class_logit))/nrow(test_set)
+```
+
+
+### 2. 의사결정나무(Decision Tree)
+
+R에서 의사결정나무 모형을 적합시키는데 `rpart`를 사용하고 분기를 하는데 기본 기준으로 지니(Gini)를 사용한다.
+가장 지니 이득(Gini Gain)을 최대화하는 방식으로 나무모형을 적합시켜 나간다.
+
+기본 개념은 다음과 같고, 지니 이득은 다음과 계산된다.
+
+<img src="fig/ml-credit-scoring-gini.png" alt="지니계수 개요" width="70%" />
+
+~~~ {.output}
+지니 이득 = 뿌리 지니값 - 좌측 잎 비율 * 좌측 지니값 -  우측 잎 비율 * 우측 지니값   
+          = 0.292632 – 446/500 * 0.1814334 – 54/500 * 0.3017833   
+          = 0.09820084   
+~~~
+
+``` {r lendingclub-rpart, warning=FALSE, tidy=FALSE}
+##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
+# http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+
+loan.dat <- read_fwf("data/lendingclub_loan_sample.txt", fwf_widths(c(6,11,10,6,15,11,4,8,8)), skip=1)
+names(loan.dat) <- c("seq","loan_status", "loan_amnt grade", "home_ownership", "annual_inc", "age", "emp_cat", "ir_cat")
+
+##=====================================================================
+## 02. 의사결정나무
+##=====================================================================
+suppressMessages(library(rpart))
+
+# 02-01. cp값 0.001 설정
+loan_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                 control = rpart.control(cp = 0.001))
+
+plot(loan_dt, uniform = TRUE)
+text(loan_dt)
+
+# 02-02.사전 확률 설정
+loan_prior_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                       control = rpart.control(cp = 0.001),
+                       parms = list(prior=c(0.7, 0.3)))
+
+plot(loan_prior_dt, uniform = TRUE)
+text(loan_prior_dt)
+
+# 02-03.손실함수 설정
+loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                      control = rpart.control(cp = 0.001),
+                      parms = list(loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plot(loan_loss_dt, uniform = TRUE)
+text(loan_loss_dt)
+
+# 02-04. CP, 사전확률, 손실함수 모두 설정
+loan_prior_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                            control = rpart.control(cp = 0.001),
+                            parms = list(prior=c(0.7, 0.3),
+                                         loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plot(loan_prior_loss_dt, uniform = TRUE)
+text(loan_prior_loss_dt)
+```
+
+`rpart` 모형을 적합시킬 때, CP, 사전확률, 손실함수 등 다양한 모수를 사전에 설정해야 한다.
+특히, 채무불이행, 사기탐지 등 정상사례와 비교하여 예측하고자 하는 사례가 극도로 균형이 맞지 않는 경우에는
+이런 세세한 부분에 신경을 많이 써서 모형을 적합시켜야 된다.
+
+``` {r lendingclub-rpart-pruning, warning=FALSE, tidy=FALSE}
+#---------------------------------------------------------------------
+# 02-1. 의사결정나무: 가지치기(Prune)
+#---------------------------------------------------------------------
+
+# 01. 가지치기 사례
+plotcp(loan_dt)
+printcp(loan_dt)
+
+index <- which.min(loan_dt$cptable[ , "xerror"])
+tree_min <- loan_dt$cptable[index, "CP"]
+
+ptree_prior <- prune(loan_dt, cp = tree_min)
+
+library(rpart.plot)
+prp(ptree_prior, extra=1)
+
+# 02. 손실함수 가지치기 사례
+
+suppressMessages(library(rattle))
+suppressMessages(library(rpart.plot))
+suppressMessages(library(RColorBrewer))
+
+loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                      control = rpart.control(cp = 0.001),
+                      parms = list(prior=c(0.90, 0.10),
+                                   loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+printcp(loan_loss_dt) # 0.0020928
+ptree_loss_dt <- prune(loan_loss_dt, cp = 0.0020928)
+
+fancyRpartPlot(ptree_loss_dt)
+
+# 03. 자주 사용되는 추가 선택옵션
+
+case_weights <- ifelse(loan.dat$loan_status==1, 3, 1)
+
+loan_loss_wgt_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                          control = rpart.control(minsplit = 5, minbucket = 2, cp = 0.0001), 
+                          weights=case_weights,
+                          parms = list(prior=c(0.90, 0.10),
+                                       loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plotcp(loan_loss_wgt_dt)
+printcp(loan_loss_wgt_dt) # 0.00400812
+
+ptree_weights <- prune(loan_loss_wgt_dt, cp=0.00400812)
+
+prp(ptree_weights, extra = 1)
+```
+
+### 3. 비용함수(행렬)/수익함수(행렬)
+
+저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 이를 비용함수 혹은 비용행렬이라고 부른다.
+아래 **비용함수(Cost Function)** 를 마케팅 캠페인등에 사용하면 **수익함수(Profit Function)** 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다. 
+
+|    |  1  |  2  |
+|----|-----|-----|
+| 1  |  0  |  1  |
+| 2  |  5  |  0  |
+
+기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 
+향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |    0.4     |      0         |
+| 신용불량(실제)  |     -1     |      0         |
+
+#### 3.1. 독일신용 데이터를 통한 사례분석 [^profit-analysis-sas]
+
+독일신용 데이터에는 1,000명의 고객이 있다. 700명이 정상이고, 300명이 신용불량자로 등록되어 있다. 이럴 경우 신용불량으로 인한 대손이 발생하지 않을 경우 35% 수익이 예상되고, 신용불량으로 확정될 경우 100% 손실이 불가피하다. 신용불량이 전혀 없다고 가정하고 대출을 진행할 경우 모의시험을 수행하면 다음과 같다.
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |   0.35     |     0          |
+| 신용불량(실제)  |    -1      |     0          |
+
+1,000명에게 모두 1원씩 한단위 제공한다면, $\frac{700 \times 0.35 - 300 \times 1}{1000} = \frac{-55}{1000} = -0.055$ 만큼 손실이 불가피하다.
+
+좀더 현실적으로 고객당 천만원을 신용카드를 통해 대출을 준다면, $-0.055 \times 10,000,000 * 1000 = -5.5$ 억원 손실이 난다.
+
+
+#### 3.2. 신용평가 알고리듬을 구축한 경우
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |   608      |    46          |
+| 신용불량(실제)  |    192     |   154          |
+
+
+신용평가 알고리듬을 개발하여 다음과 같이 구축했다고 가정하면, 다음과 같은 결과가 예상된다.
+신용불량이라고 예측한 경우 신용카드발급을 통한 대출을 주지 않아 정상적인 고객이 신용카드를 활용하지 못해 손실(+35% 이자수익)이 발생하고, 정상이라고 예측했지만, 신용카드를 발급해서 생기는 손실(-100%)도 있다. 하지만, 정상이라고 예측해서 정상으로 사용되는 경우 생기는 수익이 608명으로부터 나오고, 신용불량으로 예측해서 실제 신용불량을 맞춤으로써 생기는 이익도 함께 존재한다.
+
+이를 정리하여 합치게 되면 다음과 같은 수익이 예상된다.
+
+$$ 608 \times 10,000,000 \times 0.35 - 192 \times 10,000 = 2.08억$$
+
+신용평가 모형을 갖는 것과 갖지않는 전체적인 효과는 $2.08억 - (-5.5억) = 7.58억$ 으로 추산할 수 있다.
+
+[^profit-analysis-sas]: [Profit Analysis of the German Credit Data Using SAS® Enterprise MinerTM 5.3](http://www.sas.com/technologies/analytics/datamining/miner/trial/german-credit-data.pdf)
+
+
+```{r profit-matrix, tidy=FALSE, eval=FALSE}
+##================================================================
+## 04. 비용함수/행렬
+##================================================================
+matrix_dimensions <- list(c("good", "bad"), c("good", "bad"))
+names(matrix_dimensions) <- c("acutual", "predicted")
+
+error_cost <- matrix(c(0.35, -1, 0, 0), nrow = 2,
+                     dimnames = matrix_dimensions)
+#       predicted
+#acutual  good bad
+#   good  0.35   0
+#   bad  -1.00   0
+
+##================================================================
+## 05. 모형 개발
+##================================================================
+library(c50)
+c50.cost.m <- C5.0(train[,-1], train$Creditability, costs = error_cost)
+
+##================================================================
+## 05. 모형 성능평가
+##================================================================
+credit_cost_pred <- predict(c50.cost.m, test)
+CrossTable(test$Creditability, credit_cost_pred,
+             prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE,
+             dnn = c('actual default', 'predicted default'))
+```
+

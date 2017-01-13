@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기계학습 맛보기 (R)</h2>
+          <h2 id="기계학습-맛보기-credit-scoring">기계학습 맛보기 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>기계학습 맛보기는 전처리가 완료된 데이터를 가져와서 기계학습 모형을 선정하고, 모형이 갖는 성능을 평가하는 것으로 한정한다.</p>
+<h3 id="목표설정">1. 목표설정</h3>
+<p>은행입장에서 보면 저신용자에게 신용카드를 발급하게 되면 빌린 돈을 갚지 못해 손실이 되고, 신용이 높은 사람에게 신용카드를 발급하게 되면 이자를 받아 수익성이 개선된다. 따라서, 은행입장에서는 다음과 같은 최적화문제를 푸는 것으로 정리된다.</p>
+<h3 id="데이터-준비">2. 데이터 준비</h3>
+<p>독일 신용데이터는 [Statlog (German Credit Data) Data Set ](http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data) <a href="http://archive.ics.uci.edu/ml/index.html">UCI Machine Learning 저장소</a>에서 다운로드 받을 수 있다. 신용카드를 발급해야 하는지, 발급하지 말아야하는지에 대해 일상과 밀접한 데이터로 <a href="https://en.wikipedia.org/wiki/Credit_score">신용평가점수</a>와 연관되어 있다.</p>
+<h4 id="독일신용데이터-살펴보기">2.1. 독일신용데이터 살펴보기</h4>
+<p>1,000 명이 신용카드발급을 신청했는데 변수 20개로 신용카드발급을 평가하는 기계학습 알고리즘을 개발한다.</p>
+<p>각 변수에 대한 자세한 사항은 <a href="http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data)">Statlog (German Credit Data) Data Set</a>를 참조한다.</p>
+<p><a href="https://onlinecourses.science.psu.edu/stat857/node/215">참고: Analysis of German Credit Data</a></p>
+<h3 id="기계학습-알고리듬-개발과정">3. 기계학습 알고리듬 개발과정</h3>
+<h4 id="훈련데이터-준비-및-전처리">3.1. 훈련데이터 준비 및 전처리</h4>
+<p>독일신용데이터를 인터넷에서 바로 불러와서, 범주형 변수를 요인변수(Factor)로 변환하고, 이를 훈련데이터(60%)와 검증데이터(40%)로 분리한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================
+## 01. 데이터 준비
+##================================================================
+<span class="co"># https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/credit.csv</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr));<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;http://freakonometrics.free.fr/german_credit.csv&#39;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)
+
+##================================================================
+## 02. 데이터 전처리
+##================================================================
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 요인변환</span>
+F &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">15</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">18</span>,<span class="dv">19</span>,<span class="dv">20</span>)
+
+data.F &lt;-<span class="st"> </span>data[,F]; data.NF &lt;-<span class="st"> </span>data[,-F]
+
+data.F &lt;-<span class="st"> </span><span class="kw">sapply</span>(data.F, as.factor)
+
+data &lt;-<span class="st"> </span><span class="kw">cbind</span>(data.F, data.NF)
+
+data &lt;-<span class="st"> </span>data %&gt;%<span class="st"> </span><span class="kw">rename</span>(<span class="dt">default =</span> Creditability)
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 훈련데이터과 검증데이터 분리 (60% 훈련, 40% 검증)</span>
+d &lt;-<span class="st">  </span><span class="kw">sort</span>(<span class="kw">sample</span>(<span class="kw">nrow</span>(data), <span class="kw">nrow</span>(data)*.<span class="dv">6</span>))
+
+train &lt;-<span class="st"> </span>data[d,] <span class="co"># 60%</span>
+test &lt;-<span class="st"> </span>data[-d,] <span class="co"># 40%</span></code></pre></div>
+<h4 id="훈련데이터-준비-및-전처리-1">3.2. 훈련데이터 준비 및 전처리</h4>
+<p>독일 신용데이터를 이항회귀모형, 나무모형, SVM 3개 모형에 적합시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================
+## 03. 모형적합
+##================================================================
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 3.1. 이항 회귀분석</span>
+logit.m &lt;-<span class="st"> </span><span class="kw">glm</span>(default~., <span class="dt">data=</span>train, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="st">&quot;logit&quot;</span>), <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">maxit =</span> <span class="dv">50</span>))
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 3.2. 나무모형</span>
+<span class="kw">library</span>(rpart); <span class="kw">library</span>(rpart.plot)
+rpart.fit &lt;-<span class="st"> </span><span class="kw">rpart</span>(default~., <span class="dt">data=</span>train)
+<span class="co">#plot(rpart.fit);text(rpart.fit);</span>
+<span class="co">#prp(rpart.fit, type=1, extra=1)</span>
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 3.3. SVM</span>
+<span class="kw">library</span>(e1071)
+svm.fit &lt;-<span class="st"> </span><span class="kw">svm</span>(default ~<span class="st"> </span>., train,  <span class="dt">probability =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<h4 id="알고리즘-성능-평가">3.3. 알고리즘 성능 평가</h4>
+<p>독일 신용데이터에 적합시킨 이항회귀모형, 나무모형, SVM 3개 모형에 대한 각 모형별 성능평가 작업을 수행한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================
+## 04. 모형 성능평가
+##================================================================
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(ROCR))
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 4.1. 이항 회귀분석</span>
+
+test$probs &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.m, test, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)
+logit.pred &lt;-<span class="st"> </span><span class="kw">prediction</span>(test$probs, test$default)
+logit.perf &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.pred,<span class="st">&quot;tpr&quot;</span>,<span class="st">&quot;fpr&quot;</span>)
+<span class="kw">plot</span>(logit.perf)</code></pre></div>
+<p><img src="fig/ml-performance-1.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## KS 통계량 (면적)
+<span class="kw">max</span>(<span class="kw">attr</span>(logit.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(logit.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]])</code></pre></div>
+<pre class="output"><code>[1] 0.4112681
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 신용점수함수에 가장 영향을 주는 변수 3개 추출
+logit.pick<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.m, <span class="dt">type=</span><span class="st">&#39;terms&#39;</span>, test)
+
+ftopk&lt;-<span class="st"> </span>function(x,<span class="dt">top=</span><span class="dv">3</span>){
+  res &lt;-<span class="st"> </span><span class="kw">names</span>(x)[<span class="kw">order</span>(x, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)][<span class="dv">1</span>:top]
+  <span class="kw">paste</span>(res, <span class="dt">collapse=</span><span class="st">&quot;;&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+}
+<span class="co"># 신용카드 발급 신청자별로 가장 영향력있는 변수 3개 추출</span>
+logit.pick<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">apply</span>(logit.pick<span class="fl">.3</span>, <span class="dv">1</span>, ftopk, <span class="dt">top=</span><span class="dv">3</span>)
+<span class="co"># 추출한 3개 변수를 신용카드 발급 신청자별로 결합</span>
+test &lt;-<span class="st"> </span><span class="kw">cbind</span>(test, logit.pick<span class="fl">.3</span>)
+
+<span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 4.2. 나무모형</span>
+
+test$rpart_class &lt;-<span class="st"> </span><span class="kw">predict</span>(rpart.fit, <span class="dt">type=</span><span class="st">&#39;class&#39;</span>, test)
+rpart_score &lt;-<span class="st"> </span><span class="kw">predict</span>(rpart.fit, <span class="dt">type=</span><span class="st">&#39;prob&#39;</span>, test)
+rpart.pred &lt;-<span class="st"> </span><span class="kw">prediction</span>(rpart_score[,<span class="dv">2</span>],test$default)
+rpart.perf &lt;-<span class="st"> </span><span class="kw">performance</span>(rpart.pred,<span class="st">&quot;tpr&quot;</span>,<span class="st">&quot;fpr&quot;</span>)
+<span class="kw">plot</span>(rpart.perf)</code></pre></div>
+<p><img src="fig/ml-performance-2.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------</span>
+<span class="co"># 4.3. SVM</span>
+
+test$svm_class &lt;-<span class="st"> </span><span class="kw">predict</span>(svm.fit, <span class="dt">type=</span><span class="st">&#39;class&#39;</span>, test)
+svm.score &lt;-<span class="st"> </span><span class="kw">predict</span>(svm.fit, <span class="dt">type=</span><span class="st">&#39;prob&#39;</span>, test, <span class="dt">probability =</span> <span class="ot">TRUE</span>)
+svm.pred &lt;-<span class="st"> </span><span class="kw">prediction</span>(<span class="kw">attr</span>(svm.score, <span class="st">&quot;probabilities&quot;</span>)[,<span class="dv">1</span>], test$default)
+svm.perf &lt;-<span class="st"> </span><span class="kw">performance</span>(svm.pred,<span class="st">&quot;tpr&quot;</span>,<span class="st">&quot;fpr&quot;</span>)
+<span class="kw">plot</span>(svm.perf)</code></pre></div>
+<p><img src="fig/ml-performance-3.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" /></p>
+<h4 id="종합-알고리즘-성능평가">3.4. 종합 알고리즘 성능평가</h4>
+<p>ROC 곡선을 그려봐서 가장 면적이 넓은 기계학습 알고리듬을 눈으로 확인하고, KS 통계량 및 AUC 면적으로 가장 성능이 좋게 나오는 모형을 찾아본다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##================================================================
+## 04. 종합성능 평가
+##================================================================
+<span class="co"># ROC </span>
+
+<span class="kw">plot</span>(logit.perf, <span class="dt">col=</span><span class="st">&#39;red&#39;</span>,<span class="dt">lty=</span><span class="dv">1</span>, <span class="dt">main=</span><span class="st">&#39;&#39;</span>);
+<span class="kw">plot</span>(rpart.perf, <span class="dt">col=</span><span class="st">&#39;blue&#39;</span>,<span class="dt">lty=</span><span class="dv">3</span>, <span class="dt">add=</span><span class="ot">TRUE</span>);
+<span class="kw">plot</span>(svm.perf, <span class="dt">col=</span><span class="st">&#39;green&#39;</span>,<span class="dt">add=</span><span class="ot">TRUE</span>,<span class="dt">lty=</span><span class="dv">2</span>);
+<span class="kw">legend</span>(<span class="fl">0.6</span>,<span class="fl">0.6</span>,<span class="kw">c</span>(<span class="st">&#39;logistic&#39;</span>, <span class="st">&#39;rpart&#39;</span>,<span class="st">&#39;SVM&#39;</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&#39;blue&#39;</span>, <span class="st">&#39;red&#39;</span>,<span class="st">&#39;green&#39;</span>),<span class="dt">lwd=</span><span class="dv">3</span>)</code></pre></div>
+<p><img src="fig/ml-performance-summary-1.png" title="plot of chunk ml-performance-summary" alt="plot of chunk ml-performance-summary" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## KS 통계량 (면적)
+<span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (Logistic):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(logit.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(logit.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
+<pre class="output"><code>KS 통계량 (Logistic): 0.4112681
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (Tree):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(rpart.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(rpart.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
+<pre class="output"><code>KS 통계량 (Tree): 0.3316153
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (SVM):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(svm.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(svm.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
+<pre class="output"><code>KS 통계량 (SVM): 0.3935247
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## AUC (Area Under the ROC Curve)
+<span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (Logistic):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(logit.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
+<pre class="output"><code>AUC 면적 (Logistic): 0.7498445
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (Tree):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(rpart.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
+<pre class="output"><code>AUC 면적 (Tree): 0.6873871
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (SVM):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(svm.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
+<pre class="output"><code>AUC 면적 (SVM): 0.7502296
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/doc/contrib/Sharma-CreditScoring.pdf">Guide to Credit Scoring in R</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

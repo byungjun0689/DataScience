@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">이상점(Outlier) 검출</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li></li>
+</ul>
+</div>
+</section>
+<h2 id="이상점-탐지-방법론">1. 이상점 탐지 방법론</h2>
+<ul>
+<li>모형기반 (Model-based)
+<ul>
+<li>통계검증 (Statistical Tests)</li>
+<li>깊이 기반 접근법(Depth-based Approaches)</li>
+<li>편차 기반 접근법(Deviation-based Approaches)</li>
+</ul></li>
+<li>근접기반 (Proximity-based)
+<ul>
+<li>거리 기반(Distance-based Approaches)</li>
+<li>밀도 기반(Density-based Approaches)</li>
+</ul></li>
+<li>고차원 접근법 (High dimensional Approaches)</li>
+</ul>
+<h2 id="이상점-추출-및-처리-연습문제-r-exercise-outlier-outlier-detection-techniques">2. 이상점 추출 및 처리 연습문제 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 환경설정-------------------------------------------</span>
+<span class="co">#install.packages(&#39;rapportools&#39;)</span>
+<span class="co">#library(rapportools)</span>
+<span class="co">#install.packages(&#39;outliers&#39;)</span>
+<span class="co">#library(outliers)</span>
+
+<span class="co"># 2. 데이터 가져오기-------------------------------------------</span>
+<span class="co">#install.packages(&quot;nycflights13&quot;)</span>
+<span class="co">#library(nycflights13)</span>
+flights &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;~/Dropbox/02_data_family/01-outlier/data/flights_1_pcnt.csv&quot;</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  .default = col_integer(),
+  DepTime = col_time(format = &quot;&quot;),
+  CRSDepTime = col_time(format = &quot;&quot;),
+  ArrTime = col_time(format = &quot;&quot;),
+  CRSArrTime = col_time(format = &quot;&quot;),
+  UniqueCarrier = col_character(),
+  TailNum = col_character(),
+  ActualElapsedTime = col_double(),
+  AirTime = col_double(),
+  ArrDelay = col_double(),
+  DepDelay = col_double(),
+  Origin = col_character(),
+  Dest = col_character(),
+  TaxiIn = col_double(),
+  TaxiOut = col_double(),
+  CancellationCode = col_character()
+)
+</code></pre>
+<pre class="output"><code>See spec(...) for full column specifications.
+</code></pre>
+<ol style="list-style-type: decimal">
+<li>연습문제 : 분석할 데이터(<code>flights</code>)에 대한 자료구조와 요약통계량을 확인한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">glimpse</span>(flights)</code></pre></div>
+<pre class="output"><code>Observations: 70,097
+Variables: 29
+$ Year              &lt;int&gt; 2008, 2008, 2008, 2008, 2008, 2008, 2008, 20...
+$ Month             &lt;int&gt; 4, 8, 2, 6, 9, 2, 2, 8, 12, 10, 7, 2, 5, 5, ...
+$ DayofMonth        &lt;int&gt; 12, 26, 8, 12, 1, 8, 13, 4, 16, 8, 5, 22, 14...
+$ DayOfWeek         &lt;int&gt; 6, 2, 5, 4, 1, 5, 3, 1, 2, 3, 6, 5, 3, 5, 5,...
+$ DepTime           &lt;time&gt; 78780 secs, 78780 secs, 78780 secs, 78780 s...
+$ CRSDepTime        &lt;time&gt; NA secs, NA secs, NA secs, NA secs, NA secs...
+$ ArrTime           &lt;time&gt; 57659 secs, 57659 secs, 57659 secs, 57659 s...
+$ CRSArrTime        &lt;time&gt; 69600 secs, 69600 secs, 69600 secs, 69600 s...
+$ UniqueCarrier     &lt;chr&gt; &quot;AA&quot;, &quot;OO&quot;, &quot;YV&quot;, &quot;AA&quot;, &quot;B6&quot;, &quot;US&quot;, &quot;FL&quot;, &quot;B...
+$ FlightNum         &lt;int&gt; 343, 3622, 7221, 2395, 133, 1264, 372, 295, ...
+$ TailNum           &lt;chr&gt; &quot;N497AA&quot;, &quot;N232SW&quot;, &quot;N570ML&quot;, &quot;N547AA&quot;, &quot;N62...
+$ ActualElapsedTime &lt;dbl&gt; 107, 81, 84, 162, 170, 163, 132, 163, 137, 6...
+$ CRSElapsedTime    &lt;int&gt; 100, 84, 89, 160, 187, 170, 136, 165, 143, 7...
+$ AirTime           &lt;dbl&gt; 84, 64, 65, 129, 145, 132, 95, 144, 116, 56,...
+$ ArrDelay          &lt;dbl&gt; 10, -5, -7, 0, -23, 0, 52, -1, -11, -2, -17,...
+$ DepDelay          &lt;dbl&gt; 3, -2, -2, -2, -6, 7, 56, 1, -5, -1, -4, -7,...
+$ Origin            &lt;chr&gt; &quot;DFW&quot;, &quot;SLC&quot;, &quot;IAD&quot;, &quot;CLT&quot;, &quot;JFK&quot;, &quot;MIA&quot;, &quot;A...
+$ Dest              &lt;chr&gt; &quot;ELP&quot;, &quot;SGU&quot;, &quot;GSP&quot;, &quot;DFW&quot;, &quot;RSW&quot;, &quot;PHL&quot;, &quot;L...
+$ Distance          &lt;int&gt; 551, 269, 383, 936, 1074, 1013, 761, 965, 75...
+$ TaxiIn            &lt;dbl&gt; 3, 6, 3, 19, 6, 4, 12, 5, 4, 5, 6, 7, 6, 3, ...
+$ TaxiOut           &lt;dbl&gt; 20, 11, 16, 14, 19, 27, 25, 14, 17, 8, 8, 9,...
+$ Cancelled         &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+$ CancellationCode  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+$ Diverted          &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+$ CarrierDelay      &lt;int&gt; NA, NA, NA, NA, NA, NA, 0, NA, NA, NA, NA, N...
+$ WeatherDelay      &lt;int&gt; NA, NA, NA, NA, NA, NA, 0, NA, NA, NA, NA, N...
+$ NASDelay          &lt;int&gt; NA, NA, NA, NA, NA, NA, 52, NA, NA, NA, NA, ...
+$ SecurityDelay     &lt;int&gt; NA, NA, NA, NA, NA, NA, 0, NA, NA, NA, NA, N...
+$ LateAircraftDelay &lt;int&gt; NA, NA, NA, NA, NA, NA, 0, NA, NA, NA, NA, N...
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(flights)</code></pre></div>
+<pre class="output"><code>      Year          Month          DayofMonth      DayOfWeek    
+ Min.   :2008   Min.   : 1.000   Min.   : 1.00   Min.   :1.000  
+ 1st Qu.:2008   1st Qu.: 3.000   1st Qu.: 8.00   1st Qu.:2.000  
+ Median :2008   Median : 6.000   Median :16.00   Median :4.000  
+ Mean   :2008   Mean   : 6.389   Mean   :15.73   Mean   :3.921  
+ 3rd Qu.:2008   3rd Qu.: 9.000   3rd Qu.:23.00   3rd Qu.:6.000  
+ Max.   :2008   Max.   :12.000   Max.   :31.00   Max.   :7.000  
+                                                                
+   DepTime          CRSDepTime         ArrTime          CRSArrTime      
+ Length:70097      Length:70097      Length:70097      Length:70097     
+ Class1:hms        Class1:hms        Class1:hms        Class1:hms       
+ Class2:difftime   Class2:difftime   Class2:difftime   Class2:difftime  
+ Mode  :numeric    Mode  :numeric    Mode  :numeric    Mode  :numeric   
+                                                                        
+                                                                        
+                                                                        
+ UniqueCarrier        FlightNum      TailNum          ActualElapsedTime
+ Length:70097       Min.   :   1   Length:70097       Min.   :-113.4   
+ Class :character   1st Qu.: 621   Class :character   1st Qu.:  77.0   
+ Mode  :character   Median :1564   Mode  :character   Median : 111.0   
+                    Mean   :2218                      Mean   : 127.5   
+                    3rd Qu.:3501                      3rd Qu.: 156.0   
+                    Max.   :7829                      Max.   : 669.0   
+                                                                       
+ CRSElapsedTime     AirTime         ArrDelay           DepDelay       
+ Min.   : 15.0   Min.   :  2.0   Min.   : -62.000   Min.   : -38.000  
+ 1st Qu.: 80.0   1st Qu.: 56.0   1st Qu.: -10.000   1st Qu.:  -4.000  
+ Median :110.0   Median : 87.0   Median :  -2.000   Median :  -1.000  
+ Mean   :129.1   Mean   :104.3   Mean   :   7.967   Mean   :   9.771  
+ 3rd Qu.:160.0   3rd Qu.:131.0   3rd Qu.:  11.000   3rd Qu.:   9.000  
+ Max.   :660.0   Max.   :642.0   Max.   :1114.000   Max.   :1114.000  
+                                                                      
+    Origin              Dest              Distance          TaxiIn       
+ Length:70097       Length:70097       Min.   :  31.0   Min.   :-30.623  
+ Class :character   Class :character   1st Qu.: 324.0   1st Qu.:  4.000  
+ Mode  :character   Mode  :character   Median : 580.0   Median :  6.000  
+                                       Mean   : 728.4   Mean   :  6.856  
+                                       3rd Qu.: 957.0   3rd Qu.:  8.000  
+                                       Max.   :4962.0   Max.   :120.000  
+                                                                         
+    TaxiOut         Cancelled       CancellationCode      Diverted       
+ Min.   :-98.23   Min.   :0.00000   Length:70097       Min.   :0.000000  
+ 1st Qu.: 10.00   1st Qu.:0.00000   Class :character   1st Qu.:0.000000  
+ Median : 14.00   Median :0.00000   Mode  :character   Median :0.000000  
+ Mean   : 16.41   Mean   :0.01962                      Mean   :0.002539  
+ 3rd Qu.: 19.00   3rd Qu.:0.00000                      3rd Qu.:0.000000  
+ Max.   :274.00   Max.   :1.00000                      Max.   :1.000000  
+                                                                         
+  CarrierDelay      WeatherDelay       NASDelay      SecurityDelay  
+ Min.   :   0.00   Min.   :  0.00   Min.   :  0.00   Min.   :0e+00  
+ 1st Qu.:   0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:0e+00  
+ Median :   0.00   Median :  0.00   Median :  6.00   Median :0e+00  
+ Mean   :  15.71   Mean   :  2.95   Mean   : 17.16   Mean   :6e-02  
+ 3rd Qu.:  16.00   3rd Qu.:  0.00   3rd Qu.: 21.00   3rd Qu.:0e+00  
+ Max.   :1001.00   Max.   :915.00   Max.   :599.00   Max.   :1e+02  
+ NA&#39;s   :54983     NA&#39;s   :54983    NA&#39;s   :54983    NA&#39;s   :54983  
+ LateAircraftDelay
+ Min.   :  0.00   
+ 1st Qu.:  0.00   
+ Median :  0.00   
+ Mean   : 20.68   
+ 3rd Qu.: 26.00   
+ Max.   :429.00   
+ NA&#39;s   :54983    
+</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>연습문제 : 범주형 변수의 경우 이상점은 10% 보다 빈도가 적은 경우 해당된다. <code>flights$UniqueCarrier</code>, <code>flights$CancellationCode</code> 변수에 대한 막대그래프를 도식화한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># UniqueCarrier</span>
+carrier_tbl &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span><span class="kw">count</span>(UniqueCarrier)
+<span class="kw">ggplot</span>(carrier_tbl, <span class="kw">aes</span>(<span class="dt">x=</span>UniqueCarrier, <span class="dt">y=</span>n)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>)</code></pre></div>
+<p><img src="fig/ex-02-1.png" title="plot of chunk ex-02" alt="plot of chunk ex-02" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># CancellationCode</span>
+cancel_tbl &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span><span class="kw">count</span>(CancellationCode)
+<span class="kw">ggplot</span>(cancel_tbl, <span class="kw">aes</span>(<span class="dt">x=</span>CancellationCode, <span class="dt">y=</span>n)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>)</code></pre></div>
+<pre class="output"><code>Warning: Removed 1 rows containing missing values (position_stack).
+</code></pre>
+<p><img src="fig/ex-02-2.png" title="plot of chunk ex-02" alt="plot of chunk ex-02" style="display: block; margin: auto;" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li>연습문제 : 2번 연습문제에서 맞닥드린 이상점을 제거하라. <code>subset</code> 혹은 <code>filter</code> 함수를 사용한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(UniqueCarrier !=<span class="st"> &#39;AQ&#39;</span>)
+
+flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(CancellationCode !=<span class="st"> &#39;D&#39;</span>)</code></pre></div>
+<ol start="4" style="list-style-type: decimal">
+<li>연습문제 : 숫자형 변수의 경우 이상점을 탐지하는데 권장되는 방식은 <code>boxplot</code>을 활용하는 것이다. <code>flights$ActualElapsedTime</code> 변수에 대해서 상자그림을 도식화하시오.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">y=</span>ActualElapsedTime)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
+<p><img src="fig/ex-04-1.png" title="plot of chunk ex-04" alt="plot of chunk ex-04" style="display: block; margin: auto;" /></p>
+<ol start="5" style="list-style-type: decimal">
+<li>연습문제 : <code>boxplot()</code> 함수를 사용한 경우 <code>boxplot.stats</code>을 사용해서 <code>flights$ActualElapsedTime</code> 변수 이상점을 제거한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(!(ActualElapsedTime %in%<span class="st"> </span><span class="kw">boxplot.stats</span>(flights$ActualElapsedTime)$out))
+
+<span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">y=</span>ActualElapsedTime)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
+<p><img src="fig/ex-05-1.png" title="plot of chunk ex-05" alt="plot of chunk ex-05" style="display: block; margin: auto;" /></p>
+<ol start="6" style="list-style-type: decimal">
+<li>연습문제 : <code>subset</code> 혹은 <code>filter</code> 함수를 사용해서 <code>TaxiIn</code> 변수가 0보다 크고 120보다 적은 범위를 벗어난 이상점을 제거하시오.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights_exp &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(TaxiIn &gt;<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>TaxiIn &lt;<span class="st"> </span><span class="dv">120</span>)</code></pre></div>
+<ol start="7" style="list-style-type: decimal">
+<li>연습문제 : <code>subset</code> 혹은 <code>filter</code> 함수를 사용해서 <code>TaxiOut</code> 변수가 0보다 크고 50보다 적은 범위를 벗어난 이상점을 제거하시오.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(TaxiOut &gt;<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>TaxiIn &lt;<span class="st"> </span><span class="dv">50</span>)</code></pre></div>
+<ol start="8" style="list-style-type: decimal">
+<li>연습문제 : <code>flights_exp$ArrDelay</code> 변수에 <code>ifelse</code> 함수를 사용해서 이상점으로 판정되면 <code>NA</code> 값을 대입하시오.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(flights$ArrDelay)</code></pre></div>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  8.179   8.179   8.179   8.179   8.179   8.179 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">ArrDelay =</span> <span class="kw">ifelse</span>(ArrDelay ==<span class="st"> </span><span class="kw">outlier</span>(ArrDelay), <span class="ot">NA</span>, ArrDelay))
+<span class="kw">summary</span>(flights$ArrDelay)</code></pre></div>
+<pre class="output"><code>   Mode    NA&#39;s 
+logical    1363 
+</code></pre>
+<ol start="9" style="list-style-type: decimal">
+<li>연습문제 : <code>flights_exp$Distance</code> 변수에서 이상점을 제거하는데 <code>Lund Test</code> 통계적 방법을 <code>rp.outlier</code> 함수를 사용해서 실행하시오. 이번에는 <code>rapportools</code> 팩키지를 사용한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(flights)</code></pre></div>
+<pre class="output"><code>[1] 1363   29
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(!(Distance %in%<span class="st"> </span><span class="kw">rp.outlier</span>(Distance)))
+<span class="kw">dim</span>(flights)</code></pre></div>
+<pre class="output"><code>[1] 1348   29
+</code></pre>
+<ol start="10" style="list-style-type: decimal">
+<li>연습문제 : <code>flights$CRSElapsedTime</code> 변수에 대해 2% 극단치를 찾아내는데 카이제곱 방법, <code>scores</code>를 사용하시오.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">outliers &lt;-<span class="st"> </span>outliers::<span class="kw">scores</span>(flights$CRSElapsedTime, <span class="dt">type=</span><span class="st">&quot;chisq&quot;</span>, <span class="dt">prob=</span><span class="fl">0.98</span>)
+<span class="kw">table</span>(outliers)</code></pre></div>
+<pre class="output"><code>outliers
+FALSE  TRUE 
+ 1303    45 
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://r-exercises.com/2016/11/10/descriptive-analytics-part-3-outlier-treatment/">Descriptive Analytics-Part 3 : Outlier treatment</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf">Outlier Detection Techniques</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">텍스트 데이터 전처리 – <code>qdap</code></h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>텍스트 데이터 전처리 과정에 대해 이해한다.</li>
+<li><code>qdap</code> 팩키지를 통해 다양한 전처리 과정을 이해한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="qdap-tm-텍스트-자료구조-비교">1. <code>qdap</code>, <code>tm</code> 텍스트 자료구조 비교</h3>
+<p><a href="https://en.wikipedia.org/wiki/Text_mining">텍스트 마이닝(Text Mining)</a>을 위한 R의 대표적인 팩키지가 <code>qdap</code> <code>tm</code> 이다.</p>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="27%" />
+<col width="61%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">팩키지명</th>
+<th align="left">원 텍스트</th>
+<th align="left">단어 빈도수(word counts)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>qdap</strong></td>
+<td align="left">데이터프레임(Dataframe)</td>
+<td align="left">단어 빈도 행렬(Word Frequency Matrix)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>tm</strong></td>
+<td align="left">말뭉치 (Corpus)</td>
+<td align="left">단어 문서행렬(Term Document Matrix)/문서 단어행렬(Document Term Matrix)</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://cran.r-project.org/web/packages/qdap/">qdap</a>은 원 텍스트 데이터를 데이터프레임 형태로 저장하는 반면에, <a href="https://cran.r-project.org/web/packages/tm/">tm</a> 팩키지는 <code>Corpus</code> 말뭉치 형태로 원 텍스트 데이터를 저장한다는 점에서 차이가 난다.</p>
+<p>두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(<code>matrix</code>)을 사용한다. 이를 그림을 표현하면 다음과 같다.</p>
+<p><img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="77%" /></p>
+<ul>
+<li><code>qdap</code> 텍스트 원문 <code>qdap_dat</code> → <code>qview(qdap_dat)</code></li>
+<li><code>tm</code> 텍스트 원문 <code>tm_dat</code> → inspect(tm_dat)</li>
+<li><code>qdap</code> 단어 빈도수 <code>qdap_wfm</code> → summary(qdap_wfm)</li>
+<li><code>tm</code> 단어 빈도수 <code>tm_tdm</code> → inspect(tm_tdm)</li>
+</ul>
+<h3 id="tm-qdap-데이터-정제-기능">2. <code>tm</code>, <code>qdap</code> 데이터 정제 기능</h3>
+<p><img src="fig/ml-text-cleaning.png" alt="tm, qdap 전처리 기능" width="70%" /></p>
+<p>단어 주머니 기법을 활용하여 텍스트를 분석할 때, 데이터 정제를 통해 단어를 합산하는데 큰 도움이 된다. 영어 단어 예를 들어, statistics, statistical, stats 등은 모두 통계라는 한 단어로 정리되면 좋다.</p>
+<p><code>tm</code> 팩키지 및 <code>base</code> 팩키지에 내장된 데이터 정제 기능은 다음과 같다.</p>
+<ul>
+<li>tolower(): <code>base</code>에 포함된 함수로 모든 문자를 소문자로 변환.</li>
+<li>removePunctuation(): <code>tm</code>에 포함된 함수로 모든 구두점을 제거.</li>
+<li>removeNumbers(): <code>tm</code>에 포함된 함수로 숫자를 제거</li>
+<li>stripWhitespace(): <code>tm</code>에 포함된 함수로 공백(whitespace)을 제거</li>
+</ul>
+<p><code>qdap</code>에는 좀더 다양한 텍스트 정제 함수가 지원된다.</p>
+<ul>
+<li>bracketX(): 괄호 내 모든 텍스트 제거
+<ul>
+<li>“It’s (very) nice” → “It’s nice”</li>
+</ul></li>
+<li>replace_number(): 아라비아 숫자를 대응되는 영어문자로 변환
+<ul>
+<li>“7” → “seven”)</li>
+</ul></li>
+<li>replace_abbreviation(): 축약어를 대응되는 전체 문자로 풀어냄
+<ul>
+<li>“Jan” → “Janunary”)</li>
+</ul></li>
+<li>replace_contraction(): 단어 축약을 원래 상태로 되돌림
+<ul>
+<li>“can’t” → “can not”)</li>
+</ul></li>
+<li>replace_symbol(): 일반 기호를 대응되는 단어로 교체
+<ul>
+<li>“$” → “dollar”</li>
+</ul></li>
+</ul>
+<p>텍스트가 너무 자주 출현하여 거의 정보를 제공하지 않는 단어를 <strong>불용어(stop words)</strong> 라고 부른다. <code>tm</code> 팩키지에는 영어기준으로 174개 불용어가 등재되어 있다. 또한, 관심있는 주제로 문서를 모았다면 수집된 거의 모든 문서에 특정 단어가 포함되어 있어 이것도 도움이 되지 않아 불용어에 등록하여 텍스트 분석을 수행한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">removeWords</span>(text, <span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>))
+stop_words_lst &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rstudio&quot;</span>, <span class="st">&quot;statistics&quot;</span>, <span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>))
+<span class="kw">removeWords</span>(text, stop_words_lst)</code></pre></div>
+<p><code>stopwords(&quot;english&quot;)</code> 영어불용어 사전에 “rstudio”, “statistics” 단어를 더해서 불용어 사전을 완성하고 나서 removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한다.</p>
+<h3 id="참고문헌">참고문헌</h3>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/qdap/vignettes/tm_package_compatibility.pdf">Tyler W. Rinker, qdap-tm Package Compatibility</a></li>
+<li><a href="https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html">Basic Text Mining in R</a></li>
+<li><a href="http://onepager.togaware.com/TextMiningO.pdf">Hands-On Data Science with R Text Mining, Graham.Williams</a></li>
+<li><p><a href="http://www.vikparuchuri.com/blog/natural-language-processing-tutorial/">Natural Language Processing Tutorial</a></p></li>
+<li><a href="http://anythingbutrbitrary.blogspot.kr/2014/01/statistics-meets-rhetoric-text-analysis.html">Statistics meets rhetoric: A text analysis of “I Have a Dream” in R</a></li>
+<li><a href="http://technokarak.com/how-to-create-wordcloud-of-twitter-data-using-r-programming.html">How to Create WordCloud of Twitter Data using R Programming</a></li>
+<li><a href="http://technokarak.com/how-to-clean-the-twitter-data-using-r-twitter-mining-tutorial.html">How to Clean the Twitter Data using R – Twitter Mining Tutorial</a></li>
+<li><p><a href="http://technokarak.com/how-to-load-twitter-tweets-in-r-environment.html">How to Load Twitter Tweets in R Environment</a></p></li>
+</ul>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

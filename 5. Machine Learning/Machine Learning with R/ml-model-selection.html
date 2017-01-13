@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">모형식별 및 선택</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>기계학습 모형식별하고 선택한다.</li>
+<li>기계학습 모형식별의 중요한 결정사항에 대해 파악한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="기계학습-모형-선택-applied-predictive-modeling">1. 기계학습 모형 선택 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>기계학습 모형을 선정할 때, 인간이 사용하는 경우 <strong>성능 상한(Performance Ceiling)</strong> 을 가장 복잡한 모형으로 잡고, 컴퓨팅 복잡성, 예측 용이성, 해석 편이성을 고려하여 모형을 선정한다. 예를 들어, 비선형 지지도 벡터 머신(Nonlinear SVM) 혹은 확률숲(Random Forest)의 경우 데이터에 대한 접합은 좋지만, 실제 운영환경으로 배포하기가 그다지 좋지는 못하다.</p>
+<ol style="list-style-type: decimal">
+<li>기계학습 모형을 최종 모형으로 선정할 때 가장 해석이 되지 않지만 가장 유연한 모형으로 시작한다. 예를 들어, 부스팅 나무모형(Boosting Tree Models), 지지도 벡터 머신(Support Vector Machine, SVM)으로 시작하는데 이유는 가장 정확한 최적의 결과를 제공하기 때문이다.</li>
+<li>최적의 모형이 어떻게 보면 가장 좋은 성능의 상한을 제시하게 되고, 이를 기반으로 최적의 성능에 버금가는 해석이 용이한 모형을 탐색한다. 예를 들어, multivariate adaptive regression splines (MARS), partial least squares, generalized additive models, 나이브 베이즈 모형이 대표적이다.</li>
+<li>성능은 복잡성이 높은 모형이 기준이 되고, 검토하는 모형은 가장 단순한 모형으로 선정한다.</li>
+</ol>
+<h2 id="모형-선정-사례-독일신용평가-데이터">2. 모형 선정 사례 – 독일신용평가 데이터</h2>
+<h3 id="데이터-가져오기">2.1. 데이터 가져오기</h3>
+<p>독일신용평가 데이터를 <code>caret</code> 팩키지에 포함된 것을 사용한다. 훈련데이터와 검증데이터를 반반 나눈다. <code>createDataPartition</code> 함수를 사용해서 쉽게 사용한다. <code>sample</code> 함수를 사용해도 좋다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 01. 데이터 가져오기
+##==========================================================================================
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">data</span>(GermanCredit)
+
+in_train &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(GermanCredit$Class, <span class="dt">p =</span> .<span class="dv">5</span>, <span class="dt">list =</span> <span class="ot">FALSE</span>)
+
+credit.train.df &lt;-<span class="st"> </span>GermanCredit[in_train, ]
+credit.test.df &lt;-<span class="st"> </span>GermanCredit[-in_train, ]</code></pre></div>
+<h3 id="데이터-전처리">2.2. 데이터 전처리</h3>
+<p>이미 데이터 전처리가 깔끔히 되어 있으니 생략한다. 필요하면 더 작업을 해도 좋다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 02. 데이터 전처리
+##==========================================================================================
+<span class="co"># 생략... 이미 정제가 완료된 데이터</span></code></pre></div>
+<h3 id="데이터에-모형을-적합">2.3. 데이터에 모형을 적합</h3>
+<p>R에 공식 비공식적으로 10,000개가 넘는 팩키지가 존재하고 각 팩키지마다 모형을 명세하는 방식이 다르다. 크게 <code>~</code> 공식을 사용하는 방식과 데이터프레임 <code>=</code> 을 사용하는 방식이 있는데 팩키지마다 공식을 명세하는 방식을 준용하면 된다. 중요한 것은 <code>~</code>, <code>=</code> 좌측은 종속변수, 우측은 독립변수가 위치해 넣으면 된다.</p>
+<p>이항회귀모형과 SVM, 확률숲(randomForest) 모형을 차례로 적합시켜 <strong>성능</strong>은 가장 뛰어나면서,</p>
+<ol style="list-style-type: decimal">
+<li>가장 단순한 모형</li>
+<li>가장 이해하기 쉬운 모형</li>
+<li>가장 실운영환경에 배포하기 좋은 모형</li>
+</ol>
+<p>이런 모형을 선정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 모형적합
+##==========================================================================================
+<span class="co"># 모형 공식 준비</span>
+
+credit.var &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">colnames</span>(credit.train.df),<span class="kw">list</span>(<span class="st">&#39;Class&#39;</span>))
+credit.formula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>(<span class="st">&#39;Class&#39;</span>, <span class="kw">paste</span>(credit.var,<span class="dt">collapse=</span><span class="st">&#39; + &#39;</span>), <span class="dt">sep=</span><span class="st">&#39; ~ &#39;</span>))
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 1. 이항회귀모형 적합</span>
+
+credit.logit.m &lt;-<span class="st"> </span><span class="kw">train</span>(credit.formula, <span class="dt">data =</span> credit.train.df,
+                       <span class="dt">method =</span> <span class="st">&quot;glm&quot;</span>, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),
+                       <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">repeats =</span> <span class="dv">5</span>))
+credit.logit.m</code></pre></div>
+<pre class="output"><code>Generalized Linear Model 
+
+500 samples
+ 61 predictor
+  2 classes: &#39;Bad&#39;, &#39;Good&#39; 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 5 times) 
+Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
+Resampling results:
+
+  Accuracy  Kappa    
+  0.7332    0.3280172
+
+ 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 2. SVM </span>
+
+credit.svm.m &lt;-<span class="st"> </span><span class="kw">train</span>(credit.formula, <span class="dt">data =</span> credit.train.df,
+                  <span class="dt">method =</span> <span class="st">&quot;svmRadial&quot;</span>,
+                  <span class="dt">tuneLength =</span> <span class="dv">10</span>,
+                  <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">repeats =</span> <span class="dv">5</span>))</code></pre></div>
+<pre class="output"><code>Loading required package: kernlab
+</code></pre>
+<pre class="output"><code>
+Attaching package: &#39;kernlab&#39;
+</code></pre>
+<pre class="output"><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    alpha
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">credit.svm.m</code></pre></div>
+<pre class="output"><code>Support Vector Machines with Radial Basis Function Kernel 
+
+500 samples
+ 61 predictor
+  2 classes: &#39;Bad&#39;, &#39;Good&#39; 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 5 times) 
+Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
+Resampling results across tuning parameters:
+
+  C       Accuracy  Kappa        
+    0.25  0.6996    -0.0007792208
+    0.50  0.6860    -0.0185525049
+    1.00  0.6920     0.0471641071
+    2.00  0.7004     0.0875409530
+    4.00  0.7076     0.1076889328
+    8.00  0.7068     0.1070036279
+   16.00  0.7064     0.1124521970
+   32.00  0.7064     0.1181307521
+   64.00  0.6992     0.1055573595
+  128.00  0.6964     0.1074038992
+
+Tuning parameter &#39;sigma&#39; was held constant at a value of 4.600361e-06
+Accuracy was used to select the optimal model using  the largest value.
+The final values used for the model were sigma = 4.600361e-06 and C = 4. 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 3. randomForest</span>
+
+credit.rf.m &lt;-<span class="st"> </span><span class="kw">train</span>(credit.formula, <span class="dt">data =</span> credit.train.df,
+                <span class="dt">method =</span> <span class="st">&quot;rf&quot;</span>,
+                <span class="dt">trControl=</span><span class="kw">trainControl</span>(<span class="dt">method=</span><span class="st">&quot;repeatedcv&quot;</span>,<span class="dt">repeats=</span><span class="dv">5</span>),
+                <span class="dt">prox=</span><span class="ot">TRUE</span>, <span class="dt">allowParallel=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Loading required package: randomForest
+</code></pre>
+<pre class="output"><code>randomForest 4.6-12
+</code></pre>
+<pre class="output"><code>Type rfNews() to see new features/changes/bug fixes.
+</code></pre>
+<pre class="output"><code>
+Attaching package: &#39;randomForest&#39;
+</code></pre>
+<pre class="output"><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    margin
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">credit.rf.m</code></pre></div>
+<pre class="output"><code>Random Forest 
+
+500 samples
+ 61 predictor
+  2 classes: &#39;Bad&#39;, &#39;Good&#39; 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 5 times) 
+Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
+Resampling results across tuning parameters:
+
+  mtry  Accuracy  Kappa     
+   2    0.7160    0.07941971
+  31    0.7444    0.33255677
+  61    0.7416    0.34102545
+
+Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 31. 
+</code></pre>
+<h3 id="모형-평가-및-선정">2.4. 모형 평가 및 선정</h3>
+<p>SVM, 이항회귀모형, 확률숲(randomForest) 모형의 성능을 각각 비교하고, 쌍체 t-검증 (paired t-test)을 사용하여 모형간 유의성을 검증한다. 이항회귀모형과 확률숲 모형간에 유의미한 차이가 발견되지 않아 단순한 이항회귀모형을 선정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resample.res &lt;-<span class="st"> </span><span class="kw">resamples</span>(<span class="kw">list</span>(<span class="dt">SVM =</span> credit.svm.m, <span class="dt">Logistic =</span> credit.logit.m, <span class="dt">randomForest=</span>credit.rf.m))
+<span class="kw">summary</span>(resample.res)</code></pre></div>
+<pre class="output"><code>
+Call:
+summary.resamples(object = resample.res)
+
+Models: SVM, Logistic, randomForest 
+Number of resamples: 50 
+
+Accuracy 
+             Min. 1st Qu. Median   Mean 3rd Qu. Max. NA&#39;s
+SVM          0.64    0.68   0.72 0.7076    0.72 0.76    0
+Logistic     0.62    0.70   0.74 0.7332    0.76 0.86    0
+randomForest 0.62    0.72   0.74 0.7444    0.78 0.86    0
+
+Kappa 
+                 Min. 1st Qu.  Median   Mean 3rd Qu.   Max. NA&#39;s
+SVM          -0.07595 0.05882 0.09639 0.1077  0.1772 0.3548    0
+Logistic      0.07216 0.21870 0.33840 0.3280  0.4123 0.6465    0
+randomForest -0.04396 0.24870 0.33840 0.3326  0.4211 0.6602    0
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model.diff &lt;-<span class="st"> </span><span class="kw">diff</span>(resample.res)
+<span class="kw">summary</span>(model.diff)</code></pre></div>
+<pre class="output"><code>
+Call:
+summary.diff.resamples(object = model.diff)
+
+p-value adjustment: bonferroni 
+Upper diagonal: estimates of the difference
+Lower diagonal: p-value for H0: difference = 0
+
+Accuracy 
+             SVM       Logistic randomForest
+SVM                    -0.0256  -0.0368     
+Logistic     0.01202            -0.0112     
+randomForest 9.876e-05 0.70352              
+
+Kappa 
+             SVM       Logistic randomForest
+SVM                    -0.22033 -0.22487    
+Logistic     4.336e-12          -0.00454    
+randomForest 3.438e-11 1                    
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://link.springer.com/book/10.1007/978-1-4614-6849-3">Kuhn, Max, and Kjell Johnson. Applied predictive modeling. New York: Springer, 2013.</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

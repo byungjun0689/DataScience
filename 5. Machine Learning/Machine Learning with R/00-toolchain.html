@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">파이썬기반 기계학습 툴체인(toolchain)</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>파이썬으로 기계학습 툴체인을 구축한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="파이썬-기계학습-생태계-china-version-scipy-stack-install">파이썬 기계학습 생태계 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<p>파이썬 기계학습을 위해서 먼저 언어로 <a href="https://www.python.org/">파이썬</a>이 필요하고, 데이터 처리를 위해서 <a href="http://www.numpy.org/">넘파이(NumPy)</a>가 필요하고, 과학컴퓨팅을 위한 기본 라이브러리를 <a href="http://scipy.org/">SciPy</a>가 지원하고, 시각화를 위해 <a href="http://matplotlib.org/">Matplotlib</a> 라이브러리가 필요하다. 물론, 그 하단에는 C/C++, 포트란 언어로 개발된 라이브러리 혹은 원시 소스코드를 컴파일해서 파이썬에서 가져다 사용할 수 있는 <a href="http://cython.org/">Cython</a>같은 수많은 팩키지가 숨겨져 있다.</p>
+<p><img src="fig/ml-python-ecosystem.png" alt="기계학습 프로세스" width="100%"></p>
+<ul>
+<li>과학 파이썬 배포판
+<ul>
+<li><a href="https://www.continuum.io/downloads">아나콘다(Anaconda)</a>: 리눅스, 윈도우, 맥</li>
+<li><a href="https://www.enthought.com/products/canopy/">캐노피(Enthought Canopy)</a>: 리눅스, 윈도우, 맥</li>
+<li>기타: <a href="http://python-xy.github.io/">파이썬(x,y)</a>, <a href="http://winpython.github.io/">윈파이썬(WinPython)</a>, <a href="http://www.pyzo.org/">파이조(Pyzo)</a></li>
+</ul></li>
+</ul>
+<h2 id="파이썬-기계학습-툴체인toolchain-china-version-scipy-stack-install">파이썬 기계학습 툴체인(toolchain) <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></h2>
+<p>파이썬 기계학습 툴체인은 먼저 유닉스 쉘 명령라인 인터페이스에서 시작하고, 외부 데이터를 가져오면 파이썬 판다스(pandas) 팩키지를 통해 데이터 정제 작업을 진행하고 나서, 데이터 과학자 사람을 위한 시각화로 <a href="http://matplotlib.org/">Matplotlib</a>, 기계를 위한 <a href="http://scikit-learn.org/">Scikit-learn</a>, <a href="https://www.tensorflow.org/">TensorFlow</a>를 연결하여 사용한다.</p>
+<p><img src="fig/ml-python-toolchain.png" alt="기계학습 프로세스" width="100%"></p>
+<h2 id="그외-파이썬-기계학습-라이브러리">그외 파이썬 기계학습 라이브러리</h2>
+<ul>
+<li>데이터 전처리
+<ul>
+<li><a href="http://mdp-toolkit.sourceforge.net/">Modular toolkit for Data Processing</a></li>
+</ul></li>
+<li>강화학습
+<ul>
+<li><a href="http://pybrain.org/">PyBrain, Python-Based Reinforcement Learning, Artificial Intelligence and Neural Network Library</a></li>
+</ul></li>
+<li>웹마이닝
+<ul>
+<li><a href="http://www.clips.ua.ac.be/pattern">Pattern, web mining module for the Python programming language</a></li>
+</ul></li>
+<li>토픽 모형개발 : gensim</li>
+<li>단어구름: pytagcloud</li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.shellsec.com/news/15785.html">Python Ecosystem for Machine Learning</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://scipy.org/install.html">Installing the SciPy Stack</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://www.shellsec.com/news/15785.html">Python Ecosystem for Machine Learning</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://scipy.org/install.html">Installing the SciPy Stack</a><a href="#fnref4">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

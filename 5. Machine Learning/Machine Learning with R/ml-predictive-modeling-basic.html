@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기계학습 예측모형 기초</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>예측모형 개발에 필요한 중요개념을 학습한다.</li>
+<li>내표본, 외표본, 교차검증에 대해 살펴본다.</li>
+<li>훈련/검증 데이터 쪼개기를 실습한다.</li>
+<li>범주 예측에 활용되는 오차행렬를 생성한다.</li>
+<li><code>caret</code> 팩키지 개발 배경을 이해한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="전통적-통계모형과-예측모형-비교">1. 전통적 통계모형과 예측모형 비교</h3>
+<p><a href="https://en.wikipedia.org/wiki/Predictive_modelling">예측모형(Predictive Model)</a>은 정확도가 높은 모형을 개발하는 과정이다. 따라서, 전통적 통계학에서 강조하는 추론, 타당성, 유의성, 가정과 같은 개념적인 것보다는 “실질적으로 정확하게 예측을 할 수 있는가?” 라는 문제늘 더 중요하게 다루고 있다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="예측모형-정의predictive-modeling"><span class="glyphicon glyphicon-pushpin"></span>예측모형 정의(Predictive Modeling)</h3>
+</div>
+<div class="panel-body">
+<p>“Predictive Modeling is the process of creating a model whose primary goal is to achieve high levels of accuracy.”<br />
+– Max Kuhn from Pfizer R&amp;D</p>
+</div>
+</aside>
+<p><strong>예측모형에서 중요하게 고려되는 사항</strong></p>
+<ul>
+<li>예측모형 성능</li>
+<li>예측의 단순성</li>
+<li>복잡성과 컴퓨팅 비용을 줄이도록 변수(특성, Feature) 축소</li>
+<li>예측수식 평활(smoothness)</li>
+<li>예측모형의 강건성</li>
+</ul>
+<p><img src="fig/ml-parameter-tuning.png" alt="예측모형 개발과정" width="70%" ></p>
+<h3 id="찾으려는-예측모형-특성">2. 찾으려는 예측모형 특성</h3>
+<p>오랜기간 좋은 예측모형을 찾으려고 백방으로 수소문하여 현재까지 가장 좋은 예측모형은 지금까지 보지 않던 표본 데이터에 가장 좋은 성능을 보여주는 예측모형이 답이다.</p>
+<p>주어진 데이터에서 다양한 예측모형을 개발하지만, 결국 예측모형이 처음으로 접하는 데이터에도 좋은 성능을 내는, 즉 외표본 오차를 최소화하는 예측모형이 찾고자하는 모형이다.</p>
+<p>이를 위해서 과대적합(Overfitting)하지 말하야 되고, 일반적/강건한 모형이 되어야 한다. 교차검증(Cross-Validation, CV) 방법이 이 문제에 대한 열쇠를 쥐고 있다.</p>
+<p><img src="fig/ml-predictive-model-cv.png" alt="예측모형 오라클" width="77%" /></p>
+<h4 id="내표본-오차">2.1. 내표본 오차</h4>
+<p>과대적합에 대한 치료법으로 교차검증이 많이 활용되는데 먼저 내표본(In-sample) 오차를 계산한다. 가장 먼저 선형회귀모형을 보스톤 집값 데이터에 적합을 시키기 위해서 모형에 들어갈 변수를 선정하고, 예측모형을 <code>lm</code> 함수에 밀어 넣는데, 첫번째부터 100개 관측점만 모형에 사용한다.</p>
+<p>그리고 나서, 선형 회귀식에 예측값을 산출하고 실제값과 RMSE 오차를 계산한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 과대적합 - 교차검증
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 내표본 오차 계</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="kw">glimpse</span>(BostonHousing)</code></pre></div>
+<pre class="output"><code>Observations: 506
+Variables: 14
+$ crim    &lt;dbl&gt; 0.00632, 0.02731, 0.02729, 0.03237, 0.06905, 0.02985, ...
+$ zn      &lt;dbl&gt; 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12.5, 12.5, 12.5, 12.5,...
+$ indus   &lt;dbl&gt; 2.31, 7.07, 7.07, 2.18, 2.18, 2.18, 7.87, 7.87, 7.87, ...
+$ chas    &lt;fctr&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+$ nox     &lt;dbl&gt; 0.538, 0.469, 0.469, 0.458, 0.458, 0.458, 0.524, 0.524...
+$ rm      &lt;dbl&gt; 6.575, 6.421, 7.185, 6.998, 7.147, 6.430, 6.012, 6.172...
+$ age     &lt;dbl&gt; 65.2, 78.9, 61.1, 45.8, 54.2, 58.7, 66.6, 96.1, 100.0,...
+$ dis     &lt;dbl&gt; 4.0900, 4.9671, 4.9671, 6.0622, 6.0622, 6.0622, 5.5605...
+$ rad     &lt;dbl&gt; 1, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, ...
+$ tax     &lt;dbl&gt; 296, 242, 242, 222, 222, 222, 311, 311, 311, 311, 311,...
+$ ptratio &lt;dbl&gt; 15.3, 17.8, 17.8, 18.7, 18.7, 18.7, 15.2, 15.2, 15.2, ...
+$ b       &lt;dbl&gt; 396.90, 396.90, 392.83, 394.63, 396.90, 394.12, 395.60...
+$ lstat   &lt;dbl&gt; 4.98, 9.14, 4.03, 2.94, 5.33, 5.21, 12.43, 19.15, 29.9...
+$ medv    &lt;dbl&gt; 24.0, 21.6, 34.7, 33.4, 36.2, 28.7, 22.9, 27.1, 16.5, ...
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 독립변수 선택</span>
+ind &lt;-<span class="st"> </span><span class="kw">dput</span>(<span class="kw">names</span>(BostonHousing))</code></pre></div>
+<pre class="output"><code>c(&quot;crim&quot;, &quot;zn&quot;, &quot;indus&quot;, &quot;chas&quot;, &quot;nox&quot;, &quot;rm&quot;, &quot;age&quot;, &quot;dis&quot;, &quot;rad&quot;, 
+&quot;tax&quot;, &quot;ptratio&quot;, &quot;b&quot;, &quot;lstat&quot;, &quot;medv&quot;)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ind_sel &lt;-<span class="st"> </span><span class="kw">setdiff</span>(ind, <span class="kw">c</span>(<span class="st">&quot;medv&quot;</span>, <span class="st">&quot;chas&quot;</span>))
+
+<span class="co"># 2. 모형 개발</span>
+housing_model &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>(<span class="st">&quot;medv&quot;</span>, <span class="st">&quot;~&quot;</span>, <span class="kw">paste</span>(ind_sel, <span class="dt">collapse=</span><span class="st">&quot;+&quot;</span>),<span class="dt">collapse=</span><span class="st">&quot;&quot;</span>))
+
+<span class="co"># 3. 모형 적합</span>
+model &lt;-<span class="st"> </span><span class="kw">lm</span>(housing_model, <span class="dt">data=</span>BostonHousing[<span class="dv">1</span>:<span class="dv">100</span>,])
+
+<span class="co"># 4. 내표본 예측값 산출</span>
+predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(model, BostonHousing[<span class="dv">1</span>:<span class="dv">100</span>, ], <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>) 
+
+<span class="co"># 5. RMSE 오차 계산</span>
+actual &lt;-<span class="st"> </span>BostonHousing[<span class="dv">1</span>:<span class="dv">100</span>, <span class="st">&quot;medv&quot;</span>] 
+<span class="kw">sqrt</span>(<span class="kw">mean</span>((predicted -<span class="st"> </span>actual)^<span class="dv">2</span>)) </code></pre></div>
+<pre class="output"><code>[1] 2.037201
+</code></pre>
+<h4 id="내표본-오차-1">2.2. 내표본 오차</h4>
+<p>내표본 오차가 최소화되는 모형이 좋지만, 결국 중요한 것은 지금까지 보지 못한 사례 외표본에 대한 RMSE 오차를 계산하는 것이 성능이 좋은 예측모형인지 판단하는 근거가 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.02. 외표본 오차 </span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+
+<span class="co"># 3. 모형 적합</span>
+model &lt;-<span class="st"> </span><span class="kw">lm</span>(housing_model, <span class="dt">data=</span>BostonHousing[<span class="dv">1</span>:<span class="dv">100</span>,])
+
+<span class="co"># 4. 내표본 예측값 산출</span>
+predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(model, BostonHousing[<span class="dv">101</span>:<span class="dv">200</span>, ], <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>) 
+
+<span class="co"># 5. RMSE 오차 계산</span>
+actual &lt;-<span class="st"> </span>BostonHousing[<span class="dv">101</span>:<span class="dv">200</span>, <span class="st">&quot;medv&quot;</span>] 
+<span class="kw">sqrt</span>(<span class="kw">mean</span>((predicted -<span class="st"> </span>actual)^<span class="dv">2</span>)) </code></pre></div>
+<pre class="output"><code>[1] 7.658793
+</code></pre>
+<h4 id="교차검증">2.3. 교차검증</h4>
+<p>내표본 오차와 외표본 오차 개념을 바탕으로 교차검증을 통해 선형회귀모형에 10번 적용한 후 가장 좋은 모형을 자동으로 뽑아낸다. <code>caret</code> 팩키지 <code>train()</code> 함수에 <code>method = &quot;cv&quot;</code>, <code>number = 10</code> 인자를 설정하여 교차검증 방법을 적용한 선형회귀모형을 실행시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.03. Cross Validation</span>
+<span class="co">#------------------------------------------------------------------------------------------</span>
+<span class="kw">set.seed</span>(<span class="dv">77</span>) 
+model &lt;-<span class="st"> </span><span class="kw">train</span>(housing_model, BostonHousing, 
+               <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>,
+               <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;cv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">verboseIter =</span> <span class="ot">TRUE</span>)
+               )</code></pre></div>
+<pre class="output"><code>+ Fold01: parameter=none 
+- Fold01: parameter=none 
++ Fold02: parameter=none 
+- Fold02: parameter=none 
++ Fold03: parameter=none 
+- Fold03: parameter=none 
++ Fold04: parameter=none 
+- Fold04: parameter=none 
++ Fold05: parameter=none 
+- Fold05: parameter=none 
++ Fold06: parameter=none 
+- Fold06: parameter=none 
++ Fold07: parameter=none 
+- Fold07: parameter=none 
++ Fold08: parameter=none 
+- Fold08: parameter=none 
++ Fold09: parameter=none 
+- Fold09: parameter=none 
++ Fold10: parameter=none 
+- Fold10: parameter=none 
+Aggregating results
+Fitting final model on full training set
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
+<pre class="output"><code>Linear Regression 
+
+506 samples
+ 13 predictor
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 457, 456, 455, 454, 456, 455, ... 
+Resampling results:
+
+  RMSE      Rsquared
+  4.774371  0.72811 
+
+ 
+</code></pre>
+<h4 id="데이터-쪼개기">2.4. 데이터 쪼개기</h4>
+<p>데이터 중심 예측모형을 개발하는 경우 데이터를 훈련 데이터와 검증 데이터로 나누어야 한다. <code>base</code> 팩키지에 준비된 <code>sample</code> 함수를 활용하여 7:3 테스트:검증 비율을 정해 데이터를 준비하는 것도 가능하다.</p>
+<p>다른 한가지 방법은 <code>caret</code> 팩키지의 <code>createDataPartition</code> 팩키지 함수에 인자를 던져 7:3 테스트:검증 데이터를 생성하는 것이다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 데이터 쪼개기</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 1. 데이터 랜덤 정렬</span>
+<span class="kw">set.seed</span>(<span class="dv">77</span>)
+Sonar &lt;-<span class="st"> </span>Sonar[<span class="kw">sample</span>(<span class="kw">nrow</span>(Sonar)), ]
+
+<span class="co"># 2. 70:30 데이터 분리</span>
+idx &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">nrow</span>(Sonar) *<span class="st"> </span>.<span class="dv">7</span>)
+train &lt;-<span class="st"> </span>Sonar[<span class="dv">1</span>:idx, ]
+test &lt;-<span class="st"> </span>Sonar[(idx<span class="dv">+1</span>):<span class="kw">nrow</span>(Sonar), ]
+
+<span class="co"># 3. 70:30 데이터 검증</span>
+<span class="kw">nrow</span>(train) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.7019231
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(test) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.2980769
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.02. 데이터 쪼개기: caret</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 1. 70:30 데이터 분리</span>
+
+idx &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(Sonar$Class, <span class="dt">p =</span> .<span class="dv">70</span>, <span class="dt">list=</span> <span class="ot">FALSE</span>) 
+
+caret_train &lt;-<span class="st"> </span>Sonar[idx, ]
+caret_test &lt;-<span class="st"> </span>Sonar[-idx, ]
+
+<span class="co"># 2. 70:30 데이터 검증</span>
+<span class="kw">nrow</span>(caret_train) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.7019231
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(caret_test) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.2980769
+</code></pre>
+<h3 id="caret-팩키지">3. <code>caret</code> 팩키지</h3>
+<p><code>caret</code> 팩키지와 같은 예측모형 전용 팩키지가 필요한 이유는 너무나 많은 예측모형이 존재하고, 더 큰 문제는 사용법과 해석이 모두 다르다는데 있다. 너무 많은 사람이들이 오랜기간에 걸쳐 개발하다보니 어쩌면 당연한 문제라고 볼 수도 있다.</p>
+<h3 id="r-팩키지-구문">3.1. R 팩키지 구문</h3>
+<p>기계학습에서 가장 많이 작업하는 것 중에 하나가 분류문제에 대한 예측 알고리즘을 제시하는 것이다. 데이터도 다양하지만, 분류문제에 대한 다양한 이론이 존재하고, R로 구현된 팩키지도 정말 다양한다. 예를 들어, <code>lda</code>는 판별분석(Linear Discrimant Analsyis)을 돌릴 때 사용되는 것으로 <code>MASS</code> 팩키지에 포함되어 있고, 훈련데이터 혹은 검증데이터에 예측값을 구할 경우 <code>predict</code> 함수에 <code>lda</code> 반환값을 넣어주면 되고 추가설정은 필요없다. <code>glm</code>은 일반화 선형모형을 적합할 때 특히 링크함수로 <code>logit</code>을 넣어 설정하고 <code>stats</code> 팩키지에 포함되어 있고, 구문은 <code>lda</code>와 확연한 차이를 볼 수 있다.</p>
+<p><code>gbm</code>, <code>mda</code>, <code>rpart</code>, <code>Weka</code>, <code>LogitBoost</code>등 다양한 예측 알고리즘이 존재한다. 다음은 <strong>Max Kuhn</strong> 박사가 <code>caret</code>을 개발한 주요한 사유로 정리한 표다. 이를 일관된 인터페이스로 제공하고 나아가 각 모형의 성능을 객관적으로 비교할 수 있는 성능평가 지표 도출 및 확정을 위해서 꼭 필요한 것으로 판단된다. (본인이 필요해서 개발하지 않았을까 생각되고, 누구나 이런 코드는 갖고 있는데 체계적으로 정리해서 공개한 후, 10년에 걸쳐 시간을 투여한 Kuhn 박사님께 감사드립니다.)</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">예측함수명</th>
+<th align="center">팩키지명</th>
+<th align="left"><code>predict</code> 함수 예측구문</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">lda</td>
+<td align="center">MASS</td>
+<td align="left">predict(obj) (추가 인자설정 불필요)</td>
+</tr>
+<tr class="even">
+<td align="center">glm</td>
+<td align="center">stats</td>
+<td align="left">predict(obj, type = “response”)</td>
+</tr>
+<tr class="odd">
+<td align="center">gbm</td>
+<td align="center">gbm</td>
+<td align="left">predict(obj, type = “response”, n.trees)</td>
+</tr>
+<tr class="even">
+<td align="center">mda</td>
+<td align="center">mda</td>
+<td align="left">predict(obj, type = “posterior”)</td>
+</tr>
+<tr class="odd">
+<td align="center">rpart</td>
+<td align="center">rpart</td>
+<td align="left">predict(obj, type = “prob”)</td>
+</tr>
+<tr class="even">
+<td align="center">Weka</td>
+<td align="center">RWeka</td>
+<td align="left">predict(obj, type = “probability”)</td>
+</tr>
+<tr class="odd">
+<td align="center">LogitBoost</td>
+<td align="center">caTools</td>
+<td align="left">predict(obj, type = “raw”, nIter)</td>
+</tr>
+</tbody>
+</table>
+<p><code>caret</code>에서 지원하는 예측모형 목록 중 일부는 다음과 같고, 전체 목록은 <a href="http://topepo.github.io/caret/modelList.html">예측모형 caret 목록</a>을 참조한다. 2014년 2월 기준 예측모형과 예측함수 147개, 2016년 1월 기준 216개 폭증.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">모형</th>
+<th align="left">예측함수명</th>
+<th align="left">팩키지</th>
+<th align="left">세부조정 모수</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">재귀적 분할</td>
+<td align="left">rpart</td>
+<td align="left">rpart</td>
+<td align="left">maxdepth</td>
+</tr>
+<tr class="even">
+<td align="left">Boosted trees</td>
+<td align="left">gbm</td>
+<td align="left">gbm</td>
+<td align="left">interaction.depth, n.trees, shrinkage</td>
+</tr>
+<tr class="odd">
+<td align="left">Random forests</td>
+<td align="left">rf</td>
+<td align="left">randomForest</td>
+<td align="left">mtry</td>
+</tr>
+<tr class="even">
+<td align="left">신경망</td>
+<td align="left">nnet</td>
+<td align="left">nnet</td>
+<td align="left">decay, size</td>
+</tr>
+<tr class="odd">
+<td align="left">Support Vector Machine (RBF 커널)</td>
+<td align="left">svmRadial</td>
+<td align="left">kernlab</td>
+<td align="left">sigma, C</td>
+</tr>
+<tr class="even">
+<td align="left">Support Vector Machine (다항식 커널)</td>
+<td align="left">svmPoly</td>
+<td align="left">kernlab</td>
+<td align="left">scale, degree, C</td>
+</tr>
+<tr class="odd">
+<td align="left">선형회귀</td>
+<td align="left">lm</td>
+<td align="left">stats</td>
+<td align="left">없음</td>
+</tr>
+<tr class="even">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+</tbody>
+</table>
+<h3 id="오차-행렬confusion-matrix">4. 오차 행렬(Confusion Matrix)</h3>
+<p>범주형 특히, 채무불이행과 정상과 같은 두가지 범주를 예측하는 경우 예측모형을 사용해서 도출된 값은 0과 1사이 확률값으로 나타난다. <code>glm</code> 함수에 <code>family = &quot;binomial&quot;</code> 인자를 넣어 로지스틱 모형을 개발하고, <code>predict</code> 함수에 모형과 검증 데이터를 넣게 되면 검증 데이터의 확률값이 생성된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 모형적합
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 데이터 쪼개기</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 1. 데이터 랜덤 정렬</span>
+<span class="kw">set.seed</span>(<span class="dv">77</span>)
+Sonar &lt;-<span class="st"> </span>Sonar[<span class="kw">sample</span>(<span class="kw">nrow</span>(Sonar)), ]
+
+<span class="co"># 2. 70:30 데이터 분리</span>
+idx &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">nrow</span>(Sonar) *<span class="st"> </span>.<span class="dv">7</span>)
+train &lt;-<span class="st"> </span>Sonar[<span class="dv">1</span>:idx, ]
+test &lt;-<span class="st"> </span>Sonar[(idx<span class="dv">+1</span>):<span class="kw">nrow</span>(Sonar), ]
+
+<span class="co"># 3. 70:30 데이터 검증</span>
+<span class="kw">nrow</span>(train) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.7019231
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(test) /<span class="st"> </span><span class="kw">nrow</span>(Sonar)</code></pre></div>
+<pre class="output"><code>[1] 0.2980769
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.02. 이항회귀 모형</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 모형적합</span>
+
+model_logit &lt;-<span class="st"> </span><span class="kw">glm</span>(Class ~<span class="st"> </span>., <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">data=</span>train)</code></pre></div>
+<p><code>ifelse</code> 함수를 사용해서 컷오프 기준(예를 들어, 0.5)을 정하고 기뢰(“M”), 바위(“R”)를 예측한다. 이를 검증데이터 실제값과 교차분석 표를 생성하게 되면 오차행렬을 통해 예측모형에 대한 성능이 도출된다.</p>
+<p><code>confusionMatrix</code> 행렬을 사용하게 되면 훨씬 더 유용한 정보가 많이 도출된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 04. 성능평가
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 04.01. 이항회귀 모형 성능평가: 기본</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 확률 -&gt; 범주예측값 전환</span>
+logit_prob &lt;-<span class="st"> </span><span class="kw">predict</span>(model_logit, test, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>) 
+logit_prob_class &lt;-<span class="st"> </span><span class="kw">ifelse</span>(logit_prob &gt;<span class="st"> </span>.<span class="dv">5</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;R&quot;</span>)
+<span class="kw">table</span>(logit_prob_class)</code></pre></div>
+<pre class="output"><code>logit_prob_class
+ M  R 
+21 41 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 오차행렬</span>
+<span class="kw">table</span>(logit_prob_class, test[[<span class="st">&quot;Class&quot;</span>]])</code></pre></div>
+<pre class="output"><code>                
+logit_prob_class  M  R
+               M  4 17
+               R 31 10
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 04.02. 이항회귀 모형 성능평가: `caret`</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># install.packages(&quot;e1071&quot;)</span>
+<span class="kw">confusionMatrix</span>(logit_prob_class, test[[<span class="st">&quot;Class&quot;</span>]]) </code></pre></div>
+<pre class="output"><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction  M  R
+         M  4 17
+         R 31 10
+                                          
+               Accuracy : 0.2258          
+                 95% CI : (0.1293, 0.3497)
+    No Information Rate : 0.5645          
+    P-Value [Acc &gt; NIR] : 1.0000          
+                                          
+                  Kappa : -0.4865         
+ Mcnemar&#39;s Test P-Value : 0.0606          
+                                          
+            Sensitivity : 0.11429         
+            Specificity : 0.37037         
+         Pos Pred Value : 0.19048         
+         Neg Pred Value : 0.24390         
+             Prevalence : 0.56452         
+         Detection Rate : 0.06452         
+   Detection Prevalence : 0.33871         
+      Balanced Accuracy : 0.24233         
+                                          
+       &#39;Positive&#39; Class : M               
+                                          
+</code></pre>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
