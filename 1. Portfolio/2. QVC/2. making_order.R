@@ -20,6 +20,11 @@ timezone2  <- timezone2[-c(19,25,29,42,46,48,37,53,58),]
 names(timezone2)[1] <- "STATE"
 customer <- merge(customer,timezone2,by="STATE")
 
+# customer[customer$timezone=="MST7MDT",]$timezone <- "MST"
+# customer[customer$timezone=="CST6CDT",]$timezone <- "CST"
+# customer[customer$timezone=="PST8PDT",]$timezone <- "PST"
+# customer[customer$timezone=="EST5EDT",]$timezone <- "EST"
+
 #write.csv(customer,"Customer master2.csv",row.names = F)
 
 orderlist <- read.csv("6 month history of customer orders.csv")
@@ -89,6 +94,11 @@ order_df$AIR_MON <- month(order_df$PRODUCT_START_TMS)
 order_df$START_HOUR <- hour(order_df$PRODUCT_START_TMS)
 order_df$PRODUCT_STOP_TMS <- ymd_hms(order_df$PRODUCT_STOP_TMS)
 order_df$STOP_HOUR <- hour(order_df$PRODUCT_STOP_TMS)
+
+#order_df[order_df$timezone=="MST7MDT",]$timezone <- "MST"
+#order_df[order_df$timezone=="CST6CDT",]$timezone <- "CST"
+#order_df[order_df$timezone=="PST8PDT",]$timezone <- "PST"
+#order_df[order_df$timezone=="EST5EDT",]$timezone <- "EST"
 
 write.csv(order_df,"order_data.csv",row.names = F)
 
