@@ -19,11 +19,13 @@ library(lubridate)
 
 theme_set(theme_gray(base_size = 18))
 
-customer <- read.csv("Customer master2.csv")
+customer <- read.csv("data/Customer master2.csv")
 customer$SHOPPER_SEGMENT_CODE <- as.factor(customer$SHOPPER_SEGMENT_CODE)
-order_df <- read.csv("order_data.csv", stringsAsFactors = F)
+order_df <- read.csv("data/order_data.csv", stringsAsFactors = F)
 order_df$SHOPPER_SEGMENT_CODE[is.na(order_df$SHOPPER_SEGMENT_CODE)] <- 0
 order_df$SHOPPER_SEGMENT_CODE <- as.factor(order_df$SHOPPER_SEGMENT_CODE)
+
+product <- read.csv("data/Product master2.csv", stringsAsFactors = F)
 
 #########################################
 ############## DATA 설명 ################
@@ -200,8 +202,8 @@ ggplot(segment_mon_order,aes(x=SHOPPER_SEGMENT_CODE,y=or_cnt,fill=ORDER_DAY)) + 
 ################################################
 #### 1번 ####
 
-order_df <- read.csv("order_data_cluster.csv", stringsAsFactors = F)
-customer <- read.csv("customer_with_cluster.csv",stringsAsFactors = F)
+order_df <- read.csv("data/order_data_cluster.csv", stringsAsFactors = F)
+customer <- read.csv("data/customer_with_cluster.csv",stringsAsFactors = F)
 
 for(i in 1:9){
   tmp_df <- order_df %>% filter(cluster==i)
@@ -259,7 +261,7 @@ getCateRecommand2 <- function(x){
   if(length(custCluster)==0){
     return(0)
   }
-  baskets <-  read_baskets(con  = paste0("item_cate_",custCluster,".txt"),sep = "#", info = c("sequenceID","eventID","SIZE"))
+  baskets <-  read_baskets(con  = paste0("data/item_cate_",custCluster,".txt"),sep = "#", info = c("sequenceID","eventID","SIZE"))
   baskets <- cspade(baskets, parameter = list(support = 0.0001), control = list(verbose = TRUE))
   baskets_df <- as(baskets, "data.frame")
   baskets_df <- baskets_df[order(baskets_df$support,decreasing = T),]
