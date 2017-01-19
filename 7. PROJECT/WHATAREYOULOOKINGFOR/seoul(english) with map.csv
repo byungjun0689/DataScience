@@ -1,0 +1,407 @@
+,"?""키값""",약국이름,행정시,행정구,행정동,전화번호,latitude,longtitude
+0,BE_LiST22-0102,Saegwang Pharmacy,Seoul,Dongdaemun-gu,Jegi-dong,029628989,37.5794511,127.0421273
+1,BE_LiST22-0103,Bokji Pharmacy,Seoul,Dongdaemun-gu,Dapsimni1-dong,0222173606,37.5705108,127.0481395
+2,BE_LiST22-0104,Chamewha Pharmacy,Seoul,Dongdaemun-gu,Dapsimni1-dong,0222475029,37.565682,127.054819
+3,BE_LiST22-0105,Janganpyeong Pharmacy,Seoul,Dongdaemun-gu,Jangan2-dong,0222129430,37.571577,127.074285
+4,BE_LiST22-0106,Saeewha Pharmacy,Seoul,Dongdaemun-gu,Jangan2-dong,0222142488,37.5729167,127.072075
+5,BE_LiST22-0107,Nana Pharmacy,Seoul,Dongdaemun-gu,Jangan2-dong,0222452594,37.5676501,127.0722409
+6,BE_LiST22-0109,Dongdaemun 21st Century Pharmacy,Seoul,Dongdaemun-gu,Yongsin-dong,029641717,37.57449,127.0387234
+7,BE_LiST22-0110,Dapsimni Baekhwajeom Pharmacy,Seoul,Dongdaemun-gu,Dapsimni2-dong,0222159454,37.5740822,127.058008
+8,BE_LiST22-0111,Newmedical Pharmacy,Seoul,Dongdaemun-gu,Jeonnong1-dong,0222156291,37.578063,127.057294
+9,BE_LiST22-0112,Sinhaengdang Pharmacy,Seoul,Dongdaemun-gu,Jeonnong2-dong,0222121931,37.5799521,127.0662796
+10,BE_LiST22-0113,Eunhyedang Pharmacy,Seoul,Jungnang-gu,Myeonmok2-dong,024373337,37.591774,127.0773558
+11,BE_LiST22-0114,Saebonghwa Pharmacy,Seoul,Jungnang-gu,Sinnae2-dong,0234213383,37.61626,127.0926047
+12,BE_LiST22-0115,Geongang Jeil Onnuri Pharmacy,Seoul,Jungnang-gu,Junghwa1-dong,024911114,37.6006358,127.0799967
+13,BE_LiST22-0116,Ian Onnuri Pharmacy,Seoul,Jungnang-gu,Myeonmok7-dong,024935074,37.5797107,127.0874548
+14,BE_LiST22-0117,Naeul,Seoul,Jungnang-gu,Myeonmok5-dong,024334955,37.586006203019934,127.02227256113622
+15,BE_LiST22-0118,Taereung Plaza ,Seoul,Jungnang-gu,Junghwa2-dong,0222080922,37.5983427,127.0769382
+16,BE_LiST22-0119,Uri Jongno ,Seoul,Jungnang-gu,Mangubon-dong,024331100,37.5957613,127.0999584
+17,BE_LiST22-0120,Seoul Medical ,Seoul,Jungnang-gu,Sinnae1-dong,0234225000,37.6142381,127.0972206
+18,BE_LiST22-0121,Unyong Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029123417,37.5914404,127.0376875
+19,BE_LiST22-0122,Gangwon Pharmacy,Seoul,Seongbuk-gu,Jeongneung2-dong,029148814,37.6025065,127.012967
+20,BE_LiST22-0123,Seoul Gomyeong Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029236811,37.5986821,127.020575
+21,BE_LiST22-0124,Alpha Pharmacy,Seoul,Seongbuk-gu,Seongbuk-dong,029187692,37.6141738,127.0421636
+22,BE_LiST22-0125,Onnuri Cheongsu Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029132328,37.6170288,127.0032494
+23,BE_LiST22-0126,Yeongsaeng Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029285777,37.5942535,127.0341612
+24,BE_LiST22-0127,Sinseonmyeong Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029665913,37.6059404,127.0631875
+25,BE_LiST22-0128,Daerimdang Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029130832,37.603182,127.022775
+26,BE_LiST22-0129,Jaseong Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029288974,37.5890412,127.0216791
+27,BE_LiST22-0130,Busan Pharmacy,Seoul,Seongbuk-gu,Jangwi2-dong,029154560,37.6133791,127.0506157
+28,BE_LiST22-0131,Jeongneung Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029143982,37.6085263,127.009741
+29,BE_LiST22-0132,Daegeon Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029146815,37.6039191,127.014952
+30,BE_LiST22-0134,Namjin Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029139270,37.604726,127.022902
+31,BE_LiST22-0135,Sejong Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029143685,37.617117,127.002859
+32,BE_LiST22-0136,Onnuri Jae Pharmacy,Seoul,Seongbuk-gu,Bomun-dong,029266678,37.5840251,127.0195544
+33,BE_LiST22-0137,Inhyeon Pharmacy,Seoul,Seongbuk-gu,Jangwi1-dong,029187353,37.6175669,127.0463225
+34,BE_LiST22-0138,Bogeon Pharmacy,Seoul,Seongbuk-gu,Jangwi1-dong,029151336,37.618513,127.0517734
+35,BE_LiST22-0139,Baekgyeong Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029638974,37.607354,127.060815
+36,BE_LiST22-0140,Dongseon Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029237731,37.594674,127.0201416
+37,BE_LiST22-0141,Subo Pharmacy,Seoul,Seongbuk-gu,Jeongneung3-dong,029141555,37.6087558,127.0080923
+38,BE_LiST22-0142,Gwanmun Pharmacy,Seoul,Seongbuk-gu,Jangwi3-dong,029151241,37.615929,127.055272
+39,BE_LiST22-0143,Guwon Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029131139,37.6036335,127.0376258
+40,BE_LiST22-0144,Nabaron Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,027626300,37.5890079,127.0066844
+41,BE_LiST22-0145,Saeminu Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029174275,37.5992888,127.0182937
+42,BE_LiST22-0147,Somang Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029188055,37.602217,127.018914
+43,BE_LiST22-0148,Jangil Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029168373,37.6031981,127.0137169
+44,BE_LiST22-0149,Dongbu Pharmacy,Seoul,Seongbuk-gu,Gireum2-dong,029837950,37.6103915,127.0242478
+45,BE_LiST22-0150,Gungmin Pharmacy,Seoul,Seongbuk-gu,Jeongneung3-dong,029145782,37.6080273,126.9996287
+46,BE_LiST22-0151,Modang Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029254465,37.5923009,127.0136325
+47,BE_LiST22-0152,Sewon Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029226060,37.593707,127.018775
+48,BE_LiST22-0153,Onnuri Minu Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029694582,37.6106899,127.0606747
+49,BE_LiST22-0154,Onnuri Jinho Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029641944,37.6075804,127.0605459
+50,BE_LiST22-0155,Seungil Pharmacy,Seoul,Seongbuk-gu,Jangwi3-dong,029154057,37.6137479,127.0575749
+51,BE_LiST22-0156,Daehak Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029241919,37.586446,127.029217
+52,BE_LiST22-0157,Hyejo Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029225076,37.603536,127.030378
+53,BE_LiST22-0158,Simhwa Pharmacy,Seoul,Seongbuk-gu,Jangwi1-dong,029114642,37.6178224,127.0479007
+54,BE_LiST22-0159,Wolgok Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029132900,37.602565,127.041572
+55,BE_LiST22-0160,Geonganghan Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029166445,37.605724,127.027762
+56,BE_LiST22-0161,Onnuri Seongmo Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029271282,37.5969942,127.022153
+57,BE_LiST22-0162,Hwaseong Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029138936,37.6085654,127.0359
+58,BE_LiST22-0163,Taepyeongyang Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029192525,37.6114482,127.0095198
+59,BE_LiST22-0164,Bumin Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029127393,37.603868,127.042463
+60,BE_LiST22-0165,Onnuri Dusan Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029592668,37.6129055,127.0684003
+61,BE_LiST22-0166,Gwanghyedang Pharmacy,Seoul,Seongbuk-gu,Jangwi2-dong,029425199,37.6137899,127.0490573
+62,BE_LiST22-0167,Cheongsipja Pharmacy,Seoul,Seongbuk-gu,Bomun-dong,029232393,37.583993,127.019862
+63,BE_LiST22-0168,Hana Onnuri Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029140035,37.6032486,127.0424766
+64,BE_LiST22-0169,Mirae Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029245264,37.586485,127.02884
+65,BE_LiST22-0170,Yeon Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,0236755778,37.5888521,127.00761
+66,BE_LiST22-0171,Samwon Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029418550,37.6008821,127.0342125
+67,BE_LiST22-0172,Bomun Pharmacy,Seoul,Seongbuk-gu,Bomun-dong,029213844,37.586038,127.018786
+68,BE_LiST22-0174,Sinsewon Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029090928,37.603557,127.023738
+69,BE_LiST22-0175,Baekdusan Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029272792,37.5871576,127.0270063
+70,BE_LiST22-0176,Hansol Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029266479,37.5913571,127.0118125
+71,BE_LiST22-0178,Jeongneung Medical Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029122727,37.6020483,127.0193414
+72,BE_LiST22-0181,Optima Simin Pharmacy,Seoul,Seongbuk-gu,Bomun-dong,029288663,37.583527,127.020133
+73,BE_LiST22-0182,Ansae Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,0222024484,37.5900659,127.0089178
+74,BE_LiST22-0183,Gilleum Medical Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029155777,37.604314,127.0248
+75,BE_LiST22-0184,Jun Pharmacy,Seoul,Seongbuk-gu,Seongbuk-dong,027644835,37.5895737,127.004475
+76,BE_LiST22-0185,Haeoreum Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029122302,37.6187359,127.0071968
+77,BE_LiST22-0186,Miso Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,027444415,37.587124,127.00945
+78,BE_LiST22-0187,Medical Pham Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029090508,37.6064321,127.036425
+79,BE_LiST22-0188,Geu Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029110488,37.608515,127.010067
+80,BE_LiST22-0189,Seon Pharmacy,Seoul,Seongbuk-gu,Jangwi1-dong,029424553,37.618482,127.045675
+81,BE_LiST22-0190,Cheongsol Pharmacy,Seoul,Seongbuk-gu,Jangwi3-dong,029098067,37.622441,127.051094
+82,BE_LiST22-0191,Dongin Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029263533,37.593195,127.017094
+83,BE_LiST22-0285,Vitamin ,Seoul,Dobong-gu,Chang1-dong,029024797,37.649829,127.035746
+84,BE_LiST22-0342,Daewoo Silloam Pharmacy,Seoul,Yangcheon-gu,Sinwol5-dong,0226026489,37.5416692,126.831024
+85,BE_LiST22-0343,Mart Onnuri Pharmacy,Seoul,Yangcheon-gu,Mok1-dong,0226513467,37.5260641,126.8703006
+86,BE_LiST22-0344,Medipham Samseong Pharmacy,Seoul,Yangcheon-gu,Mok1-dong,0226439685,37.5303145,126.8732368
+87,BE_LiST22-0345,Munhwa Pharmacy,Seoul,Yangcheon-gu,Sinwol7-dong,0226025602,37.5186141,126.8358117
+88,BE_LiST22-0346,Sujeong Pharmacy,Seoul,Yangcheon-gu,Sinjeong3-dong,0226443395,37.520769,126.852891
+89,BE_LiST22-0347,Sinwolsijang Pharmacy,Seoul,Yangcheon-gu,Sinwol1-dong,0226027613,37.5317404,126.8366438
+90,BE_LiST22-0348,Yein Pharmacy,Seoul,Yangcheon-gu,Sinwol7-dong,0226924373,37.5226931,126.8331121
+91,BE_LiST22-0349,Orangelime Pharmacy,Seoul,Yangcheon-gu,Sinjeong4-dong,0226018557,37.528361,126.863814
+92,BE_LiST22-0351,Eunhye Pharmacy,Seoul,Yangcheon-gu,Sinjeong4-dong,0226981635,37.525636,126.8588455
+93,BE_LiST22-0352,Jaemin Pharmacy,Seoul,Yangcheon-gu,Sinwol1-dong,0226033918,37.529094,126.836774
+94,BE_LiST22-0353,Cheongsong Onnuri Pharmacy,Seoul,Yangcheon-gu,Mok4-dong,0226515319,37.539261,126.8662
+95,BE_LiST22-0354,Gangseo Yeonsae Pharmacy,Seoul,Gangseo-gu,Hwagok6-dong,0226061531,37.5544875,126.8519463
+96,BE_LiST22-0355,Daehyeon Onnuri Pharmacy,Seoul,Gangseo-gu,Deungchon1-dong,0226682525,37.5578067,126.8607271
+97,BE_LiST22-0356,Bayer Pharmacy,Seoul,Gangseo-gu,Hwagok1-dong,0226070217,37.5397167,126.83405
+98,BE_LiST22-0357,Hanbit Pharmacy,Seoul,Gangseo-gu,Deungchon3-dong,0226587371,37.5616417,126.8449875
+99,BE_LiST22-0358,Buyeong Pharmacy,Seoul,Gangseo-gu,Deungchon3-dong,0236631809,37.5649371,126.8425169
+100,BE_LiST22-0359,Gayang Jongno Pharmacy,Seoul,Gangseo-gu,Deungchon3-dong,0226592356,37.5625913,126.8517217
+101,BE_LiST22-0360,Yeonsudang Pharmacy,Seoul,Gangseo-gu,Hwagok8-dong,0226947582,37.5338058,126.8471349
+102,BE_LiST22-0361,Uri Onnuri Pharmacy,Seoul,Gangseo-gu,Hwagok1-dong,0226927020,37.5328442,126.8388336
+103,BE_LiST22-0362,21C Saegyero Pharmacy,Seoul,Gangseo-gu,Ujangsan-dong,0226070624,37.541925,126.84065
+104,BE_LiST22-0363,Jeil Medical Pharmacy,Seoul,Gangseo-gu,Hwagok1-dong,0264023579,37.537382,126.83686
+105,BE_LiST22-0364,Gukjae Gonghang Pharmacy,Seoul,Gangseo-gu,Banghwa2-dong,0226641350,37.5559443,126.8081178
+106,BE_LiST22-0365,Taepyeongyang Pharmacy,Seoul,Gangseo-gu,Hwagok4-dong,0226527214,37.5337259,126.8633851
+107,BE_LiST22-0366,Sol Pharmacy,Seoul,Gangseo-gu,Deungchon1-dong,0236628899,37.557043,126.8613534
+108,BE_LiST22-0368,Cheongwa Pharmacy,Seoul,Guro-gu,Garibong-dong,028551482,37.4845889,126.8881471
+109,BE_LiST22-0369,Joeun Pharmacy,Seoul,Guro-gu,Gaebong1-dong,0226156999,37.4954344,126.8588726
+110,BE_LiST22-0370,Taeyeong Plaza Pharmacy,Seoul,Guro-gu,Sindorim-dong,0220685733,37.506338,126.88327
+111,BE_LiST22-0371,Yeollin Pharmacy,Seoul,Guro-gu,Gocheok2-dong,0226256040,37.5026582,126.8497926
+112,BE_LiST22-0372,Guro Plaza Pharmacy,Seoul,Guro-gu,Gaebong3-dong,0226136044,37.488227,126.8564855
+113,BE_LiST22-0375,Aisarang Taepyeongyang Pharmacy,Seoul,Guro-gu,Guro5-dong,028533001,37.5021949,126.8824723
+114,BE_LiST22-0376,Jongno Plaza Pharmacy,Seoul,Guro-gu,Guro4-dong,028397422,37.491547,126.891656
+115,BE_LiST22-0377,Medisin Pharmacy,Seoul,Guro-gu,Gocheok2-dong,0226870322,37.508068,126.863719
+116,BE_LiST22-0378,Daehak Pharmacy,Seoul,Guro-gu,Guro2-dong,028654910,37.492002,126.883554
+117,BE_LiST22-0380,Gasan Pharmacy,,,,028381158,37.475954,126.893085
+118,BE_LiST22-0381,Thomas Pharmacy,,,,028553843,37.4693553,126.8985069
+119,BE_LiST22-0382,Sinyang Nuri Pharmacy,,,,028041230,37.453682,126.903368
+120,BE_LiST22-0383,Medipham Keunsarang Pharmacy,,,,028058943,37.4518816,126.9007682
+121,BE_LiST22-0385,Hanjung Pharmacy,,,,028046985,37.4594735,126.9052066
+122,BE_LiST22-0386,Jeonjinsang Pharmacy,,,,028029314,37.4525745,126.9106562
+123,BE_LiST22-0388,Plaza Pharmacy,,,,0220260011,37.480424,126.881962
+124,BE_LiST22-0389,Pyeongan Onnuri Pharmacy,Seoul,Yeongdeungpo-gu,Yangpyeong2-dong,0226346769,37.5400959,126.892072
+125,BE_LiST22-0390,Yukgyo Pharmacy,Seoul,Yeongdeungpo-gu,Singil4-dong,028334830,37.505408,126.911
+126,BE_LiST22-0391,Seoul Onnuri Pharmacy,Seoul,Yeongdeungpo-gu,Dangsan1-dong,0236671360,37.526793,126.895299
+127,BE_LiST22-0393,Seongyeong Pharmacy,Seoul,Yeongdeungpo-gu,Yeoui-dong,027861192,37.5242566,126.9248028
+128,BE_LiST22-0394,Ido Pharmacy,Seoul,Yeongdeungpo-gu,Dangsan1-dong,0226337167,37.5267307,126.8959931
+129,BE_LiST22-0395,Heukseok Pharmacy,Seoul,Dongjak-gu,Heukseok-dong,028841511,37.5042043,126.9697016
+130,BE_LiST22-0396,Daeil Pharmacy,Seoul,Dongjak-gu,Sadang2-dong,025914655,37.4876157,126.9804139
+131,BE_LiST22-0397,Hyoseong Pharmacy,Seoul,Dongjak-gu,Sangdo2-dong,028130467,37.5048762,126.9387145
+132,BE_LiST22-0399,Gangrim Pharmacy,Seoul,Dongjak-gu,Sindaebang1-dong,028328975,37.4919943,126.9093325
+133,BE_LiST22-0400,Optima Dajeong Pharmacy,Seoul,Dongjak-gu,Sadang2-dong,025958804,37.4885263,126.9781125
+134,BE_LiST22-0401,Seongdae Pharmacy,Seoul,Dongjak-gu,Sangdo4-dong,028211519,37.5000352,126.932608
+135,BE_LiST22-0402,Boramae Daehak Pharmacy,Seoul,Dongjak-gu,Sindaebang2-dong,028311922,37.492706,126.923876
+136,BE_LiST22-0403,Haeddeuneun Pharmacy,Seoul,Dongjak-gu,Sangdo1-dong,028163869,37.5045919,126.9494848
+137,BE_LiST22-0404,Sadang Plaza Pharmacy,Seoul,Dongjak-gu,Sadang4-dong,0234744170,37.483339,126.973312
+138,BE_LiST22-0406,Sindaebang Pharmacy,Seoul,Dongjak-gu,Daebang-dong,028221344,37.499866,126.929307
+139,BE_LiST22-0407,Haegadeun Pharmacy,Seoul,Dongjak-gu,Sadang2-dong,028218531,37.5066777,126.9621949
+140,BE_LiST22-0408,Keunsarang Pharmacy,Seoul,Dongjak-gu,Sangdo1-dong,028268976,37.5035447,126.9514435
+141,BE_LiST22-0410,Sinsemyeong Pharmacy,Seoul,Dongjak-gu,Heukseok-dong,028120993,37.5079012,126.9623621
+142,BE_LiST22-0412,Sinjungang Pharmacy,Seoul,Dongjak-gu,Heukseok-dong,028220443,37.5079261,126.9608748
+143,BE_LiST22-0413,Boramae Joeun Pharmacy,Seoul,Dongjak-gu,Sindaebang2-dong,028339505,37.492579,126.9236554
+144,BE_LiST22-0414,Geumgang Pharmacy,Seoul,Dongjak-gu,Noryangjin1-dong,028171918,37.51221,126.952126
+145,BE_LiST22-0415,Eommarang Pharmacy,Seoul,Dongjak-gu,Noryangjin2-dong,028131593,37.5072259,126.9397519
+146,BE_LiST22-0417,Taepyeongyang Pharmacy,Seoul,Dongjak-gu,Sadang3-dong,0234779477,37.4837149,126.9731358
+147,BE_LiST22-0418,Jeongdaun Pharmacy,Seoul,Dongjak-gu,Noryangjin1-dong,0262677575,37.5075738,126.9452566
+148,BE_LiST22-0419,Teunteun Pharmacy,Seoul,Gwanak-gu,Sinwon-dong,028560528,37.480796,126.9279288
+149,BE_LiST22-0420,Orange Pharmacy,Seoul,Gwanak-gu,Nakseongdae-dong,028885887,37.48021421794087,126.9529852157068
+150,BE_LiST22-0421,Bongcheon Plaza Pharmacy,Seoul,Gwanak-gu,Cheongnyong-dong,028751711,37.48205,126.942873
+151,BE_LiST22-0422,Injae Pharmacy,Seoul,Gwanak-gu,Samseong-dong,028778597,37.4658597,126.9479712
+152,BE_LiST22-0423,Hanmi Pharmacy,Seoul,Gwanak-gu,Samseong-dong,028787949,37.4653648,126.9312914
+153,BE_LiST22-0001,Geongang Pharmacy,Seoul,Jongno-gu,Hyehwa-dong,027649918,37.586098,127.000868
+154,BE_LiST22-0007,Daeseoul Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,027626060,37.5766,126.997481
+155,BE_LiST22-0008,Daehak Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,0236723672,37.576709,126.9974443
+156,BE_LiST22-0009,Dokil Pharmacy,Seoul,Jongno-gu,Changsin1-dong,027645511,37.5719099,127.0126054
+157,BE_LiST22-0286,Humun,Seoul,Dobong-gu,Chang1-dong,029958588,37.647189,127.03023
+158,BE_LiST22-0288,Jongno Saemyeong Pharmacy,Seoul,Dobong-gu,Banghak2-dong,0234929963,37.6625404,127.0325375
+159,BE_LiST22-0290,Ssangmun Sangnoksu Pharmacy,Seoul,Gangbuk-gu,Ui-dong,029900600,37.6584267,127.032701
+160,BE_LiST22-0291,Ewha Pharmacy,Seoul,Nowon-gu,Junggyebon-dong,029516102,37.659834,127.0732538
+161,BE_LiST22-0292,Nahyeon Pharmacy,Seoul,Nowon-gu,Sanggye2-dong,029367718,37.6564859,127.06966
+162,BE_LiST22-0294,Pyeonggang Sangnoksu Pharmacy,Seoul,Nowon-gu,Sanggye8-dong,029356644,37.6664264,127.0570109
+163,BE_LiST22-0295,Yurim Pharmacy,Seoul,Nowon-gu,Sanggye1-dong,029306858,37.671568,127.057238
+164,BE_LiST22-0296,Madeul Soa Pharmacy,Seoul,Nowon-gu,Sanggye9-dong,029323900,37.6659739,127.0578727
+165,BE_LiST22-0297,Pureunbada Pharmacy,Seoul,Nowon-gu,Wolgye1-dong,029413838,37.6152505,127.0650929
+166,BE_LiST22-0299,Cham Pharmacy,Seoul,Nowon-gu,Hagye2-dong,029792204,37.6353308,127.0640084
+167,BE_LiST22-0300,Madeul Hanjung Pharmacy,Seoul,Nowon-gu,Sanggye8-dong,029373393,37.666739,127.0569984
+168,BE_LiST22-0301,Medipham Pharmacy,Seoul,Eunpyeong-gu,Sinsa1-dong,023729791,37.5829646,126.8944416
+169,BE_LiST22-0302,Seonu Pharmacy,Seoul,Eunpyeong-gu,Sinsa1-dong,023025583,37.5985801,126.9143143
+170,BE_LiST22-0303,Seonghwan Pharmacy,Seoul,Eunpyeong-gu,Yeokchon-dong,023558374,37.6025548,126.9184762
+171,BE_LiST22-0304,Sowon Pharmacy,Seoul,Eunpyeong-gu,Susaek-dong,023726474,37.582197,126.89577
+172,BE_LiST22-0305,Sinsusaek Taepyeongyang Pharmacy,Seoul,Eunpyeong-gu,Susaek-dong,023077579,37.5819482,126.896304
+173,BE_LiST22-0306,Onnuri Saesomang Pharmacy,Seoul,Eunpyeong-gu,Susaek-dong,023093771,37.586255,126.900294
+174,BE_LiST22-0307,Yujin Pharmacy,Seoul,Eunpyeong-gu,Galhyeon2-dong,023848877,37.6126122,126.9153638
+175,BE_LiST22-0308,Chamsarang Pharmacy,Seoul,Eunpyeong-gu,Eungam1-dong,023567676,37.600214,126.921797
+176,BE_LiST22-0311,Yujeong Pharmacy,Seoul,Eunpyeong-gu,Bulgwang2-dong,023556270,37.6198116,126.9233628
+177,BE_LiST22-0326,Mari Pharmacy,Seoul,Mapo-gu,Ahyeon-dong,0260091166,37.5449423,126.9505962
+178,BE_LiST22-0327,Optima Ganghwa Pharmacy,Seoul,Mapo-gu,Seogyo-dong,023376969,37.554559,126.935528
+179,BE_LiST22-0328,Dana Pharmacy,Seoul,Mapo-gu,Daheung-dong,027153133,37.555703,126.946043
+180,BE_LiST22-0329,Vitamin Pharmacy,Seoul,Mapo-gu,Daheung-dong,027136563,37.547811,126.941573
+181,BE_LiST22-0330,Segwang Tower Pharmacy,Seoul,Mapo-gu,Daheung-dong,027012141,37.5552277,126.9460499
+182,BE_LiST22-0331,Mapo Jongno Pharmacy,Seoul,Mapo-gu,Mangwon1-dong,023363496,37.555387,126.910429
+183,BE_LiST22-0332,Taepyeongyang Pharmacy,Seoul,Mapo-gu,Seogyo-dong,023228344,37.552837,126.924004
+184,BE_LiST22-0333,Udae Pharmacy,Seoul,Mapo-gu,Gongdeok-dong,027184897,37.544717,126.954263
+185,BE_LiST22-0334,Jeulgeoun Pharmacy,Seoul,Mapo-gu,Yeomni-dong,027147588,37.542216,126.944621
+186,BE_LiST22-0335,Medipham Sinmapo Pharmacy,Seoul,Mapo-gu,Seogang-dong,023244625,37.546887,126.932225
+187,BE_LiST22-0336,Sinchon Saemin Pharmacy,Seoul,Mapo-gu,Seogyo-dong,023230900,37.555727,126.934548
+188,BE_LiST22-0425,Yangsaeng Pharmacy,Seoul,Gwanak-gu,Nakseongdae-dong,028729954,37.4781238,126.956874
+189,BE_LiST22-0449,Point Pharmacy,Seoul,Gangnam-gu,Nonhyeon1-dong,025473196,37.5166716,127.0217519
+190,BE_LiST22-0451,Medipham Mirae Pharmacy,Seoul,Gangnam-gu,Nonhyeon1-dong,025474340,37.50749,127.023474
+191,BE_LiST22-0452,Mi Plus Pharmacy,Seoul,Gangnam-gu,Nonhyeon1-dong,025172513,37.515219,127.020289
+192,BE_LiST22-0453,Panax Pharmacy,Seoul,Gangnam-gu,Nonhyeon1-dong,025188766,37.509764,127.032503
+193,BE_LiST22-0454,Jeil Grand Pharmacy,Seoul,Gangnam-gu,Nonhyeon1-dong,025460093,37.505123,127.024578
+194,BE_LiST22-0455,Minsaeng Pharmacy,Seoul,Gangnam-gu,Nonhyeon2-dong,025477903,37.513192,127.034763
+195,BE_LiST22-0456,Seoul Medi Pharmacy,Seoul,Gangnam-gu,Daechi4-dong,025015063,37.500652,127.051595
+196,BE_LiST22-0457,Dongseong Pharmacy,Seoul,Gangnam-gu,Daechi2-dong,025663728,37.4975938,127.0654735
+197,BE_LiST22-0458,Onnuri Guindang Pharmacy,Seoul,Gangnam-gu,Daechi2-dong,025525550,37.4933854,127.067338
+198,BE_LiST22-0340,Gaggaun Onnuri Pharmacy,Seoul,Yangcheon-gu,Sinjeong6-dong,0226508828,37.517541,126.865345
+199,BE_LiST22-0341,Naeoe Pharmacy,Seoul,Yangcheon-gu,Sinwol4-dong,0226975065,37.518221,126.841766
+200,BE_LiST22-0193,Sarangui Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029227111,37.600437,127.033611
+201,BE_LiST22-0194,Samseong Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029293069,37.598579,127.0220248
+202,BE_LiST22-0194,Samseong Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029293069,37.598579,127.0220248
+203,BE_LiST22-0251,Samseong Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029293069,37.598579,127.0220248
+204,BE_LiST22-0251,Samseong Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029293069,37.598579,127.0220248
+205,BE_LiST22-0195,Jungang Plaza Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029275606,37.592341,127.016116
+206,BE_LiST22-0196,Sipjaseong Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029660710,37.6128398,127.0646365
+207,BE_LiST22-0197,Gyesan Onnuri Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029254551,37.5906656,127.0170276
+208,BE_LiST22-0198,Segi Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,0232921224,37.6030571,127.0227625
+209,BE_LiST22-0199,Jangwi Seongmo Pharmacy,Seoul,Seongbuk-gu,Jangwi2-dong,029137516,37.6132071,127.0504
+210,BE_LiST22-0200,Cham Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029229458,37.5984622,127.0338511
+211,BE_LiST22-0201,Keunsarang Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029229721,37.5914408,127.0129673
+212,BE_LiST22-0202,Namsan Pharmacy,Seoul,Seongbuk-gu,Jangwi2-dong,029111224,37.613333,127.049821
+213,BE_LiST22-0203,Hanmi Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029250825,37.5989571,127.0342625
+214,BE_LiST22-0204,Optima e-Pyeonhan Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029093525,37.6107187,127.0197047
+215,BE_LiST22-0205,Songwon Onnuri Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029153500,37.601996,127.033271
+216,BE_LiST22-0206,Wolgok Uri Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029177400,37.6115321,127.0356
+217,BE_LiST22-0207,W Store Achimeulyeoneun Haessal Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,027620234,37.5889655,127.0078647
+218,BE_LiST22-0209,Herb Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029136786,37.6168717,127.00363
+219,BE_LiST22-0210,Joa Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029198575,37.602679,127.04181
+220,BE_LiST22-0211,Paranhaneul Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029298723,37.5948792,127.0101903
+221,BE_LiST22-0212,Seongbuk Noksipja Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029264166,37.5897493,127.0096177
+222,BE_LiST22-0213,Prime Onnuri Pharmacy,Seoul,Seongbuk-gu,Jangwi3-dong,029169472,37.622952,127.048283
+223,BE_LiST22-0214,Samcheung Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029150022,37.6026621,127.023681
+224,BE_LiST22-0215,Myeongso Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029650237,37.60703,127.06114
+225,BE_LiST22-0216,Minseong Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029276959,37.60263,127.031515
+226,BE_LiST22-0217,Ewha Plaza Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029142053,37.608799,127.009984
+227,BE_LiST22-0218,Duri Onnuri Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029230450,37.5978573,127.03469
+228,BE_LiST22-0219,Seongbuk Worldpham Pharmacy,Seoul,Seongbuk-gu,Jangwi2-dong,029187972,37.6092399,127.0525005
+229,BE_LiST22-0220,Wolgok Bogeon Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029098144,37.602627,127.039233
+230,BE_LiST22-0222,Wellpham Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029147773,37.60959,127.019631
+231,BE_LiST22-0223,Seoul Pharmacy,Seoul,Seongbuk-gu,Donam1-dong,029245191,37.598532,127.0214288
+232,BE_LiST22-0224,Medipham Baek Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029126200,37.60733,127.036303
+233,BE_LiST22-0225,Sinjungang Pharmacy,Seoul,Seongbuk-gu,Jongam-dong,029438331,37.5964492,127.0357727
+234,BE_LiST22-0227,Pureun Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029690566,37.606699,127.061064
+235,BE_LiST22-0229,Ewha Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029114326,37.6047371,127.0230027
+236,BE_LiST22-0232,Misodam Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,0263492589,37.608854,127.009662
+237,BE_LiST22-0233,Seongsin Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029219971,37.594049,127.018163
+238,BE_LiST22-0234,Gil Pharmacy,Seoul,Seongbuk-gu,Samseon-dong,029239994,37.5949161,127.0102405
+239,BE_LiST22-0235,Sinjeongneung Uri Pharmacy,Seoul,Seongbuk-gu,Jeongneung2-dong,029428831,37.6082548,127.0098378
+240,BE_LiST22-0236,Yeongjun Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,029124813,37.6094979,127.0329899
+241,BE_LiST22-0237,Geumgang Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029247575,37.5850062,127.0313151
+242,BE_LiST22-0239,Hosu Onnuri Pharmacy,Seoul,Seongbuk-gu,Gireum2-dong,029888979,37.6089472,127.0290207
+243,BE_LiST22-0242,Deokseong Onnuri Pharmacy,Seoul,Seongbuk-gu,Donam2-dong,029220555,37.6006632,127.0135103
+244,BE_LiST22-0243,Sinheung Pharmacy,Seoul,Seongbuk-gu,Jeongneung4-dong,029144103,37.6112071,127.0089
+245,BE_LiST22-0244,365 Pharmacy,Seoul,Seongbuk-gu,Gireum2-dong,029851365,37.608592,127.029453
+246,BE_LiST22-0245,Sarangbanneun Pharmacy,Seoul,Seongbuk-gu,Jeongneung1-dong,029432385,37.6024195,127.0170848
+247,BE_LiST22-0247,Yumin Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029298937,37.5959904,127.0154375
+248,BE_LiST22-0248,Uju Onnuri Pharmacy,Seoul,Seongbuk-gu,Dongseon-dong,029220544,37.59432,127.015954
+249,BE_LiST22-0250,Saegungmin Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029093463,37.603073,127.042264
+250,BE_LiST22-0252,Areumdaun Pharmacy,Seoul,Seongbuk-gu,Gireum1-dong,029125148,37.608307,127.0228625
+251,BE_LiST22-0253,Dongmin Pharmacy,Seoul,Seongbuk-gu,Wolgok1-dong,0269250008,37.6113467,127.035435
+252,BE_LiST22-0254,Jeongmun Pharmacy,Seoul,Seongbuk-gu,Anam-dong,029242121,37.586141,127.028369
+253,BE_LiST22-0255,Dolgoji Onnuri Pharmacy,Seoul,Seongbuk-gu,Seokgwan-dong,029675555,37.6103093,127.0569224
+254,BE_LiST22-0256,Saebogeon Pharmacy,Seoul,Seongbuk-gu,Wolgok2-dong,029117111,37.602571,127.039799
+255,BE_LiST22-0276,Medipham Geongang ,Seoul,Dobong-gu,Ssangmun3-dong,029061800,37.6490904,127.03465
+256,BE_LiST22-0278,Daehan ,Seoul,Dobong-gu,Ssangmun1-dong,029997896,37.6554433,127.013403
+257,BE_LiST22-0282,Sangnoksu Onnuri ,Seoul,Dobong-gu,Banghak2-dong,029542950,37.6653993,127.0357431
+258,BE_LiST22-0283,Gwangjang,Seoul,Dobong-gu,Chang4-dong,029906527,37.652692,127.051459
+259,BE_LiST22-0284,Hyemin,Seoul,Dobong-gu,Dobong1-dong,029541653,37.6745084,127.0435271
+260,BE_LiST22-0011,Donga Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,0222855702,37.570607,126.999023
+261,BE_LiST22-0012,Dongin Pharmacy,Seoul,Jongno-gu,Changsin2-dong,027437371,37.5721016,127.0104431
+262,BE_LiST22-0013,Medical Seoul Pharmacy,Seoul,Jongno-gu,Hyehwa-dong,027669000,37.5817908,127.0015062
+263,BE_LiST22-0014,Mideum Pharmacy,Seoul,Jongno-gu,Changsin1-dong,027456678,37.572965,127.014712
+264,BE_LiST22-0015,Bogwang Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,027622515,37.579501,127.001855
+265,BE_LiST22-0016,Boram Pharmacy,Seoul,Jongno-gu,Changsin1-dong,027437915,37.572329,127.013944
+266,BE_LiST22-0017,Boryeong Pharmacy,Seoul,Jongno-gu,Jongno5.6ga-dong,027638181,37.5712044,127.0003021
+267,BE_LiST22-0018,Samjeong Baro Pharmacy,Seoul,Jongno-gu,Gyonam-dong,027363385,37.5687598,126.9683636
+268,BE_LiST22-0022,Seongsim Pharmacy,Seoul,Jongno-gu,Changsin1-dong,027432062,37.5755367,127.015474
+269,BE_LiST22-0023,Seongjin Pharmacy,Seoul,Jongno-gu,Hyehwa-dong,027622211,37.5855483,127.000556
+270,BE_LiST22-0024,Sungin Pharmacy,Seoul,Jongno-gu,Sungin2-dong,029290754,37.5754763,127.0223169
+271,BE_LiST22-0025,Sungin Damoa Pharmacy,Seoul,Jongno-gu,Sungin1-dong,027655885,37.5767083,127.0156875
+272,BE_LiST22-0026,Simin Pharmacy,Seoul,Jongno-gu,Sajik-dong,027366512,37.576364,126.972718
+273,BE_LiST22-0027,Yeollin Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,0222648211,37.5707262,127.0004004
+274,BE_LiST22-0028,Inje Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,0222664312,37.5706167,126.99915
+275,BE_LiST22-0029,Jeongmun Pharmacy,Seoul,Jongno-gu,Jongno1.2.3.4ga-dong,027657200,37.576884,126.9976692
+276,BE_LiST22-0030,Jesin Pharmacy,Seoul,Jongno-gu,Jongno5.6ga-dong,0222797388,37.570876,127.007371
+277,BE_LiST22-0031,Jonggeundang Pharmacy,Seoul,Jongno-gu,Jongno5.6ga-dong,0222741311,37.5708099,127.0032689
+278,BE_LiST22-0032,Jongno Baekje Pharmacy,Seoul,Jongno-gu,Jongno5.6ga-dong,027458492,37.57125,127.003975
+279,BE_LiST22-0033,Jongno Plaza Pharmacy,Seoul,Jongno-gu,Cheongunhyoja-dong,027360806,37.581538,126.970638
+280,BE_LiST22-0034,Chungsin Pharmacy,Seoul,Jongno-gu,Jongno5.6ga-dong,027629909,37.5740835,127.0067575
+281,BE_LiST22-0035,Handok Pharmacy,Seoul,Jongno-gu,Ihwa-dong,027624636,37.5805832,127.004434
+282,BE_LiST22-0036,Hamchun Pharmacy,Seoul,Jongno-gu,Ihwa-dong,027410370,37.579588,127.001882
+283,BE_LiST22-0037,Saegye Pharmacy,Seoul,Jung-gu,Sogong-dong,027768000,37.5640644,126.9821256
+284,BE_LiST22-0038,Seoul Pharmacy,Seoul,Jung-gu,Myeong-dong,027372636,37.5691347,126.9758216
+285,BE_LiST22-0039,Baekjo Pharmacy,Seoul,Jung-gu,Myeong-dong,027388808,37.569093,126.9758591
+286,BE_LiST22-0040,Inu Pharmacy,Seoul,Jung-gu,Jungnim-dong,023927291,37.5589812,126.9660588
+287,BE_LiST22-0042,Huigu Pharmacy,Seoul,Jung-gu,Hoehyeon-dong,027520229,37.5585833,126.9773125
+288,BE_LiST22-0043,Saesamseong Pharmacy,Seoul,Jung-gu,Sogong-dong,027563301,37.5607446,126.9775893
+289,BE_LiST22-0044,Seoul Wang Pharmacy,Seoul,Jung-gu,Sogong-dong,0237897048,37.5608833,126.978125
+290,BE_LiST22-0045,Namsan Uri Pharmacy,Seoul,Jung-gu,Hoehyeon-dong,0237897582,37.5587612,126.9813339
+291,BE_LiST22-0046,Daeusa Pharmacy,Seoul,Jung-gu,Hoehyeon-dong,027532703,37.5585094,126.9743444
+292,BE_LiST22-0048,Centural Pham Pharmacy,Seoul,Yongsan-gu,Namyeong-dong,023935505,37.5563144,126.9693957
+293,BE_LiST22-0049,Saewon Pharmacy,Seoul,Jung-gu,Myeong-dong,027764476,37.5637491,126.9852717
+294,BE_LiST22-0052,Pureun Pharmacy,Seoul,Jung-gu,Myeong-dong,027757428,37.5616692,126.9850709
+295,BE_LiST22-0053,Unesco Pharmacy,Seoul,Jung-gu,Myeong-dong,027787880,37.5634255,126.9837151
+296,BE_LiST22-0054,Myeongdong Jungang Pharmacy,Seoul,Jung-gu,Myeong-dong,027770505,37.5611,126.98235
+297,BE_LiST22-0055,Myeongdong Sarang Pharmacy,Seoul,Jung-gu,Myeong-dong,027789975,37.5609702,126.9838592
+298,BE_LiST22-0057,Seonggyun Jeil Pharmacy,Seoul,Jung-gu,Pil-dong,0222696872,37.5612029,127.0001195
+299,BE_LiST22-0058,Sinseong Pharmacy,Seoul,Jung-gu,Donghwa-dong,0222731390,37.562259,127.015198
+300,BE_LiST22-0060,Eulji Su Pharmacy,Seoul,Jung-gu,Euljiro-dong,0222752113,37.5645862,126.9890883
+301,BE_LiST22-0061,Pil Pharmacy,Seoul,Jung-gu,Pil-dong,0222687552,37.5603583,126.9959625
+302,BE_LiST22-0062,Jiha Geunhwasa Pharmacy,Seoul,Jung-gu,Euljiro-dong,0222724986,37.5666492,126.9937185
+303,BE_LiST22-0063,Jangsu Pharmacy,Seoul,Jung-gu,Sindang5-dong,0222522929,37.5652083,127.0195875
+304,BE_LiST22-0065,Bosaengdang Pharmacy,Seoul,Jung-gu,Pil-dong,0222678830,37.560752,126.993151
+305,BE_LiST22-0066,Wangran Pharmacy,Seoul,Jung-gu,Gwanghui-dong,0222671492,37.5652441,127.0063437
+306,BE_LiST22-0067,Medipham Choi Pharmacy,Seoul,Yongsan-gu,Cheongpa-dong,027156009,37.548556,126.970183
+307,BE_LiST22-0068,Myeongjindang Pharmacy,Seoul,Yongsan-gu,Cheongpa-dong,027175603,37.554425,126.9688375
+308,BE_LiST22-0069,Somyeong Pharmacy,Seoul,Yongsan-gu,Itaewon1-dong,027959954,37.534069,126.995437
+309,BE_LiST22-0071,Jongno Plaza Pharmacy,Seoul,Yongsan-gu,Hangangno-dong,0220121276,37.5295757,126.963928
+310,BE_LiST22-0072,Jeil Pharmacy,Seoul,Yongsan-gu,Hannam-dong,027928422,37.5332667,127.0047375
+311,BE_LiST22-0073,Hyundae Onnuri Pharmacy,Seoul,Yongsan-gu,Ichon1-dong,027959842,37.5184167,126.9778228
+312,BE_LiST22-0074,Uri Pharmacy,Seoul,Yongsan-gu,Hangangno-dong,0220121507,37.5295757,126.963928
+313,BE_LiST22-0075,Gajangkeun Taepyeongyang Pharmacy,Seoul,Yongsan-gu,Hannam-dong,027903376,37.5332875,127.0037814
+314,BE_LiST22-0076,Gonghang Pharmacy,Seoul,Yongsan-gu,Namyeong-dong,023132780,37.5523932,126.9710726
+315,BE_LiST22-0077,Su Pharmacy,Seoul,Yongsan-gu,Hyochang-dong,027018224,37.539675,126.96085
+316,BE_LiST22-0081,Geumbo Pharmacy,Seoul,Yongsan-gu,Wonhyoro2-dong,027183673,37.5336906,126.9501515
+317,BE_LiST22-0082,Balgeunnuri Pharmacy,Seoul,Yongsan-gu,Itaewon1-dong,027922621,37.532718,126.990813
+318,BE_LiST22-0083,Dongbu Pharmacy,Seoul,Yongsan-gu,Ichon1-dong,027956242,37.5199684,126.9744457
+319,BE_LiST22-0084,Singeumho Pharmacy,Seoul,Seongdong-gu,Guemho1ga-dong,0222825230,37.554778,127.020351
+320,BE_LiST22-0085,Pyeongan Pharmacy,Seoul,Seongdong-gu,Haengdang1-dong,0222948111,37.5581098,127.0362882
+321,BE_LiST22-0086,Daehak Pharmacy,Seoul,Seongdong-gu,Sageun-dong,0222930554,37.560012,127.041611
+322,BE_LiST22-0087,Iljin Pharmacy,Seoul,Seongdong-gu,Yongdap-dong,0222453665,37.5626786,127.0541267
+323,BE_LiST22-0088,Yeongmin Pharmacy,Seoul,Seongdong-gu,Seongsu2ga3-dong,024661377,37.5461708,127.0535087
+324,BE_LiST22-0089,Danaeul Pharmacy,Seoul,Seongdong-gu,Guemho2.3ga-dong,0222311703,37.5486404,127.0169239
+325,BE_LiST22-0090,Girin Pharmacy,Seoul,Seongdong-gu,Oksu-dong,0222998850,37.541544,127.010961
+326,BE_LiST22-0092,Daejung Pharmacy,Seoul,Seongdong-gu,Wangsimni2-dong,0222924418,37.564434,127.0284856
+327,BE_LiST22-0093,Medipham Hansol Pharmacy,Seoul,Seongdong-gu,Haengdang2-dong,0222827948,37.5582338,127.0310201
+328,BE_LiST22-0094,Myeongdong Onnuri Pharmacy,Seoul,Seongdong-gu,Haengdang1-dong,0222817292,37.5549515,127.0365163
+329,BE_LiST22-0096,Jeongmin Pharmacy,Seoul,Seongdong-gu,Yongdap-dong,0222128762,37.5678195,127.0507018
+330,BE_LiST22-0097,Jeil Pharmacy,Seoul,Seongdong-gu,Eungbong-dong,0222936946,37.549699,127.030576
+331,BE_LiST22-0461,Hanti Pharmacy,Seoul,Gangnam-gu,Dogok2-dong,025742575,37.4953203,127.0526153
+332,BE_LiST22-0462,Sarang Plus Pharmacy,Seoul,Gangnam-gu,Dogok2-dong,0220582745,37.4953203,127.0526153
+333,BE_LiST22-0463,Yeonu Pharmacy,Seoul,Gangnam-gu,Dogok1-dong,025578672,37.4937596,127.0465625
+334,BE_LiST22-0464,Gangnam Joeun Pharmacy,Seoul,Gangnam-gu,Dogok1-dong,025719515,37.4855383,127.0377921
+335,BE_LiST22-0465,Chamjoeun Pharmacy,Seoul,Gangnam-gu,Samseong1-dong,025081363,37.508823,127.05857
+336,BE_LiST22-0466,Samseong Geongang Pharmacy,Seoul,Gangnam-gu,Gaepo2-dong,025173520,37.516689,127.042039
+337,BE_LiST22-0467,Phammate Seonneung Sujeong Pharmacy,Seoul,Gangnam-gu,Samseong2-dong,025588025,37.505117,127.048939
+338,BE_LiST22-0468,Gangnam Onnuri Pharmacy,Seoul,Gangnam-gu,Samseong2-dong,025721452,37.4825515,127.0431606
+339,BE_LiST22-0469,Samseong Ilsin Pharmacy,Seoul,Gangnam-gu,Samseong2-dong,025381018,37.5059168,127.0525432
+340,BE_LiST22-0471,Optima Daeyeong Pharmacy,Seoul,Gangnam-gu,Samseong1-dong,025147850,37.5173348,127.0513532
+341,BE_LiST22-0472,Suseo Pharmacy,Seoul,Gangnam-gu,Suseo-dong,024592293,37.4874482,127.1046489
+342,BE_LiST22-0473,Cosmos Pharmacy,Seoul,Gangnam-gu,Sinsa-dong,025153555,37.5177099,127.0195908
+343,BE_LiST22-0474,Ganaan Pharmacy,Seoul,Gangnam-gu,Sinsa-dong,025498774,37.5169926,127.0208687
+344,BE_LiST22-0475,Taepyeongyang Pharmacy,Seoul,Gangnam-gu,Sinsa-dong,0234424492,37.525425,127.025491
+345,BE_LiST22-0477,Apgujeong Onnuri Pharmacy,Seoul,Gangnam-gu,Sinsa-dong,025140777,37.526525,127.0275625
+346,BE_LiST22-0479,Biwon Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025416939,37.5219886,127.0290947
+347,BE_LiST22-0480,Medipham Apgujeong Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025477585,37.5227667,127.0291125
+348,BE_LiST22-0481,Hana Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025436650,37.5285154,127.0321183
+349,BE_LiST22-0482,Yes Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,0234458214,37.527762,127.0331806
+350,BE_LiST22-0483,Apgujeong Neulpureun Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025168753,37.5288221,127.0346225
+351,BE_LiST22-0484,Apgujeong Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025430701,37.527644,127.040357
+352,BE_LiST22-0485,Rodeo Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025404091,37.525714,127.039601
+353,BE_LiST22-0486,Bom Pharmacy,Seoul,Gangnam-gu,Apgujeong-dong,025432251,37.5323523,127.0286524
+354,BE_LiST22-0487,Ilbeonji Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025672501,37.4971169,127.0303457
+355,BE_LiST22-0488,Chamjoeun Seon Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,0234533501,37.5016976,127.0359878
+356,BE_LiST22-0489,Atom Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025626575,37.4986096,127.0283125
+357,BE_LiST22-0491,Yeoksam Dain Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,0234533589,37.502796,127.0354815
+358,BE_LiST22-0492,Onnuri Gibbeun Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025660027,37.506436,127.0355051
+359,BE_LiST22-0493,Darae Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025679361,37.5020964,127.0368101
+360,BE_LiST22-0494,Onnuri Hyaerim Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,0221122911,37.499804,127.0365868
+361,BE_LiST22-0496,Areumdaun Uri Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025647582,37.4945531,127.0396373
+362,BE_LiST22-0497,Well Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,0264405656,37.501073,127.026524
+363,BE_LiST22-0498,W Store Gangnam City Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025531608,37.4997999,127.0271502
+364,BE_LiST22-0499,Keungil Pharmacy,Seoul,Gangnam-gu,Yeoksam1-dong,025531517,37.495872,127.029107
+365,BE_LiST22-0500,Mokhwa Pharmacy,Seoul,Gangnam-gu,Irwon1-dong,0222262268,37.4915429,127.0876375
+366,BE_LiST22-0503,Saesaengmyeong Pharmacy,Seoul,Gangnam-gu,Cheongdam-dong,025123389,37.5242833,127.05
+367,BE_LiST22-0504,Yeongji Pharmacy,Seoul,Gangnam-gu,Cheongdam-dong,025473443,37.524065,127.050389
+368,BE_LiST22-0505,Geonyeong Pharmacy,Seoul,Gangnam-gu,Cheongdam-dong,025417378,37.523981,127.039714
+369,BE_LiST22-0506,Gaggaun Ewha Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024894383,37.526518,127.1146468
+370,BE_LiST22-0507,Gangnam Daehak Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024730111,37.5273512,127.1138844
+371,BE_LiST22-0508,Nammae Pharmacy,Seoul,Songpa-gu,Geoyeo2-dong,024078774,37.4925483,127.1473321
+372,BE_LiST22-0509,Dasarang Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024772590,37.525047,127.1149229
+373,BE_LiST22-0511,Ehwa Yaksan Onnuri Pharmacy,Seoul,Songpa-gu,Songpa1-dong,024192755,37.5074957,127.1162722
+374,BE_LiST22-0512,Jiaenmi Pharmacy,Seoul,Songpa-gu,Garak2-dong,024020612,37.4965475,127.1315335
+375,BE_LiST22-0513,Jiyong Pharmacy,Seoul,Songpa-gu,Bangi2-dong,024152336,37.5108952,127.1160971
+376,BE_LiST22-0514,Handok Pharmacy,Seoul,Songpa-gu,Munjeong2-dong,024093559,37.4917346,127.1173375
+377,BE_LiST22-0515,Gajangkeun Hyundae Asan Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024884214,37.5269846,127.1150592
+378,BE_LiST22-0516,Family Pharmacy,Seoul,Songpa-gu,Munjeong2-dong,024002112,37.491541,127.116606
+379,BE_LiST22-0517,Grand Pharmacy,Seoul,Songpa-gu,Bangi1-dong,024185662,37.5093207,127.124838
+380,BE_LiST22-0518,Medicine Pharmacy,Seoul,Songpa-gu,Garakbon-dong,024437789,37.4966235,127.1223642
+381,BE_LiST22-0519,Cheomsomang Pharmacy,Seoul,Songpa-gu,Oryun-dong,024083393,37.515719,127.1321871
+382,BE_LiST22-0520,Wang Pharmacy,Seoul,Songpa-gu,Samjeon-dong,0222025941,37.5027541,127.0954392
+383,BE_LiST22-0521,Daedong Pharmacy,Seoul,Songpa-gu,Songpa1-dong,024186551,37.5044544,127.1143475
+384,BE_LiST22-0522,Sangil Pharmacy,Seoul,Songpa-gu,Jamsil6-dong,024140185,37.5164442,127.1039606
+385,BE_LiST22-0523,Optimario Pharmacy,Seoul,Songpa-gu,Jamsil4-dong,024138205,37.5205496,127.1061762
+386,BE_LiST22-0524,Citi Pharmacy,Seoul,Songpa-gu,Jamsilbon-dong,0234314115,37.51144,127.083461
+387,BE_LiST22-0525,Bom Pharmacy,Seoul,Songpa-gu,Pungnap1-dong,024743118,37.533956,127.118707
+388,BE_LiST22-0526,Uri Onnuri Pharmacy,Seoul,Songpa-gu,Jamsil3-dong,024125632,37.510907,127.086191
+389,BE_LiST22-0529,Balgeun Jungang Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024822621,37.5267513,127.1156092
+390,BE_LiST22-0531,Olive Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024770969,37.5271197,127.1153625
+391,BE_LiST22-0532,Asan Medical Pharmacy,Seoul,Songpa-gu,Pungnap2-dong,024888575,37.527275,127.1143
+392,BE_LiST22-0533,Teunteun Onnuri Pharmacy,Seoul,Gangdong-gu,Cheonho2-dong,024861380,37.5477189,127.1269102
+393,BE_LiST22-0534,Gildong Jungang Pharmacy,Seoul,Gangdong-gu,Gil-dong,024847747,37.53672,127.142757
+394,BE_LiST22-0535,Donga Pharmacy,Seoul,Gangdong-gu,Cheonho2-dong,024854195,37.5385095,127.1251279
+395,BE_LiST22-0536,Deokin Pharmacy,Seoul,Gangdong-gu,Cheonho2-dong,024712772,37.545602,127.133377
+396,BE_LiST22-0537,Joy Pharmacy,Seoul,Gangdong-gu,Seongnae2-dong,024857373,37.5379263,127.1237145
+397,BE_LiST22-0538,Optima Yeondang Pharmacy,Seoul,Gangdong-gu,Myeongil1-dong,0234262323,37.5533531,127.1438708
+398,BE_LiST22-0539,Best Pharmacy,Seoul,Gangdong-gu,Seongnae3-dong,024742447,37.524824,127.134788
+399,BE_LiST22-0541,Gangnam Pharmacy,Seoul,Gangdong-gu,Seongnae3-dong,024867823,37.5276438,127.1357367
+400,BE_LiST22-0542,Myeongil Mart Jongno Pharmacy,Seoul,Gangdong-gu,Myeongil2-dong,024287845,37.5546564,127.1558099
+401,BE_LiST22-0543,Paran Pharmacy,Seoul,Gangdong-gu,Seongnae3-dong,024842479,37.5248787,127.1343908
+402,BE_LiST22-0544,Daehan Pharmacy,Seoul,Gangdong-gu,Cheonho2-dong,024839165,37.538013,127.126499
+403,BE_LiST22-0545,Boun Pharmacy,Seoul,Gangdong-gu,Dunchon2-dong,024778088,37.52853,127.145445
+404,BE_LiST22-0549,Dure Pharmacy,Seoul,Gangdong-gu,Godeok2-dong,024291662,37.5573564,127.1689032
+405,BE_LiST22-0550,Seungmin Pharmacy,Seoul,Gangdong-gu,Dunchon2-dong,024871201,37.5334425,127.1399566
