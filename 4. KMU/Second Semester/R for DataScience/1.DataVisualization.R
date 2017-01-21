@@ -1,10 +1,9 @@
 ##### R for DataScience ####
 ##### http://r4ds.had.co.nz/index.html
 
-library(gridExtra)
-
 install.packages("tidyverse")
 library(tidyverse)
+library(gridExtra)
 #tibble : dataframe과 다른 포맷 하지만 사용법은 비슷하다.
 
 install.packages(c("nycflights13", "gapminder", "Lahman"))
@@ -83,7 +82,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy), shape=21, 
              color = "white", 
              fill='black', size=5,
-             stroke=5) # stroke 테두리 굵기 인ㄷ
+             stroke=5) # stroke 테두리 굵기
 
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy), shape=21, 
