@@ -95,7 +95,8 @@ elst.Grid <- expand.grid(
 elst.Grid
 
 # train : Carat 의 function 
-
+install.packages("glmnet")
+library(glmnet)
 elst.Model <- train(
   symboling ~ ., 
   data = train, 
