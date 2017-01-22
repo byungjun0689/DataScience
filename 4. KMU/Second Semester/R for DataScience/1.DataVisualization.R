@@ -260,6 +260,11 @@ demo <- tribble(
   "bar_3", 40
 )
 
+#read.csv() : data.frame으로 나옴
+#read_csv() : tibble로 나옴
+#data.table
+
+
 ggplot(data = demo) +
   geom_bar(mapping = aes(x = a, y = b), stat = "identity")
 
@@ -297,5 +302,30 @@ gg1 <- bar + coord_flip()
 gg2 <- bar + coord_polar()
 
 grid.arrange(gg1,gg2,ncol=2)
+
+
+### 일요일 
+# 1. LineGraph
+library(lubridate)
+
+ggplot(mpg) + geom_line(aes(hwy,displ))
+jan = flights %>% filter(month == 1) %>% 
+  group_by(day) %>% mutate(count = n())
+
+ggplot(jan,aes(day,count)) + geom_line()
+
+daily <- flights %>% group_by(month, day) %>% mutate(date=make_date(year,month,day), count=n())
+ggplot(daily,aes(date,count)) + geom_line() + geom_smooth() # smooth를 사용하면 추세를 볼 수 있다. 
+
+### 일요일 끝
+
+# 시계열 
+# 1. Trend : 추세 
+# 2. Seasonality : 시즌이 아니더라도 일정 주기적으로 반복되는 패턴.
+# 3. Auto Colrealation : 자기상관 , 
+# 예) 주가, 어제가 오르면 오늘도 오른다, 어제 내리면 오늘도 내린다와 같이 
+# 하루 전 또는 이틀 전의 패턴이 오늘에영향을 준다.
+
+
 
 

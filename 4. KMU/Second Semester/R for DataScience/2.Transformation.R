@@ -1,3 +1,4 @@
+install.packages("tidyverse")
 library(tidyverse)
 library(nycflights13)
 
@@ -156,8 +157,64 @@ check_outlier <- function(cls,value){
 }
 
 ggplot(mpg,aes(class,hwy)) + 
-  geom_boxplot(outlier.alpha = 0) + 
+  geom_boxplot(outlier.alpha = 0) +
   geom_text(data = filter(mpg,check_outlier(class,hwy)), aes(label=rownames(mpg)))
+
+
+
+################### 일요일  시작 ################
+# 1. Outlier 
+ggplot(mpg, aes(class,hwy)) + geom_boxplot()
+
+q1 = quantile(mpg$hwy,.25)
+q3 = quantile(mpg$hwy,.75)
+iqr = q3 - q1
+upper = q3 + 1.5 * iqr
+lower = q1 - 1.5 * iqr
+
+filter(mpg, hwy > upper | lower > hwy) %>% View()
+
+mpg %>% filter(class=='suv') # 귀찮다. Function
+
+filter.Outlier <- function(df){
+  q1 = quantile(df$hwy,.25)
+  q3 = quantile(df$hwy,.75)
+  iqr = q3 - q1
+  upper = q3 + 1.5 * iqr
+  lower = q1 - 1.5 * iqr
+  df %>% filter(hwy < lower | hwy > upper)
+  # R에서는 Return을 안하면 마지막행이 Return 된다.
+}
+
+mpg <- mpg %>% mutate(name=row_number())
+mpg %>% filter.Outlier() %>% View()
+
+mpg %>% filter(class=='suv') %>% filter.Outlier()
+mpg %>% group_by(class) %>% do(head(.,1)) 
+# 그룹바이한 class에 대해 각 df가 만들어지고 그게 .자리에 들어간다.
+
+mpg %>% group_by(class) %>%
+  do(filter.Outlier((.))) 
+# do -> 그룹별로 함수 적용 
+# (짤라냈던 각각의 df를 . 자리가 각각 넣어서 한다. 그리고 결과를 합친다.)
+# do(slice.max(.))한다면 그룹바이한 것에 대해서 되나?? -> .에는 Dataframe만 들어오는 걸로 .... 그냥 함수 만들면 될듯
+
+x = mpg %>% group_by(class) %>% do(filter.Outlier(.))
+
+ggplot(mpg, aes(class,hwy)) + geom_boxplot(outlier.alpha = 0) +
+  geom_text(data=x,aes(label=name))
+
+# name자리에 다른 columns를 사용한다면 내가 원하는 것이 들어 갈 수 있다.
+
+#2. 연비 top3 
+filter.hwy <- function(df){
+  df %>% arrange(desc(hwy)) %>% head(3)
+}
+mpg %>% group_by(model)  %>% do(filter.hwy(.))
+mpg %>% group_by(model)  %>% do(filter.hwy(.)) %>% select(class,model)
+mpg %>% group_by(model) %>% do((.) %>% arrange(desc(hwy)) %>% head(3))
+
+################### 일요일 끝 ########################
 
 ## rbind => 더 빠른거 , bind_rows(),  cbind => bind_cols()
 
@@ -173,3 +230,8 @@ july <- filter(flights, month == 7)
 i = setdiff(aa$name,july$name)
 ## intersect() <- 교집합 확인.
 flights[i,]
+
+
+
+
+
