@@ -1,0 +1,11 @@
+package chapter3;
+
+public class InformationGain {
+	
+	private double calcLog2(double value){
+		if(value <= 0){
+			return 0;
+		}
+		return Math.log10(value)/Math.log10(2.);
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;InformationGain.java&apos; to &apos;DecisionTree/src/chapter3&apos;&#x0D;&#x0A;- Original project: &apos;DecisionTree&apos;&#x0D;&#x0A;- Destination element: &apos;DecisionTree/src/chapter3&apos;&#x0D;&#x0A;- Original element: &apos;InformationGain.java&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move compilation unit" destination="/src&lt;chapter3" element1="/src&lt;{InformationGain.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1486300675017" units="1" version="1.0"/>
+</session>

@@ -1,0 +1,8 @@
+package chapter3;
+
+public class InformationGain {
+	
+	private double calcLog2(double value){
+		
+	}
+}
