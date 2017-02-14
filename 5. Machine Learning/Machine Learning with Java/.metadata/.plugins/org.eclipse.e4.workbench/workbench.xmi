@@ -391,7 +391,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_7yonoOukEeaoR-xOooKs1w" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_igKWcOunEeax6Ipi1i3MTg" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_7U0qhuukEeaoR-xOooKs1w"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_wGNNt_HvEea1C_VrECwUfQ" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_7U0qhuukEeaoR-xOooKs1w"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_7ypOsOukEeaoR-xOooKs1w" elementId="additions" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -424,7 +424,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_7ypOtOukEeaoR-xOooKs1w" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_igNZwOunEeax6Ipi1i3MTg" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_7U0DjeukEeaoR-xOooKs1w"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_wGNNwfHvEea1C_VrECwUfQ" elementId="org.eclipse.ui.window.pinEditor" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_7U0DjeukEeaoR-xOooKs1w"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_7ypOteukEeaoR-xOooKs1w" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -467,9 +467,6 @@
   </children>
   <bindingTables xmi:id="_7T_j0-ukEeaoR-xOooKs1w" contributorURI="platform:/plugin/org.eclipse.platform" bindingContext="_7T_j1OukEeaoR-xOooKs1w">
     <bindings xmi:id="_7VSkUeukEeaoR-xOooKs1w" keySequence="CTRL+A" command="_7UyONeukEeaoR-xOooKs1w"/>
-    <bindings xmi:id="_7VSkWeukEeaoR-xOooKs1w" keySequence="CTRL+SPACE" command="_7U0qTuukEeaoR-xOooKs1w">
-      <tags>deleted</tags>
-    </bindings>
     <bindings xmi:id="_7VTLZ-ukEeaoR-xOooKs1w" keySequence="CTRL+SHIFT+SPACE" command="_7UxANeukEeaoR-xOooKs1w"/>
     <bindings xmi:id="_7VVAluukEeaoR-xOooKs1w" keySequence="CTRL+V" command="_7Uvx2uukEeaoR-xOooKs1w"/>
     <bindings xmi:id="_7VVnp-ukEeaoR-xOooKs1w" keySequence="ALT+PAGE_DOWN" command="_7U0DVeukEeaoR-xOooKs1w"/>
