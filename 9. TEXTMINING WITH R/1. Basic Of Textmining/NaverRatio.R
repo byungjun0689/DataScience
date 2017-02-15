@@ -58,7 +58,7 @@ naver.ratio.df <- read.csv("곡성.csv", stringsAsFactors = F)
 
 library(tm)
 
-all.reviews <- naver.ratio.df$reply
+all.reviews <- naver.ratio.df[naver.ratio.df$score==10,2]
 
 ko.words <- function(doc){
   d <- as.character(doc)
@@ -73,7 +73,8 @@ options(mc.cores=1)
 # all.reviews <- gsub("ㅇㄱㅁㅈ￦","",all.reviews)
 # all.reviews <- gsub("라라라라","",all.reviews)
 
-review.corpus <- Corpus(VectorSource(all.reviews[1:30000]))
+#review.corpus <- Corpus(VectorSource(all.reviews[1:5000]))
+review.corpus <- Corpus(VectorSource(all.reviews))
 tdm <- TermDocumentMatrix(review.corpus, control=list(tokenize=ko.words,wordLengths=c(2,5), removeNumbers=T, removePunctuation=T))
 tdm.matrix <- as.matrix(tdm)
 
