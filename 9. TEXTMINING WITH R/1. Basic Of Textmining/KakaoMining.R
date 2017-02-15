@@ -3,7 +3,7 @@
 library(stringr)
 library(KoNLP)
 useSejongDic()
-install.packages("wordcloud2")
+#install.packages("wordcloud2")
 library(wordcloud2)
 
 

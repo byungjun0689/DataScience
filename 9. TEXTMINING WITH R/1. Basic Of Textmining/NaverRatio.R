@@ -6,9 +6,7 @@ library(RCurl)
 library(stringr)
 library(KoNLP)
 useSejongDic()
-install.packages("wordcloud2")
 library(wordcloud2)
-install.packages("qgraph")
 library(qgraph)
 
 url = "http://movie.naver.com/movie/bi/mi/point.nhn?code=121051"
@@ -25,7 +23,7 @@ tot_good <- c()
 tot_bad <- c()
 
 for(i in 1:50000){
-  if(i %% 100 == 0){
+  if(i %% 20 == 0){
     print(i)
   }
   tmp_url = paste0(iframe.url,i)
@@ -55,7 +53,8 @@ naver.ratio.df$reply <-  as.character(naver.ratio.df$reply)
 mean(naver.ratio.df$score)
 boxplot(naver.ratio.df$score)
 
-write.csv(naver.ratio.df,"곡성.csv")
+#write.csv(naver.ratio.df,"곡성.csv",row.names = F)
+naver.ratio.df <- read.csv("곡성.csv", stringsAsFactors = F)
 
 library(tm)
 
@@ -74,27 +73,26 @@ options(mc.cores=1)
 # all.reviews <- gsub("ㅇㄱㅁㅈ￦","",all.reviews)
 # all.reviews <- gsub("라라라라","",all.reviews)
 
-review.corpus <- Corpus(VectorSource(all.reviews))
+review.corpus <- Corpus(VectorSource(all.reviews[1:30000]))
 tdm <- TermDocumentMatrix(review.corpus, control=list(tokenize=ko.words,wordLengths=c(2,5), removeNumbers=T, removePunctuation=T))
 tdm.matrix <- as.matrix(tdm)
 
-# rownames(tdm.matrix)[1:20]
-# word.count <- rowSums(tdm.matrix)
-# word.order <- order(word.count,decreasing = T)
-# freq.words <- tdm.matrix[word.order[1:20],]
-# 
-# cooccur <- freq.words %*% t(freq.words)
-# 
-# qgraph(cooccur,
-#        labels=rownames(cooccur), # 가로세로 모두 단어다 그래서 colnames로 해도상관없다. 단어가 안짤리고 잘나온다. 
-#        diag=F, # 자기자신을 나타내는 대각선 부분을 없앤다. 
-#        layout='spring', # Node의 위치를 바꿀수있다. 
-#        edge.color='blue',
-#        vsize=log(diag(cooccur)*5))
+rownames(tdm.matrix)[1:20]
+word.count <- rowSums(tdm.matrix)
+word.order <- order(word.count,decreasing = T)
+freq.words <- tdm.matrix[word.order[1:20],]
+
+cooccur <- freq.words %*% t(freq.words)
+
+qgraph(cooccur,
+       labels=rownames(cooccur), # 가로세로 모두 단어다 그래서 colnames로 해도상관없다. 단어가 안짤리고 잘나온다.
+       diag=F, # 자기자신을 나타내는 대각선 부분을 없앤다.
+       layout='spring', # Node의 위치를 바꿀수있다.
+       edge.color='blue',
+       vsize=log(diag(cooccur)*5))
+
 
 tmp.reviews <- naver.ratio.df$reply
-
-
 tmp.reviews <- Filter(function(x){nchar(x) <= 20}, tmp.reviews)
 nouns = sapply(tmp.reviews, extractNoun, USE.NAMES=F)
 extractNoun(nouns[1])
