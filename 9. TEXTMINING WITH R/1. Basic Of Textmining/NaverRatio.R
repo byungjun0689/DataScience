@@ -7,6 +7,7 @@ library(stringr)
 library(KoNLP)
 useSejongDic()
 library(wordcloud2)
+library(wordcloud)
 library(qgraph)
 
 url = "http://movie.naver.com/movie/bi/mi/point.nhn?code=121051"
@@ -93,12 +94,9 @@ qgraph(cooccur,
        vsize=log(diag(cooccur)*5))
 
 
-tmp.reviews <- naver.ratio.df$reply
-tmp.reviews <- Filter(function(x){nchar(x) <= 20}, tmp.reviews)
-nouns = sapply(tmp.reviews, extractNoun, USE.NAMES=F)
-extractNoun(nouns[1])
-unlist_nouns <- unlist(nouns)
-#filter2_nouns <- Filter(function(x){nchar(x) >= 2 & nchar(x) <= 5}, unlist_nouns)
-#테이블 형태로 변환
-wordcount <- table(unlist_nouns)
+freq.words <- tdm.matrix[word.order,]
+tmp_coo <- freq.words %*% t(freq.words)
+df.data <- diag(cooccur)
+df.data <- as.data.frame(df.data)
+wordcloud(words = rownames(df.data),freq = df.data$df.data)
 
