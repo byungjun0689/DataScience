@@ -21,7 +21,7 @@ for(page in 1:10000){
   url = paste0(base_url,page)
   r = GET(url)
   h = read_html(r)
-  comment_area = html_nodes(h, '.list_review')
+  comment_area = html_nodes(h, '.list_review') # . -> Class, # -> ID
   comments = html_nodes(comment_area, '.desc_review')
   reviews = html_text(comments)
   
