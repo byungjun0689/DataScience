@@ -4,6 +4,7 @@ install.packages("qgraph")
 install.packages("scales")
 install.packages("data.table")
 install.packages("wordcloud")
+install.packages("wordcloud2")
 library(httr) # http 통신.
 library(rvest)
 library(dplyr)
