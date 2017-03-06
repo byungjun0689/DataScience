@@ -9,5 +9,8 @@ r = POST(url, encode = 'form',
          body = list(txtPeriodW="2016-01-02")) # body에는 Form데이터가 들어가야된다. schStartDate = 2017-01-29 schEndDate = 2017-02-24
 r
 game = read_html(r)
-title = html_nodes(game,'a.tracktitle')
+title = html_nodes(game,'a.tracktitle') ## a의 Class가 Tracktitle인 것.
 titles = html_text(title)
+
+
+

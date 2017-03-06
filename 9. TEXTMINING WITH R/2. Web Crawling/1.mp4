@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<!-- <meta http-equiv="X-UA-Compatible" content="IE=Edge"/> -->
+		<meta name="Author" content="" />
+		<meta name="keywords" content="" />
+		<META HTTP-EQUIV="Page-Enter" ConTENT="BlendTrans(Duration=0.1)"> 
+		<META HTTP-EQUIV="Page-exit" ConTENT="BlendTrans(Duration=0.1)"> 
+		<title>데이터 전문가 온라인 교육</title>
+		<style type="text/css" media="screen">
+			<!--/*--><![CDATA[/*><!--*/
+								@import url(/home/httpd/html/template/1/css/global.css);
+								@import url(http://cyber.dbguide.net/template/1/html/css/common.css);
+								@import url(http://cyber.dbguide.net/template/1/html/css/index.css);
+								@import url(http://cyber.dbguide.net/template/1/html/css/Web.css);
+						/*]]>*/-->
+		</style>
+		<link rel='stylesheet' type='text/css' href='./template/1/html/css/Web.css'>
+		<link rel='stylesheet' type='text/css' href='./template/1/html/css/common.css'>
+				<script type="text/javascript" src="http://cyber.dbguide.net/scripts/common.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/scripts/implements.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/scripts/global.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/scripts/lib.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/scripts/postback.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jquery-1.7.1.min.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jquery.featureList-1.0.0.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/placeholders.min.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.Component.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.Effect.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.FloatingLayer.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.LayerManager.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.TabControl.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.Timer.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.Transition.js"></script>
+				<script type="text/javascript" src="http://cyber.dbguide.net/template/1/html/js/jindo.UIComponent.js"></script>
+				<script type="text/javascript">
+			//<![CDATA[
+			gURL_root	= "http://cyber.dbguide.net";
+			gSelf		= "/index.php";
+			gQueryString = "";
+			gUserID		= "guest";
+			gUserLevel	= "guest";
+			isLogined	= false;
+			//]]>
+		</script>
+
+		<script type="text/javascript" language=JavaScript>
+			var bReset = true;
+			function chkReset(f) {
+				if (bReset) {
+					if ( f.userid.value == '아이디' ) f.userid.value = '';
+					bReset = false;
+				}
+
+				document.getElementById("pw1").style.display = "none";
+				document.getElementById("pw2").style.display = "";
+			}
+		</script>
+		<script type="text/javascript">
+			function validateForm(oForm) {
+				if (oForm.userid.value == "아이디" || oForm.userid.value == "") {
+					alert("아이디를 입력하세요.");
+					oForm.userid.focus();
+					return false;
+				}
+
+				if (oForm.passwd.value == "") {
+					alert("비밀번호를 입력하세요.");
+					oForm.passwd.focus();
+					return false;
+				}
+
+				return true;
+			}
+
+			function __check() {
+				var bChecked = $("chkSavedLoginId").src.indexOf("checked") > -1;
+
+				$("chkSavedLoginId").src = bChecked ? "./imags/ico_check.gif" : "./imags/ico_checked.gif";
+				$("save_id").checked = !bChecked;
+			}
+		</script>
+		<script>
+		function search()
+		{
+			searchFrm.method = "post";
+			searchFrm.action="/search.php";
+			searchFrm.submit();
+		 }
+		</script>
+
+	</head>
+<body>
+<div class="skipNav"><a href="#containergo">본문바로가기</a><a href="#topmenugo">주메뉴바로가기</a></div>
+<!-- Header 영역 -->
+<div id="Header">
+  <div class="Header1">
+    <ul class="tTopMenu">
+      <li><a href="/">HOME</a></li>
+      <li><a href="http://www.dbguide.net/itdic.db" target="_blank">IT 용어사전</a></li>
+      <li><a href="http://www.dbguide.net/sitemap.db" target="_blank">사이트맵</a></li>
+      <li><a href="http://www.dbguide.net/customer.db?cmd=list&boardConfigUid=50&boardStep=0" target="_blank">고객센터</a></li>
+    </ul>
+    <div class="HdLogin"> 
+	  <!-- 상단 로그인 -->
+      <form method="post" name="loginForm" id="frm_login" style="margin:0" action="/login.php" onSubmit="return validateForm(this);">
+        <input type="hidden" name="action" value="Login" />
+        <input type="hidden" name="url" value="/" />
+        <input type="hidden" name="code" value="" />
+        <fieldset class="LgForm">
+          <legend class="blind">로그인영역</legend>
+  			  <input name="userid" type="text" id="lg_id" class="LoginText" title="ID" placeholder="아이디" />
+	          <input type="password" name="passwd"  id="loginpw" title="PW" class="LoginText" placeholder="비밀번호"/>
+          <input type="submit" value="로그인" class="btnBlack" />
+          <input name="save_id" id="idsave" type="checkbox" title="아이디저장" class="LoginCheck"  onClick="if (this.checked) { if (confirm('자동 로그인을 사용하시면 다음부터 회원 아이디를 입력하실 필요가 없습니다.\n\n공공장소에서는 개인정보가 유출될 수 있으니 사용을 자제하여 주십시오.\n\n자동로그인을 사용하시겠습니까?')) { this.checked = true; } else { this.checked = false; } }" />
+          <label for="idsave" class="IdsaveTxt">ID저장</label>
+        </fieldset>
+        <a href="http://www.dbguide.net/member.db?cmd=step1" class="btnBluegray">회원가입</a>
+      </form>
+      <!-- 상단 로그인 //--> 
+    </div>
+  </div>
+<form name="searchFrm" onsubmit="return search();">
+<input type="hidden" name="field" value="all">
+  <div class="Header2">
+    <div class="logo"><a href="/"><img src="http://cyber.dbguide.net/template/1/html/image/logo.png" alt="cyber.DBGuide.net 데이터 전문가 온라인 교육 로고"/></a></div>
+    <div class="HdSch">
+        <label for="UfSch" class="hidden">통합검색</label>
+        <input type="text" id="UfSch" name="keyword" class="TopSch"><input type="submit" value="검색" class="btnSch">
+    </div>
+  </div>
+</form>
+<!--container-->
+<!--topmenu-->
+  <div class="Header3"> 
+    <script>
+		$(document).ready(function(){
+			$(".TmList>li").mouseenter(function() {
+			$(this).children("ul").slideDown(150);
+			});
+			$(".TmList>li").mouseleave(function() {
+			$(this).children("ul").slideUp(100);
+			});
+		});
+		</script>
+    <div class="TopMenu">
+      <ul class="TmList">
+        <li class="tmBlack"><a href="/mypage.php">나의 강의실</a>
+          <ul class="SmList">
+            <li><a href="/mypage.php">나의 강의실</a></li>
+            <li><a href="/mypage.php?action=finishLec">수강종료 강좌</a></li>
+            <li><a href="/shop.php?action=cart">장바구니</a></li>
+            <li><a href="/mypage.php?action=question">온라인 시험</a></li>
+            <li><a href="/mypage.php?action=myqna">내 질문과 답변</a></li>
+            <li><a href="/mypage.php?action=payment">주문조회</a></li>
+            <li><a href="/mypage.php?action=Certficate">수료증 출력</a></li>
+            <li><a href="#">영수증 출력</a></li>
+          </ul>
+        </li>
+        <li class="tmBlue"><a href="/lecture.php">교육과정</a>
+          <ul class="SmList">
+            <li><a href="/lecture.php?code=AA017">(빅)데이터</a></li>
+            <li><a href="/lecture.php?code=AA001">데이터 아키텍처</a></li>
+            <li><a href="/lecture.php?code=AA004">프로젝트 관리</a></li>
+            <li><a href="/lecture.php?code=AA003">Oracle</a></li>
+            <li><a href="/lecture.php?code=AA006">MS-SQL Server</a></li>
+            <li><a href="/lecture.php?code=AA007">대용량 DB</a></li>
+            <li><a href="/lecture.php?code=AA008">OS</a></li>
+            <li><a href="/lecture.php?code=AA002">Tool</a></li>
+            <li><a href="/lecture.php?code=AA016">JAVA</a></li>
+            <li><a href="/lecture.php?code=AA011">Cubrid</a></li>
+            <li><a href="/lecture.php?code=AA005">DB 동향</a></li>
+            <li><a href="/lecture.php?code=AA012">Tibero</a></li>
+            <li><a href="/lecture.php?code=AA015">SQL 과정</a></li>
+          </ul>
+        </li>
+        <li class="tmBlue"><a href="/gnu/bbs/board.php?bo_table=notice">학습지원센터</a>
+          <ul class="SmList">
+            <li><a href="/gnu/bbs/board.php?bo_table=notice">공지사항</a></li>
+            <li><a href="/gnu/bbs/board.php?bo_table=qna">질문과 답변</a></li>
+            <li><a href="/gnu/bbs/board.php?bo_table=faq">자주 묻는 질문 </a></li>
+            <li><a href="/m_cscenter.php?action=reginfo">수강신청 안내</a></li>
+            <li><a href="/m_cscenter.php?action=lecinfo">과정학습 안내</a></li>
+            <li><a href="/m_cscenter.php?action=payinfo">결제 안내</a></li>
+            <li><a href="/m_cscenter.php?action=qna">영수증 발급 안내</a></li>
+            <li><a href="/m_cscenter.php?action=qna">동영상문제 SOS</a></li>
+          </ul>
+        </li>
+        <li class="tmWhite"><a href="http://www.dbguide.net" target="_blank">데이터 전문가 지식포털</a>
+          <ul class="SmList">
+            <li><a href="http://www.dbguide.net/db.db?cmd=view&boardUid=12720&boardConfigUid=9&boardIdx=25&boardStep=1" target="_blank">DB 구축가이드</a></li>
+            <li><a href="http://www.dbguide.net/knowledge.db?cmd=specialist_list&boardConfigUid=82&categoryUid=all" target="_blank">지식라이브러리</a></li>
+            <li><a href="http://www.dbguide.net/dbqna.db?cmd=list&boardConfigUid=30&boardConfigStep=0" target="_blank">DB Q&amp;A</a></li>
+            <!--li><a href="http://www.dbguide.net/university.db" target="_blank">대학인력양성</a></li-->
+            <li><a href="http://www.dbguide.net/offline.db" target="_blank">오프라인 교육</a></li>
+          </ul>
+        </li>
+        <li class="tmWhite"><a href="http://www.dbguide.net/bigacademy.db" target="_blank">빅데이터 아카데미</a></li>
+        <li class="tmWhite"><a href="http://www.dbguide.net/da.db" target="_blank">데이터자격시험</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- Header 영역 //--> <!-- MainConts 영역 -->
+<div id="MiWrapper"> 
+  <!--ContainerArea-->
+  <div id="ContainerArea"> 
+    <!-- Container -->
+    <div id="Container"> 
+      <!--  #Conts -->
+      <div id="Conts"> 
+        <!-- 메인 비쥬얼 -->
+        <div class="MainVisual">
+          <div id="feature_list">
+            <ul id="output">
+              <li style="display: list-item;"><a href="http://cyber.dbguide.net/lecture.php?action=view&no=159" class="img1">데이터 분석의 이해</a></li>
+              <li style="display: none;"><a href="/lecture.php?action=view&no=99" class="img2">SQL 개발자 과정</a></li>
+              <li style="display: none;"><a href="/lecture.php?action=view&no=94" class="img3">(新) 데이터아키텍처 전문가 과정</a></li>
+              <li style="display: none;"><a href="/lecture.php?action=view&no=53" class="img4">새로쓴 대용량 DB 솔루션 과정</a></li>
+            </ul>
+            <ul id="tabs">
+              <li><a href="http://cyber.dbguide.net/lecture.php?action=view&no=159" class="current">데이터 분석의 이해</a></li>
+              <li><a href="/lecture.php?action=view&no=99" class="">SQL 개발자 과정</a></li>
+              <li><a href="/lecture.php?action=view&no=94" class="">(新) 데이터아키텍처 전문가 과정</a></li>
+              <li><a href="/lecture.php?action=view&no=53" class="">새로쓴 대용량 DB 솔루션 과정</a></li>
+            </ul>
+          </div>
+          <script type="text/javascript">
+		  $(document).ready(function() {
+			  $.featureList(
+			  $("#tabs li a"),
+			  $("#output li"), {
+				  start_item : 0
+			  });
+			  $("#tabs>li>a").click(function(){
+			  return false;
+			  });
+		  });
+		  </script> 
+        </div>
+        <!-- 메인 비쥬얼 //--> 
+        <!-- 배너 01 -->
+        <div class="mainWrap">
+          <ul>
+			<li><a href="/lecture.php?action=view&no=125"><img src="http://cyber.dbguide.net/template/1/html/image/main_bn01_01.png" alt=""/></a></li>
+			<li><a href="/lecture.php?action=view&no=102"><img src="http://cyber.dbguide.net/template/1/html/image/main_bn01_02.png" alt=""/></a></li>
+            <li class="mL20">
+              <ul>
+                <li><a href="http://cyber.dbguide.net/lecture.php?action=view&no=160"><img src="http://cyber.dbguide.net/template/1/html/image/main_bn01_03.png" alt="신규강좌"/></a></li>
+                <li><a href="/lecture.php?action=view&no=73"><img src="http://cyber.dbguide.net/template/1/html/image/main_bn01_04.png" alt="추천강좌"/></a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <!-- 배너 01 //-->
+        <!-- 배너 02 -->
+        <div class="mainWrap"><a href="/lecture.php?code=AA017"><img src="http://cyber.dbguide.net/template/1/html/image/main_bn02.png" alt="프로모션 - 빅데이터 아카데미가 제공하는 빅데이터 온라인 유/무료 교육"/></a></div>
+        <!-- 배너 02 //-->
+        <!-- 게시판 최근글 -->
+        <div class="mainWrap">
+          <ul class="boardList">
+            <li><a href="/gnu/bbs/board.php?bo_table=notice" class="tit">공지사항</a>
+              <ul>
+			                  <li><a href="/gnu/bbs/board.php?bo_table=notice&wr_id=69">[로그인 방식 변경] 보안 및  개인정보보호를 위해 로그인 방식을 변경합니다.</a></li>
+			                </ul>
+            </li>
+            <li><a href="/gnu/bbs/board.php?bo_table=qna" class="tit">질문과 답변</a>
+              <ul>
+			                  <li><a href="/gnu/bbs/board.php?bo_table=qna&wr_id=163">강의보기 실행이 안됩니다</a></li>
+			                  <li><a href="/gnu/bbs/board.php?bo_table=qna&wr_id=162">강좌 재생시 배속기능 추가 바랍니다.</a></li>
+			                  <li><a href="/gnu/bbs/board.php?bo_table=qna&wr_id=161">수료증 문의</a></li>
+			                  <li><a href="/gnu/bbs/board.php?bo_table=qna&wr_id=159">입금 확인 부탁드립니다.</a></li>
+			                </ul>
+            </li>
+          </ul>
+        </div>
+        <!-- 게시판 최근글 //-->
+        <!-- 문의전화, 자주 찾는 메뉴 -->
+        <div class="mainWrap">
+          <ul>
+            <li><img src="http://cyber.dbguide.net/template/1/html/image/main_tel01.png" alt="교육문의 T.02)3708-5379 / F.02)318-5040"/></li>
+            <li><img src="http://cyber.dbguide.net/template/1/html/image/main_tel02.png" alt="교육문의 T.02)3708-5379 / F.02)318-5040"/></li>
+            <li>
+              <ul class="favMenu">
+                <li><a href="/gnu/bbs/board.php?bo_table=faq">자주 묻는 질문</a></li>
+                <li><a href="/m_cscenter.php?action=reginfo">수강신청 안내</a></li>
+                <li><a href="/m_cscenter.php?action=lecinfo">과정학습 안내</a></li>
+                <li><a href="/m_cscenter.php?action=payinfo">결제 안내</a></li>
+                <li><a href="#">영수증 발급 안내</a></li>
+                <li><a href="/m_cscenter.php?action=qna">동영상문제 SOS</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <!-- 문의전화, 자주 찾는 메뉴 -->
+    </div>
+    <!-- #Conts //--> 
+  </div>
+  <!-- Container //--> 
+</div>
+<!-- ContainerArea //-->
+</div>
+<!-- MainConts영역 //--> 
+<!-- Footer 영역 -->
+<div id="Footer">
+<!--
+  <div id="FootLink">
+    <div id="FootLinkIn">
+      <ul class="FLList">
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Q&amp;A</a></li>
+        <li><a href="#">개인정보보호정책</a></li>
+        <li><a href="#">관련사이트</a></li>
+        <li><a href="#">콘텐츠 불법 사용 규제</a></li>
+        <li><a href="#">이메일부단수집거부</a></li>
+        <li><a href="#">고객센터</a></li>
+      </ul>
+    </div>
+  </div>
+  -->
+  <div id="FooterIn">
+    <div id="FootIn">
+      <div class="logoL"><img src="/template/1/html/image/btm_logo.png" alt="cyber.DBGuide.net 데이터 전문가 온라인 교육 로고"></div>
+      <div class="txt">
+        <address>
+        서울시 중구 세종대로9길 42 부영빌딩 7층 한국데이터진흥원&nbsp;&nbsp;<a href="/gnu/bbs/rss.php" target="_blank" style="margin-top:5px"><img src="/template/1/html/image/rss_gray.png" alt="RSS"></a>
+        </address>
+        사업자등록번호 : 102-82-08963<br />
+        Copyright(C) 2015 <strong>Korea Data Agency.</strong> All Right Reserved.</div>
+    </div>
+  </div>
+</div>
+<!-- Footer 영역 //-->
+
+
+</td></tr></table>
+</body>
+</html>
