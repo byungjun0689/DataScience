@@ -225,3 +225,87 @@ as.matrix(tdm.test)
 # 동일.
 
 
+
+# 12. Network그리기
+getCurRateLimitInfo()
+
+seed <- getUser('GH_PARK')
+seed$description
+
+seed.n <- seed$screenName
+seed.n
+
+## get seed's friends
+following <- seed$getFriends(n = 100000, retryOnRateLimit = 10000) # 결과값이 list형태.
+str(following)
+following.n <- as.character(lapply(following, function(x) x$getScreenName()))
+head(following.n)
+
+# 네트워크에 들어갈 사람을 LIST 로 만들기
+follow.list <- list()
+follow.list[[seed.n]] <- following.n
+
+descriptions <- as.character(lapply(following, function(x) x$getDescription()))
+politician <- grep('국회의원',descriptions,ignore.case=T) # 국회의원 
+
+politician <- c(seed.n,following.n[politician])
+
+a <- Sys.time()
+a
+i = 1
+deprecated.user <- c()
+
+# loop over politician following same steps
+while (length(follow.list) < 100){ # 100명을 모으겠다.
+  
+  # pick first user not done
+  user <- sample(politician[politician %in% c(names(follow.list), deprecated.user)==FALSE], 1)
+  user <- getUser(user, retryOnRateLimit = 10000)
+  user.n <- user$screenName
+  cat(user$name, "\n")
+  
+  if(user$protected == F){
+    # download list of users he/she follows
+    following <- user$getFriends(n = 1000, retryOnRateLimit = 10000)
+    friends <- as.character(lapply(following, function(x) x$getScreenName()))
+    follow.list[[user.n]] <- friends
+    descriptions <- as.character(lapply(following, function(x) x$getDescription()))
+    
+    # subset and add users who are politician
+    pol <- grep('(국회의원)', descriptions, ignore.case = T)
+    if(length(pol) != 0){
+      new.users <- lapply(following[pol], function(x) x$getScreenName())
+      new.users <- as.character(new.users)
+      politician <- unique(c(politician, new.users))
+    }
+    else{
+      deprecated.user <- c(deprecated.user, user.n)
+    }
+  }
+  else{
+    deprecated.user <- c(deprecated.user, user.n)
+  }
+  # if rate limit is hit, wait for a minute
+  limit <- sum(as.numeric(getCurRateLimitInfo()[,3]) < 2)
+  while (limit > 0){
+    cat("sleeping for one minute", "\n")
+    Sys.sleep(60)
+    limit <- sum(as.numeric(getCurRateLimitInfo()[,3]) < 2)
+  }
+  print(i)
+  print(c(length(politician), length(follow.list)))
+  i <- i+1
+}
+
+
+Sys.time()
+
+
+# a little bit of network analysis
+pol <- names(follow.list)
+adjMatrix <- lapply(follow.list, function(x) (pol %in% x)*1)
+adjMatrix <- matrix(unlist(adjMatrix), nrow=length(pol), byrow=TRUE, dimnames=list(pol, pol))
+
+library(igraph)
+network <- graph.adjacency(adjMatrix)
+plot(network)
