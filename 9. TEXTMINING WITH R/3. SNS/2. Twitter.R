@@ -134,3 +134,94 @@ df_moon_friend$text
 
 
 gsub("(|)*(\\s*[\\|]*\\w+뉴스)*\\s+http(|s)://\\w+.?\\w+[/|]+\\w+","",df_moon_friend$text)
+
+
+
+# 한국어 Term Doucment Matrix 만들기(weighting이해하기)
+# KoNLP이용
+library(tm)
+library(KoNLP)
+library(stringr)
+
+A <- '나는 배고파서 슬프다. 매우 슬프다.'
+B <- '나는 잠이 와서 졸립다. 졸립다. 졸립다.'
+C <- '나는 잠이 안와서 슬프다'
+ex <- c(A, B, C )
+ex
+
+
+ko.words <- function(doc){
+  d <- as.character(doc)
+  pos <- paste(SimplePos09(d))
+  extracted <- str_match(pos, '([가-힣]+)/[NP]')
+  keyword <- extracted[,2]
+  keyword[!is.na(keyword)]
+}
+ko.words(A)
+ko.words(B)
+ko.words(C)
+
+# TermDocument Matrix
+options(mc.cores=1)
+cps <- Corpus(VectorSource(ex))
+tdm <- TermDocumentMatrix(cps,
+                          control=list(
+                            tokenize = ko.words,
+                            removePunctuation=T,
+                            removeNumbers=T,
+                            wordLengths=c(1,5)
+                          ))
+
+tdm
+as.matrix(tdm)
+tdm # term frequency (tf) 단어 출현 빈도.
+
+# weightBin : 1번이상 출현하면 1로 바꾸고 아니면 0 
+# 액션영화인지 아닌지. 
+tdm.bin <- TermDocumentMatrix(cps,
+                              control=list(
+                                tokenize = ko.words,
+                                removePunctuation=T,
+                                removeNumbers=T,
+                                wordLengths=c(1,5),
+                                weighting=weightBin
+                              ))
+as.matrix(tdm.bin)
+
+# weightTfIdf = Tf * IDF
+# TF 개별단어숫자 : Normalize 
+# 많은 말을 한 부분이 웨이트가 높게 나온다. 이러한 걸 조절 할 수 있다.
+# 모든 사람들의 단어 사용을 0 ~ 1 사이 값으로 바꾼다.
+
+# IDF (Inverse Document Frequency)
+# A : 나 배고파 슬프 슬프 
+# B : 나 잠  와 졸립다 졸립다 졸립다
+# C : 나 잠  안와서 슬프
+
+# A 입장에서 '나'도 1회, '배고파'도 1회 출현
+# 그러나, 나는 A,B,C모두 출현, 배고파는 A만 출현
+# 신문기사를 예를 들면 ~기자는 말했다 등과 같이 모든 문서에 나타나는 단어의 중요도를 감소 
+# TF-ij = log(총 문서갯수 / 출현한 문서 갯수)
+
+
+tdm.test <- TermDocumentMatrix(cps,
+                          control=list(
+                            tokenize = ko.words,
+                            removePunctuation=T,
+                            removeNumbers=T,
+                            wordLengths=c(1,5),
+                            weighting = weightTfIdf
+                            ))
+
+as.matrix(tdm.test)
+
+
+tdm.m <- as.matrix(tdm)
+
+tdm.m <- apply(tdm.m,2,function(x) x/sum(x)) # 열별로 
+tdm.m * log2(3/apply(tdm.m, 1, function(x) sum(x>0)))
+# 이 값이 
+as.matrix(tdm.test)
+# 동일.
+
+
