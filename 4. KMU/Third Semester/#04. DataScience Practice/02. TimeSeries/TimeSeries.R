@@ -62,5 +62,3 @@ lines(closale$date, loc.reg$y, col='green', lwd=3) # y가 실제로 필요한 �
 acf(closale$sales) # 12월이 Seasonality 가 있다. 
 # Linear Trend가 있어서 Cor 가 약간씩 높다. 
 
-
-
