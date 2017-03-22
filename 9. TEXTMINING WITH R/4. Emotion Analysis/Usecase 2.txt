@@ -1,0 +1,128 @@
+data.test <- read.csv('books_test.csv', stringsAsFactors = F)
+corpus <- Corpus(VectorSource(data.test$Texts))
+dtm.test <- DocumentTermMatrix(corpus,
+                               control = list(tolower = T,
+                                              removePunctuation = T,
+                                              removeNumbers = T,
+                                              stopwords = stopwords("SMART"),
+                                              weighting = weightTfIdf,
+                                              dictionary = Terms(dtm)))
+
+library(tm.plugin.sentiment)
+senti.lm.test <- polarity(dtm.test, names(pos.lm), names(neg.lm))
+senti.lasso.test <- polarity(dtm.test, names(pos.lasso), names(neg.lasso))
+senti.ridge.test <- polarity(dtm.test, names(pos.ridge), names(neg.ridge))
+senti.elastic.test <- polarity(dtm.test, names(pos.elastic), names(neg.elastic))
+
+senti.lm.b.test <- ifelse(senti.lm.test > 0, 1, 0)
+senti.lasso.b.test <- ifelse(senti.lasso.test > 0, 1, 0)
+senti.ridge.b.test <- ifelse(senti.ridge.test > 0, 1, 0)
+senti.elastic.b.test <- ifelse(senti.elastic.test > 0, 1, 0)
+
+library(caret)
+confusionMatrix(senti.lm.b.test, data.test$Sentiment)
+confusionMatrix(senti.lasso.b.test, data.test$Sentiment
+confusionMatrix(senti.ridge.b.test, data.test$Sentiment)
+confusionMatrix(senti.elastic.b.test, data.test$Sentiment)
+모바일폰 / 태블릿 / 도서 데이터 감정분석 정확도 비교
+
+## 모바일폰
+
+data.test <- read.csv('mobile2014_test.csv', stringsAsFactors = F)
+corpus <- Corpus(VectorSource(data.test$Texts))
+dtm.test <- DocumentTermMatrix(corpus,
+                               control = list(tolower = T,
+                                              removePunctuation = T,
+                                              removeNumbers = T,
+                                              stopwords = stopwords("SMART"),
+                                              weighting = weightTfIdf,
+                                              dictionary = Terms(dtm)))
+
+library(tm.plugin.sentiment)
+senti.lm.test <- polarity(dtm.test, names(pos.lm), names(neg.lm))
+senti.lasso.test <- polarity(dtm.test, names(pos.lasso), names(neg.lasso))
+senti.ridge.test <- polarity(dtm.test, names(pos.ridge), names(neg.ridge))
+senti.elastic.test <- polarity(dtm.test, names(pos.elastic), names(neg.elastic))
+
+senti.lm.b.test <- ifelse(senti.lm.test > 0, 1, 0)
+senti.lasso.b.test <- ifelse(senti.lasso.test > 0, 1, 0)
+senti.ridge.b.test <- ifelse(senti.ridge.test > 0, 1, 0)
+senti.elastic.b.test <- ifelse(senti.elastic.test > 0, 1, 0)
+
+lm.acc <- confusionMatrix(senti.lm.b.test, data.test$Sentiment)$overall[1]
+lasso.acc <- confusionMatrix(senti.lasso.b.test, data.test$Sentiment)$overall[1]
+ridge.acc <- confusionMatrix(senti.ridge.b.test, data.test$Sentiment)$overall[1]
+elastic.acc <- confusionMatrix(senti.elastic.b.test, data.test$Sentiment)$overall[1]
+acc <- c(lm.acc, lasso.acc, ridge.acc, elastic.acc)
+names(acc) <- c('lm', 'lasso', 'ridge', 'elastic')
+
+mobile.acc <- acc
+
+## 태블릿
+data.test <- read.csv('tablet2014_test.csv', stringsAsFactors = F)
+corpus <- Corpus(VectorSource(data.test$Texts))
+dtm.test <- DocumentTermMatrix(corpus,
+                               control = list(tolower = T,
+                                              removePunctuation = T,
+                                              removeNumbers = T,
+                                              stopwords = stopwords("SMART"),
+                                              weighting = weightTfIdf,
+                                              dictionary = Terms(dtm)))
+
+library(tm.plugin.sentiment)
+senti.lm.test <- polarity(dtm.test, names(pos.lm), names(neg.lm))
+senti.lasso.test <- polarity(dtm.test, names(pos.lasso), names(neg.lasso))
+senti.ridge.test <- polarity(dtm.test, names(pos.ridge), names(neg.ridge))
+senti.elastic.test <- polarity(dtm.test, names(pos.elastic), names(neg.elastic))
+
+senti.lm.b.test <- ifelse(senti.lm.test > 0, 1, 0)
+senti.lasso.b.test <- ifelse(senti.lasso.test > 0, 1, 0)
+senti.ridge.b.test <- ifelse(senti.ridge.test > 0, 1, 0)
+senti.elastic.b.test <- ifelse(senti.elastic.test > 0, 1, 0)
+
+lm.acc <- confusionMatrix(senti.lm.b.test, data.test$Sentiment)$overall[1]
+lasso.acc <- confusionMatrix(senti.lasso.b.test, data.test$Sentiment)$overall[1]
+ridge.acc <- confusionMatrix(senti.ridge.b.test, data.test$Sentiment)$overall[1]
+elastic.acc <- confusionMatrix(senti.elastic.b.test, data.test$Sentiment)$overall[1]
+acc <- c(lm.acc, lasso.acc, ridge.acc, elastic.acc)
+names(acc) <- c('lm', 'lasso', 'ridge', 'elastic')
+
+tablet.acc <- acc
+
+## 도서
+
+data.test <- read.csv('books_test.csv', stringsAsFactors = F)
+corpus <- Corpus(VectorSource(data.test$Texts))
+dtm.test <- DocumentTermMatrix(corpus,
+                               control = list(tolower = T,
+                                              removePunctuation = T,
+                                              removeNumbers = T,
+                                              stopwords = stopwords("SMART"),
+                                              weighting = weightTfIdf,
+                                              dictionary = Terms(dtm)))
+
+library(tm.plugin.sentiment)
+senti.lm.test <- polarity(dtm.test, names(pos.lm), names(neg.lm))
+senti.lasso.test <- polarity(dtm.test, names(pos.lasso), names(neg.lasso))
+senti.ridge.test <- polarity(dtm.test, names(pos.ridge), names(neg.ridge))
+senti.elastic.test <- polarity(dtm.test, names(pos.elastic), names(neg.elastic))
+
+senti.lm.b.test <- ifelse(senti.lm.test > 0, 1, 0)
+senti.lasso.b.test <- ifelse(senti.lasso.test > 0, 1, 0)
+senti.ridge.b.test <- ifelse(senti.ridge.test > 0, 1, 0)
+senti.elastic.b.test <- ifelse(senti.elastic.test > 0, 1, 0)
+
+lm.acc <- confusionMatrix(senti.lm.b.test, data.test$Sentiment)$overall[1]
+lasso.acc <- confusionMatrix(senti.lasso.b.test, data.test$Sentiment)$overall[1]
+ridge.acc <- confusionMatrix(senti.ridge.b.test, data.test$Sentiment)$overall[1]
+elastic.acc <- confusionMatrix(senti.elastic.b.test, data.test$Sentiment)$overall[1]
+acc <- c(lm.acc, lasso.acc, ridge.acc, elastic.acc)
+names(acc) <- c('lm', 'lasso', 'ridge', 'elastic')
+
+book.acc <- acc
+
+## 정확도 비교
+
+mobile.acc
+tablet.acc
+book.acc
