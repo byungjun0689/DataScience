@@ -1,7 +1,7 @@
 # API
 # Application Programming Interface
 
-#https://developers.facebook.com/tools/explorer
+# https://developers.facebook.com/tools/explorer
 
 # User 정보. 
 
@@ -12,7 +12,7 @@ library(tm)
 library(wordcloud)
 library(stringr)
 
-fb_oauth <- 'EAACEdEose0cBAA3URz0bndsPa9JXPNhh5qXtGfLZCWxT2d5HJfioNDO82ZARD8DZAfnPFwmZAWKnTJTSNbblVsDXac5pzGuIMwvVlS2xYXpGdiVc2GYctv0RBkK7ZAZBeky8zQt4urKUZBSSCakxMypr7QxINRPT4AmM2hnYMoqyeGsMpX3IjeRLZA3kRVDZCxSsZD'
+fb_oauth <- ''
 fb_oauth
 
 getUsers('me', token=fb_oauth, private_info = F)

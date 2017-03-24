@@ -1,7 +1,7 @@
 # SNS 데이터 가져오기
 # 나의 페이스북 댓글 가져오기 -> 텍스트분석 -> 간단한 시각화
 
-fb_oauth <- 'EAACEdEose0cBAKkSzpIOVu5GqP6UGutNSH5WXhN2fHaesMZCi6XOWS0jRXMtR3ZAD0QkGpJktXGNx9iBWQYNZBEYWQvxYFVA69evlykH03zKY7ZBnZCTGXfWkBrZA9EfWuxxKAjn9ysonJiPTh6rBa4rMEgou0mCJQIbX0VvpizyGvQW4eEmiBTCx8Ned7B8MZD'
+fb_oauth <- ''
 fb_oauth
 
 install.packages("Rfacebook")

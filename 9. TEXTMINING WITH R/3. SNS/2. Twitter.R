@@ -7,10 +7,10 @@ library(twitteR)
 library(base64enc)
 
 options(httr_oauth_cache = T)
-setup_twitter_oauth(consumer_key = 'J6Y4NEAl5mubjrHQ28kFbWAsw', 
-                    consumer_secret = 'qbnzZOVPcQjAU0MbKbFybEw5jtcrZTlhs1djEi0Xaix9Ev1gxH',
-                    access_token = '896621426-KC4s40IVAlYWhrL61N6RGkxlUMfkirUjGFdvZaju',
-                    access_secret = 'JQ9ZT8j2VY2wKZiehy2IKU5toSkcnfhHevpx0x0Hq6Jn0')
+setup_twitter_oauth(consumer_key = '', 
+                    consumer_secret = '',
+                    access_token = '',
+                    access_secret = '')
 
 
 getCurRateLimitInfo() # 접속확인.
