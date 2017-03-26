@@ -4,6 +4,8 @@ Created on Fri Mar 24 17:33:29 2017
 
 @author: MCR007
 """
+### Handling Data ###
+
 
 import numpy as np 
 import pandas as pd 
@@ -34,7 +36,7 @@ timezone.head()
 timezone = timezone.rename(columns={'state':'STATE'})
 customer = pd.merge(customer,timezone,on='STATE')
 
-
+customer.to_csv("Data2/customer2.csv", index=False)
 # Orderlist
 
 orderlist = pd.read_csv("data/6 month history of customer orders.csv")
@@ -68,27 +70,69 @@ air_product['SEQ'] = np.arange(len(air_product))
 air_product.head()
 
 air_product['AIR_DATE'] = pd.to_datetime(air_product['AIR_DATE'])
-air_product['PRODUCT_START_TMS'] = pd.to_datetime(air_product['PRODUCT_START_TMS'], format='%Y-%m-%d %H:%M')
-air_product['PRODUCT_STOP_TMS'] = pd.to_datetime(air_product['PRODUCT_STOP_TMS'], format='%Y-%m-%d %H:%M')
+air_product['PRODUCT_START_TMS'] = pd.to_datetime(air_product['PRODUCT_START_TMS'])
+air_product['PRODUCT_STOP_TMS'] = pd.to_datetime(air_product['PRODUCT_STOP_TMS'])
 
 order_df = pd.merge(orderlist,customer,on='CUSTOMER_NBR')
 order_df.head()
 
 order_df['SHOPPER_SEGMENT_CODE'] = order_df['SHOPPER_SEGMENT_CODE'].astype(int)
 
-sns.factorplot('timezone', kind='count', data=order_df)
+sns.factorplot('timezone', kind='count', data=order_df, size=10)
 sns.factorplot('timezone', kind='count', data=order_df, hue='SHOPPER_SEGMENT_CODE')
 
-order_df.ix[1,[3,6]][1]
+order_df.ix[1,[3,6]]
 def getNear(order):
-    productID = order[0]
-    orderDate = order[1]
-    
-    tmp_df = air_product[air_product['PRODUCT_ID']==productID]    
-    
-    return(productID)
+    productID = order.ix[0]
+    orderDate = order.ix[1]
+    result = 0
+    tmp_df = air_product[air_product['PRODUCT_ID']==productID].copy()    
+    if len(tmp_df) > 0:
+        tmp_df = tmp_df[tmp_df['PRODUCT_START_TMS'] < orderDate]
+        if len(tmp_df) >0:
+            tmp_df = tmp_df.sort_values(by='PRODUCT_START_TMS', ascending=False)
+            result = tmp_df.iloc[0,5]
+    return(result)
 
-order_df.ix[1:4,[3,6]].apply(getNear,axis=1)
-    
-air_product[air_product['PRODUCT_ID']==2186 & air_product['PRODUCT_START_TMS']< pd.to_datetime('2012-11-16 06:26:00', format='%Y-%m-%d %H:%M:%S')]
+order_df.ix[1:20,[3,6]].apply(getNear,axis=1)
+
+order_df['SEQ'] = order_df.ix[:,[3,6]].apply(getNear,axis=1)
+
+order_df.to_csv('Data2/pre_order_data.csv')
+order_df = pd.read_csv('Data2/pre_order_data.csv')
+order_df = pd.merge(order_df,product,on='PRODUCT_ID')
+order_df = pd.merge(order_df,air_product.ix[:,air_product.columns != 'PRODUCT_ID'],on='SEQ')
+order_df.head()
+
+order_df.info()
+
+order_df.to_csv('Data2/order_data.csv',index=False)
+
+#### Making Cluster #####
+customer = pd.read_csv('Data2/customer2.csv')
+order_df = pd.read_csv('Data2/order_data.csv')
+customer.head()
+order_df.head()
+
+order_df.groupby(['CUSTOMER_NBR','MERCH_DIV_DESC']).size()
+
+cate_per_customer = order_df.groupby(['CUSTOMER_NBR','MERCH_DIV_DESC']).size()
+cate_per_customer = pd.DataFrame(cate_per_customer)
+cate_per_customer = cate_per_customer.unstack(1)
+cate_per_customer = cate_per_customer.fillna(0)
+tmp = cate_per_customer.copy()
+
+item_per_customer = order_df.groupby(['CUSTOMER_NBR','PRODUCT_ID']).size()
+item_per_customer = pd.DataFrame(item_per_customer)
+item_per_customer = item_per_customer.unstack(1)
+item_per_customer = item_per_customer.fillna(0)
+
+per_customer = pd.concat([cate_per_customer, item_per_customer], axis=1)
+
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=9, random_state=0).fit(per_customer)
+kmeans
+kmeans.labels_[200:400]
+cate_per_customer['Cluster'] = kmeans.labels_
+
 
