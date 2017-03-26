@@ -133,6 +133,18 @@ from sklearn.cluster import KMeans
 kmeans = KMeans(n_clusters=9, random_state=0).fit(per_customer)
 kmeans
 kmeans.labels_[200:400]
-cate_per_customer['Cluster'] = kmeans.labels_
+per_customer['Cluster'] = kmeans.labels_
+per_customer.head()
+per_customer.index
+custer_df = pd.DataFrame({'CUSTOMER_NBR':per_customer.index,'Cluster':per_customer['Cluster']})
+custer_df.head()
+custer_df[custer_df['CUSTOMER_NBR']==627088]
+
+tmp = order_df.copy()
+tmp['CUSTOMER_NBR'] = tmp.astype(int)
+tmp = pd.concat([tmp,custer_df.ix[:,1]], axis=1)
+
+tmp = tmp[tmp['Cluster'].notnull()]
+
 
 
