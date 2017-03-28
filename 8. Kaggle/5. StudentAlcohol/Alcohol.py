@@ -33,14 +33,18 @@ sns.factorplot('school',kind='count', data=df)
 df.groupby(['school','Dalc']).size()
 school_dalc = pd.DataFrame({'cnt':df.groupby(['school','Dalc']).size()}).reset_index()
 
-def changePercent(data):
-    sumOfGP = sum(data[data['school']=='GP']['cnt'])
-    sumOfMS = sum(data[data['school']=='MS']['cnt'])
-    if data['school'] == "GP":
-        
-    
+sumOfGP = sum(school_dalc[school_dalc['school']=='GP']['cnt'])
+sumOfMS = sum(school_dalc[school_dalc['school']=='MS']['cnt'])
 
-changePercent(school_dalc)
+def changePercent(data):
+    #sumOfGP = sum(data[data['school']=='GP']['cnt'])
+    #sumOfMS = sum(data[data['school']=='MS']['cnt'])
+    if data[0] == "GP":
+        return(data[2]/sumOfGP)
+    else:
+        return(data[2]/sumOfMS)
+        
+school_dalc['percent'] = school_dalc.apply(changePercent,axis=1)
 
 columns = df.columns
 
