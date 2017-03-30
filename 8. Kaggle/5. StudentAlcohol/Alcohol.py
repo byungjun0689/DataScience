@@ -31,8 +31,9 @@ sns.factorplot('age',data=df, kind='count')
 sns.factorplot('school',kind='count', data=df)
 sns.factorplot('sex',kind='count', data=df)
 sns.factorplot('class',kind='count', data=df)
+
+
 sns.factorplot('famsize',kind='count', data=df)
-sns.factorplot('Pstatus',kind='count', data=df)
 sns.factorplot('Medu',kind='count', data=df)
 sns.factorplot('Fedu',kind='count', data=df)
 sns.factorplot('Mjob',kind='count', data=df)
