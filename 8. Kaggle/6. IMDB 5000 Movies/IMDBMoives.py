@@ -38,7 +38,7 @@ df.columns
 # A2 : Nop, There's nothing about realtion with two data number of face in poster and imdbsocre 
 #      it's Almost 0 Correation with two factors
 realtionOfFN = df[['facenumber_in_poster','imdb_score']].dropna().corr()
-
+realtionOfFN
 # Delete columns i don't need
 del df['movie_imdb_link']
 del df['color']
@@ -66,10 +66,73 @@ df[['director_name','imdb_score']].groupby(['director_name']).mean()
 
 
 genre_list = df['genres'].str.split('|')
-
+genre_list
 # set 으로 활용하면 되려나 
 genre = set()
 for i in range(len(genre_list)):
     genre |= set(genre_list[i])
+    
+pd.DataFrame(genre_list[1]).T
+
+genre_df = pd.DataFrame()
+for i in range(len(genre_list)):
+    genre_df = genre_df.append(pd.DataFrame(genre_list[i]).T)
 
 
+# way 1 .
+df1 = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index)
+df1 = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index).replace({None:np.nan})
+
+# way 2 
+df1 = genre_list.apply(pd.Series)
+
+
+
+genre_df = genre_df.reset_index()
+genre_df['index'] = range(len(genre_df))
+#genre_df['imdb_score'] = df['imdb_score']
+#del genre_df['index']
+genre_df.stack()
+
+genre_df.stack().groupby(level=0).value_counts().unstack().fillna(0)
+
+# way 1
+df = pd.get_dummies(genre_df.drop('index', axis=1).stack()).groupby(level=0).max()
+
+# way 2
+genre_df = genre_df.drop('index', 1)
+genre_df.stack().groupby(level=0).value_counts().unstack(fill_value=0) # int
+genre_df.stack().groupby(level=0).value_counts().unstack().fillna(0) # float
+#way 3
+genre_df.apply(pd.value_counts, 1).fillna(0).astype(int)
+
+
+df_genre = genre_df.stack().groupby(level=0).value_counts().unstack(fill_value=0) 
+df_genre['imdb_score'] = df['imdb_score']
+
+genre_corr = df_genre.corr()
+genre_corr = genre_corr['imdb_score']
+genre_corr[abs(genre_corr)>0.1]
+
+# horror & comedy have a bad effection to rating of moives
+# Biography, Documentary, Drama, History, War have good factors for rating of movies
+
+actor_df = df[['actor_1_name','actor_2_name','actor_3_name']]
+actor_df = actor_df.stack().groupby(level=0).value_counts().unstack(fill_value=0)
+actor_df['imdb_score'] = df['imdb_score']
+
+actor_corr = actor_df.corr()
+
+tmp = pd.get_dummies(df['actor_1_name']).astype(int)
+tmp['imdb_score'] = df['imdb_score']
+tmp = tmp.corr()
+tmp = tmp['imdb_score']
+tmp[abs(tmp)>0.1]
+
+
+
+# actor like
+tmp = df[['actor_1_facebook_likes','imdb_score']]
+tmp = tmp.corr()
+tmp = tmp['imdb_score']
+tmp[abs(tmp)>0.1]
