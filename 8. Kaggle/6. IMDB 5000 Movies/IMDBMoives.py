@@ -74,33 +74,27 @@ for i in range(len(genre_list)):
     
 pd.DataFrame(genre_list[1]).T
 
+
+# worst Way to make difference length list to DataFrame
 genre_df = pd.DataFrame()
 for i in range(len(genre_list)):
     genre_df = genre_df.append(pd.DataFrame(genre_list[i]).T)
 
 
 # way 1 .
-df1 = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index)
-df1 = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index).replace({None:np.nan})
+genre_df = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index)
+genre_df = pd.DataFrame(genre_list.values.tolist(), index=genre_list.index).replace({None:np.nan})
 
 # way 2 
-df1 = genre_list.apply(pd.Series)
-
-
-
-genre_df = genre_df.reset_index()
-genre_df['index'] = range(len(genre_df))
-#genre_df['imdb_score'] = df['imdb_score']
-#del genre_df['index']
-genre_df.stack()
+genre_df = genre_list.apply(pd.Series)
 
 genre_df.stack().groupby(level=0).value_counts().unstack().fillna(0)
 
+# Count Varibles like dummy coding
 # way 1
-df = pd.get_dummies(genre_df.drop('index', axis=1).stack()).groupby(level=0).max()
+df = pd.get_dummies(genre_df.stack()).groupby(level=0).max()
 
 # way 2
-genre_df = genre_df.drop('index', 1)
 genre_df.stack().groupby(level=0).value_counts().unstack(fill_value=0) # int
 genre_df.stack().groupby(level=0).value_counts().unstack().fillna(0) # float
 #way 3
@@ -117,22 +111,52 @@ genre_corr[abs(genre_corr)>0.1]
 # horror & comedy have a bad effection to rating of moives
 # Biography, Documentary, Drama, History, War have good factors for rating of movies
 
+# there's no evidence about correlation with factor's information and imdb_score
 actor_df = df[['actor_1_name','actor_2_name','actor_3_name']]
 actor_df = actor_df.stack().groupby(level=0).value_counts().unstack(fill_value=0)
 actor_df['imdb_score'] = df['imdb_score']
 
 actor_corr = actor_df.corr()
 
-tmp = pd.get_dummies(df['actor_1_name']).astype(int)
-tmp['imdb_score'] = df['imdb_score']
-tmp = tmp.corr()
-tmp = tmp['imdb_score']
-tmp[abs(tmp)>0.1]
+actor_corr_result = actor_corr['imdb_score']
+actor_corr_result[abs(actor_corr_result)>0.1]
+
+# actor like 
+actor_like_df = df[['actor_1_facebook_likes','actor_3_facebook_likes','actor_2_facebook_likes','imdb_score']]
+actor_like_df = actor_like_df.fillna(0)
+actor_like_df_corr = actor_like_df.corr()
 
 
+sns.boxplot(y='imdb_score',x='content_rating',data=df)
+plt.xticks(rotation=45)
 
-# actor like
-tmp = df[['actor_1_facebook_likes','imdb_score']]
-tmp = tmp.corr()
-tmp = tmp['imdb_score']
-tmp[abs(tmp)>0.1]
+tmp = df['language'].value_counts()
+language_list = tmp[tmp>3].index.tolist()
+
+sns.boxplot(y='imdb_score',x='language',data=df[df['language'].isin(language_list)])
+plt.xticks(rotation=45)
+
+title_year_df = df[['title_year','imdb_score']]
+
+title_year_df = title_year_df.dropna()
+title_year_df['title_year'] = title_year_df['title_year'].astype(int)
+
+sns.factorplot(y='imdb_score',x='title_year',data=title_year_df,kind='box', size=8)
+plt.xticks(rotation=45)
+
+
+# Facebook Poppularity 
+df[['movie_facebook_likes','imdb_score']].corr()
+sns.boxplot(x='imdb_score',y='movie_facebook_likes',data=df)
+
+columns = df.columns
+discrete = []
+continuous = []
+for i in columns:
+    if df[i].dtype =='object':
+        discrete.append(i)
+    else:
+        continuous.append(i)
+
+sns.pairplot(df[continuous].dropna())
+
