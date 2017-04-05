@@ -12,19 +12,38 @@ import seaborn as sns
 import datetime as dt
 import urllib.request 
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+elem = driver.find_element_by_name("q")
+elem.clear()
+elem.send_keys("pycon")
+elem.send_keys(Keys.RETURN)
+
+tmp = driver.page_source
+
+assert "No results found." not in driver.page_source
+driver.close()
+
+
 
 url = 'https://play.google.com/store/apps/details?id=com.venticake.retrica&hl=ko#details-reviews'
-req = urllib.request.Request(url)
-data = urllib.request.urlopen(req).read().decode('utf-8')
+
+driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
+driver.get(url)
+#req = urllib.request.Request(url)
+#data = urllib.request.urlopen(req).read().decode('utf-8')
+
+data = driver.page_source
 bs = BeautifulSoup(data, 'html.parser')
 
-div_list = bs.find_all('div',class_="details-section-body expandable")
-for div in div_list:
-    print(div.find_all('div', class_='multicol-column'))
+#div_list = bs.find_all('div',class_="details-section-body expandable")
+#for div in div_list:
+#    print(div.find_all('div', class_='multicol-column'))
     
-div_list[1].find_all('div',class_="")
+#div_list[1].find_all('div',class_="")
 
-bs.find_all('div',class_="details-wrapper apps")[0].find_all('div', class_="rating-box")
+#bs.find_all('div',class_="details-wrapper apps")[0].find_all('div', class_="rating-box")
 
 
 # Rating Total 
@@ -44,15 +63,16 @@ for div_list in div_root_list:
         total_number['avg'] = avg
         total_number['total'] = total_num
             
-            
-        
+#content_list = div_root_list[0].find_all('div',class_="details-section-body expandable")
+#len(content_list[0].find_all('div',class_="single-review"))
+#div_root_list[0].find_all('div',class_="expand-pages-container")
 
-content_list = div_root_list[0].find_all('div',class_="details-section-body expandable")
-len(content_list[0].find_all('div',class_="single-review"))
+content_list = bs.find_all('div',class_="details-wrapper apps")
+if len(content_list) > 0:
+    content_list[0].find_all('div', class_="expand-page")    
 
-div_root_list[0].find_all('div',class_="expand-pages-container")
 
-tmp = bs.find_all('div',class_="details-wrapper apps")
-tmp[0].find_all('div', class_="expand-page")
+tmp = content_list[0].find_all('div', class_="expand-page")    
+tmp[9].find_all('div',class_="single-review")
 
-content_list
+
