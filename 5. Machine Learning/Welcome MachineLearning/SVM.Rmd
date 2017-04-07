@@ -1,0 +1,63 @@
+---
+title: "SVM(Support Vector Machine)"
+output: html_notebook
+---
+
+## 아주 간단히 R로 하는 SVM !!!
+ - SVM은 내칭구
+ - Set Data : 중산층을 구분하는 기준을 Food, Book, Culture, Cloth, Travel 과 같은 데이터로 구분하고 본인이 중산층인지 아닌지를 Status로 표시
+ 
+```{r}
+set1 <- read.csv("data/set1.csv" , header = T , stringsAsFactors = F)
+head(set1)
+```
+
+```{r}
+plot(set1, col=factor(set1$status))
+```
+### 조금 보기 어렵다. 
+ - 2차원으로 표현하면 참 좋을듯?
+ - 사실 나도 이건 뭔지 잘 모르겠다.
+ - kde2d : Two-Dimensional Kernel Density Estimation
+ 
+```{r}
+library(MASS)
+density <- kde2d(set1$food , set1$book , n=400)
+image(density , xlab = "food" , ylab = "book")
+```
+
+```{r}
+library(e1071) 
+m1 <- svm(status ~ food + book + cul + cloth + travel , type = "C-classification" , data = set1) 
+m1
+```
+
+```{r}
+predict(m1 , set1)
+```
+
+```{r}
+library(caret)
+confusionMatrix(set1$status,predict(m1 , set1))
+```
+
+ - ksvm :  ksvm supports the well known C-svc, nu-svc, (classification) one-class-svc (novelty) eps-svr, nu-svr (regression) formulations along with native multi-class classification formulations and the bound-constraint SVM formulations.
+```{r}
+library(kernlab)
+m2 <- ksvm(status ~ . , kernel = "rbfdot" , data = set1) 
+m2
+```
+```{r}
+t(predict(m2 , set1))
+```
+
+```{r}
+tmp = predict(m2 , set1)
+tmp[tmp>=0.5] =1 
+tmp[tmp<0.5] =0
+t(tmp)
+```
+```{r}
+confusionMatrix(set1$status,tmp)
+```
+
