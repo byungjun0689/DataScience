@@ -1,3 +1,4 @@
+install.packages("dynlm")
 library(dynlm)
 
 beverage <- read.csv('2week/beverage.csv')
