@@ -160,3 +160,19 @@ for i in columns:
 
 sns.pairplot(df[continuous].dropna())
 
+
+# 감독에 따른 영화 관람 수 비교와 좋아요 비교. 
+direct_df = pd.get_dummies(df['director_name'])
+direct_df['facebook_like'] = df['movie_facebook_likes']
+direct_df['num_user_for_reviews'] = df['num_user_for_reviews']
+direct_df['num_voted_users'] = df['num_voted_users']
+direct_df['budget'] = df['budget']
+direct_df = direct_df.dropna()
+direct_df_corr = direct_df.corr()
+
+need_columns = ['facebook_like',
+       'num_user_for_reviews', 'num_voted_users', 'budget']
+
+direct_df_corr = direct_df_corr[need_columns]
+
+direct_df_corr[abs(direct_df_corr)>0.2]

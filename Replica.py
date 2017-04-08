@@ -73,6 +73,72 @@ if len(content_list) > 0:
 
 
 tmp = content_list[0].find_all('div', class_="expand-page")    
-tmp[9].find_all('div',class_="single-review")
+tmp2 = tmp[9].find_all('div',class_="single-review")
+len(tmp2)
+tmp2[0].find('span',class_="review-date").text  #Review Date
+tmp2[0].find('div',class_="tiny-star star-rating-non-editable-container")['aria-label'] # Review Rating (total / now) Extract
+str.replace(tmp2[0].find('div',class_="review-body").text,"전체 리뷰","")
+
+content_list[0].find_all('button',class_="expand-button expand-next")
+driver.find_element_by_class_name('expand-button expand-next')
+
+driver.findElement(By.cssSelector(".alert.alert-success");
+driver.findElement(By.className("expand-button expand-next"));
+
+
+
+
+
+
+
+#### lxml
+import lxml.html
+import requests
+
+url = 'https://play.google.com/store/apps/details?id=com.venticake.retrica&hl=ko#details-reviews'
+
+ res = requests.get(url)
+ root = lxml.html.fromstring(res.text)
+ root[:100]
+ tmp = root.cssselect('div.main-content')
+ tmp
+ tmp[0].text
+ 
+ 
+ 
+    titles = root.cssselect('a.go_naver')
+    for title in titles:
+        article_url = title.attrib['href']
+        art_res = requests.get(article_url)
+        art_root = lxml.html.fromstring(art_res.text)
+        body = art_root.cssselect('#articleBodyContents')[0]
+        articles.append(body.text_content())
+
+
+
+
+# ajax
+import json
+url = "https://play.google.com/store/getreviews?authuser=0"
+param = {'reviewType': '0', 
+         'pageNum': '2', 
+         'id':'com.venticake.retrica',
+         'reviewSortOrder':'4',
+         'xhr':'1',
+         'token':'ZLqR3TmB64y6koyq8uj1tqqiQ4k:14191636750027',
+         'hl':'ko'}
+
+r = requests.post(url, data=param)
+r.text[len(r.text)-1000:len(r.text)]
+
+for i in range(1,10):
+    param['pageNum'] = i
+    r = requests.post(url, data=param)
+    print(i)
+    print(r.text[len(r.text)-1000:len(r.text)])
+
+param
+
+json.loads(r.text)
 
 
