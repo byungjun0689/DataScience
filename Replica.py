@@ -144,6 +144,7 @@ import json
 import requests
 import re
 
+
 url = 'https://play.google.com/store/apps/details?id=com.venticake.retrica&hl=ko#details-reviews'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)'}
 req = urllib.request.Request(url, headers=headers)
@@ -170,6 +171,8 @@ for div_list in div_root_list:
         total_number['avg'] = avg
         total_number['total'] = total_num
         
+total_series = pd.Series(total_number)
+total_series.to_csv("total_series.csv")
 
 url = "https://play.google.com/store/getreviews?authuser=0"
 id = 'com.venticake.retrica'
@@ -216,26 +219,114 @@ def GetReviews(url,id,token,pages):
                 
 DF = GetReviews(url,id,token,10000)
 DF['DATE'] = pd.to_datetime(DF['DATE'],format='%Y년 %m월 %d일')
-DF.head()
 DF = DF.sort_values(by='DATE', ascending=True).reindex()   
+DF.head()
+
+DF.to_csv("Replica_review.csv")
 
 sns.factorplot('STAR',kind='count',data=DF) # 실질적으로 1을 준 사용자도 많다. 완전히 실망하거나 만족하거나 하는 성향을 보였다.
 
 DF[DF['STAR']==3]
 
 Under_three = DF[DF['STAR']<=3]
-Over_three = DF[DF['STAR']>=3]
+Over_three = DF[DF['STAR']>3]
+len(Under_three) + len(Over_three)
+len(DF)
 
+#text <- gsub("\\[(.*?)\\]", "", text)
+#text <- gsub("[^가-힣]", " ", text)
+
+under_text = Under_three['BODY']
+re.sub('[^가-힣\s]',"",under_text[80])
+under_text = under_text.apply(lambda x:re.sub('[^가-힣\s]',"",x))
 
 # 형태소 분석
 from konlpy.tag import Twitter
 from sklearn.feature_extraction.text import CountVectorizer
 
 tagger = Twitter()
-cv = CountVectorizer(tokenizer=tagger.nouns, max_features=50)
-tdf = cv.fit_transform(Under_three['BODY'])
+cv = CountVectorizer(tokenizer=tagger.nouns, max_features=300)
+tdf = cv.fit_transform(under_text)
 
 
-           
+# 단어 목록
+words = cv.get_feature_names()
+words
 
-                
+# 1글자 짜리 빼기
+
+def get_word(doc):
+    nouns = tagger.nouns(doc)
+    return [noun for noun in nouns if len(noun) > 1]                
+
+cv = CountVectorizer(tokenizer=get_word, max_features=200)
+tdf = cv.fit_transform(under_text)
+words = cv.get_feature_names()
+words
+
+# 단어별 출현 빈도
+import numpy as np 
+count_mat = tdf.sum(axis=0)
+count_mat
+count = np.squeeze(np.asarray(count_mat))
+word_count = list(zip(words, count))
+
+# 빈도 정렬 
+import operator
+sorted(word_count, key=operator.itemgetter(1), reverse=True)
+# word_count2 = sorted(word_count, key=lambda t:t[1], reverse=True)
+
+word_count2 = []
+for item in word_count:
+    if item[1] > 20:
+        word_count2.append(item)
+    
+
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=400, height=300)
+cloud = wc.generate_from_frequencies(dict(word_count2))
+plt.figure(figsize=(12,9))
+plt.imshow(cloud)
+plt.axis('off')
+plt.show()
+
+
+# 상관 행렬 만들기
+tdm = tdf
+tdm.todense()
+word_corr = np.corrcoef(tdm.todense(), rowvar=0)
+np.squeeze(np.asarray(word_corr))
+
+edges = []
+for i in range(len(words)):
+    for j in range(i+1,len(words)):
+        edges.append((words[i],words[j], word_corr[i,j]))
+        
+edges = sorted(edges, key=operator.itemgetter(2),reverse=True)
+
+edge_list = [(word1, word2) for word1, word2, weight in edges]
+weight_list = [weight for word1, word2, weight in edges]
+
+import networkx
+from matplotlib import font_manager, rc
+
+font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
+rc('font', family=font_name)
+
+
+G = networkx.Graph(font_family = font_name)
+
+edge_set = set()
+for word1, word2, weight in edges:
+    G.add_edge(word1, word2, weight=weight)
+    edge_set.add((word1,word2))
+    
+position = networkx.spring_layout(G, k=0.09,  iterations=100)
+plt.figure(figsize=(12, 9))
+networkx.draw_networkx_nodes(G, position, node_size=0)
+networkx.draw_networkx_edges(G, position, edgelist=edge_list, width=weight_list, edge_color='lightgray')
+networkx.draw_networkx_labels(G, position, font_size=15)
+plt.axis('off')
+plt.show()
