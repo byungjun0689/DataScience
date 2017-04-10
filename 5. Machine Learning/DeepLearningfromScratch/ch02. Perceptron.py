@@ -86,3 +86,16 @@ def OR(x1,x2):
 for param in param_list:
     print(param)    
     print(OR(param[0],param[1]))
+    
+    
+def XOR(x1,x2):
+    s1 = NAND(x1,x2)
+    s2 = OR(x1,x2)
+    y= AND(s1,s2)
+    return y
+
+
+for param in param_list:
+    print(param)    
+    print(XOR(param[0],param[1]))
+    
