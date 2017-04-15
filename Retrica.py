@@ -222,7 +222,7 @@ DF['DATE'] = pd.to_datetime(DF['DATE'],format='%Y년 %m월 %d일')
 DF = DF.sort_values(by='DATE', ascending=True).reindex()   
 DF.head()
 
-DF.to_csv("Replica_review.csv")
+DF.to_csv("Retrica_review.csv")
 
 sns.factorplot('STAR',kind='count',data=DF) # 실질적으로 1을 준 사용자도 많다. 완전히 실망하거나 만족하거나 하는 성향을 보였다.
 
