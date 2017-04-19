@@ -14,18 +14,26 @@ competition = pd.read_csv(u"4.competition.txt",encoding="cp949")
 membership = pd.read_csv(u"5.membership.txt",encoding="cp949")
 channel = pd.read_csv(u"6.channel.txt",encoding="cp949")
 
+channel['제휴사'] = channel['제휴사'].astype('category')
+channel['제휴사'].cat.set_categories(['A_MOBILE/APP',
+ 'B_MOBILE/APP',
+ 'C_MOBILE/APP',
+ 'D_MOBILE/APP',
+ 'B_ONLINEMALL',
+ 'C_ONLINEMALL'], inplace=True)
+
+ch = pd.pivot_table(channel, index=['고객번호'],columns=['제휴사'],values=['이용횟수']).fillna(0)
+customer = pd.merge(customer,ch,left_on='고객번호',right_index=True, how='left').fillna(0)
 customer.head()
-product.head()
-competition.head()
-membership.head()
-channel.head()
-tr.head()
-pd.merge(tr,customer,on="고객번호").head()
 
-len(tr[:150000]['고객번호'].unique())
 
-tr = tr[:150000]
-tr = pd.merge(tr,customer,on="고객번호") 
+customer.to_csv("customer.csv",index=False,encoding="utf-8")
+tr[:5000000].to_csv("order.csv",index=False,encoding='utf-8')
+product.to_csv("product.csv",index=False,encoding='utf-8')
+competition.to_csv("competition.csv",index=False,encoding='utf-8')
+membership.to_csv("membership.csv",index=False,encoding='utf-8')
+channel.to_csv("channel.csv",index=False,encoding='utf-8')
+
 
 product.head()
 tr = pd.merge(tr,product,on=["대분류코드","중분류코드","소분류코드","제휴사"])
@@ -56,8 +64,16 @@ channel['제휴사'].cat.set_categories(['A_MOBILE/APP',
  'C_ONLINEMALL'], inplace=True)
 
 ch = pd.pivot_table(channel, index=['고객번호'],columns=['제휴사'],values=['이용횟수']).fillna(0)
+customer = pd.merge(customer,ch,left_on='고객번호',right_index=True, how='left').fillna(0)
+customer.head()
 
-ch['고객번호'] = ch.index
+zip_code = pd.read_csv("zipcode.csv",encoding='cp949')
+customer['거주지역'] = customer['거주지역'].astype(int)
+customer = pd.merge(customer,zip_code,left_on="거주지역", right_on="ZIP")
+customer.to_csv("customer.csv",index=False,encoding="utf-8")
+
+###################################################################
+
 tr = pd.merge(tr,ch,on="고객번호")
 
 import seaborn as sns
