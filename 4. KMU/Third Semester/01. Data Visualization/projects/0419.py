@@ -17,11 +17,12 @@ rc('font', family=font_name)
 
 
 #order = pd.read_csv("2. TR.csv", encoding="cp949")
-customer = pd.read_csv("customer.csv")
-product = pd.read_csv("product.csv")
-tr_customer = pd.read_csv("order_seoul.csv",encoding='cp949')
-zip_code = pd.read_csv("zipcode.csv",encoding="cp949")
+customer = pd.read_csv("data/customer.csv")
+product = pd.read_csv("data/product.csv")
+tr_customer = pd.read_csv("data/order_seoul.csv",encoding='cp949')
+zip_code = pd.read_csv("data/zipcode.csv",encoding="cp949")
 customer.head()
+len(tr_customer)
 #tr_customer = pd.merge(order,customer,on="고객번호")
 
 #order['구매일자'] = order['구매일자'].astype(int)
@@ -95,4 +96,32 @@ plt.figure(figsize = (15,12))
 g = sns.FacetGrid(time_tr, col="제휴사",size=3)
 g = (g.map(plt.bar, "구매시간", "cnt").add_legend())
 
+tr_customer.columns
+tr_customer.groupby(['점포코드','제휴사','시군구']).size()
 
+robs = tr_customer[tr_customer['제휴사']=="D"]
+
+robs['구매일자'] = pd.to_datetime(robs['구매일자'], format="%Y%m%d")
+date_df = robs.groupby(['구매일자']).size()
+plt.figure(figsize = (15,12))
+date_df.plot()
+
+cate_df = pd.DataFrame({'cnt':robs.groupby(['중분류명']).size()}).reset_index()
+cate_df.sort_values(by=['cnt'],ascending=False)
+
+cate_time_df = pd.DataFrame({'cnt':robs.groupby(['중분류명','구매시간']).size()}).reset_index()
+cate_time_df = cate_time_df.sort_values(by=['중분류명','구매시간'],ascending=False)
+sns.factorplot(x='구매시간',y='cnt',data=cate_time_df[cate_time_df['중분류명'].isin(['음료','과자'])], hue='중분류명', size=10)
+
+
+plt.figure(figsize = (15,12))
+g = sns.FacetGrid(gu_df, col="시군구",size=3)
+g = (g.map(plt.bar, "구매일자", "cnt").add_legend())
+
+
+
+gu_df = pd.DataFrame({'cnt':robs.groupby(['구매일자','시군구']).size()}).reset_index()
+sns.factorplot(x='구매일자',y='cnt',data=gu_df, hue='시군구', size=10)
+
+
+pd.DataFrame({'cnt':product[product['제휴사']=='D'].groupby(['중분류명']).size()}).reset_index().sort_values(by='cnt',ascending=False)
