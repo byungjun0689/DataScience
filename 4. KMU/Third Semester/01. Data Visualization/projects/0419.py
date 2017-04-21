@@ -17,9 +17,9 @@ rc('font', family=font_name)
 
 
 #order = pd.read_csv("2. TR.csv", encoding="cp949")
-customer = pd.read_csv("data/customer.csv")
-product = pd.read_csv("data/product.csv")
-tr_customer = pd.read_csv("data/order_seoul.csv",encoding='cp949')
+customer = pd.read_csv("customer.csv")
+product = pd.read_csv("product.csv")
+tr_customer = pd.read_csv("order_seoul.csv",encoding='cp949')
 zip_code = pd.read_csv("data/zipcode.csv",encoding="cp949")
 customer.head()
 len(tr_customer)
@@ -125,3 +125,63 @@ sns.factorplot(x='구매일자',y='cnt',data=gu_df, hue='시군구', size=10)
 
 
 pd.DataFrame({'cnt':product[product['제휴사']=='D'].groupby(['중분류명']).size()}).reset_index().sort_values(by='cnt',ascending=False)
+
+
+
+
+# 0421  제품별 Correlation 
+
+tr_customer.head()
+
+tr_customer.groupby(['영수증번호'])
+
+tt = tr_customer[tr_customer['제휴사']=="D"]
+
+
+tt = pd.DataFrame({'cnt':tt.groupby(['영수증번호','중분류명']).size()}).reset_index()
+tt = pd.pivot_table(tt,index='영수증번호',columns='중분류명',values='cnt').fillna(0)
+tt = tt.applymap(lambda x:int(x))
+
+def changeNumber(x):
+    if x<0:
+        return 0 
+    else:
+        return x
+
+cor_tt = tt.corr()
+basic = pd.DataFrame(cor_tt['음료'])
+#basic = basic.applymap(lambda x:changeNumber(x))
+#basic = basic[basic['과자']!=0]
+sns.heatmap(basic, annot=True, fmt='f', linewidths=.5)
+plt.title('음료와 연관있는 제품들')
+plt.xlabel("음료")
+plt.show()
+
+
+basic = pd.DataFrame(cor_tt)
+#basic = basic.applymap(lambda x:changeNumber(x))
+#basic = basic[basic['과자']!=0]
+sns.heatmap(basic, annot=True, fmt='f', linewidths=.5)
+plt.title('연관있는 제품들')
+plt.show()
+
+
+total_d_product = pd.DataFrame({'cnt':tr_customer[tr_customer['제휴사']=="D"].groupby(['중분류명']).size()}).reset_index()
+total_d_product = total_d_product.sort_values(by='cnt',ascending=False)
+
+d_list = list(total_d_product[total_d_product['cnt']>1000]['중분류명'])
+
+
+plt.figure(figsize = (15,12))
+basic = pd.DataFrame(cor_tt[d_list])
+basic = basic.ix[d_list,:]
+#basic = basic.applymap(lambda x:changeNumber(x))
+#basic = basic[basic['과자']!=0]
+sns.heatmap(basic, annot=False, fmt='f', linewidths=.5)
+plt.title('연관있는 제품들')
+plt.show()
+
+cor_tt[d_list].columns
+cor_tt[d_list].index
+
+
