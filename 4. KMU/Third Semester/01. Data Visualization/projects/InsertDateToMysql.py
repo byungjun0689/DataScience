@@ -15,6 +15,8 @@ product = pd.read_csv(u"3.product.txt",encoding="cp949")
 competition = pd.read_csv(u"4.competition.txt",encoding="cp949")
 membership = pd.read_csv(u"5.membership.txt",encoding="cp949")
 channel = pd.read_csv(u"6.channel.txt",encoding="cp949")
+zip_code = pd.read_csv("zipcode.csv",encoding="cp949")
+
 
 customer.head()
 print(product.head(1))
@@ -104,8 +106,14 @@ membership['JoinDate'] = membership['JoinDate'].astype(object)
 membership['JoinDate'] = membership['JoinDate'].apply(lambda x:str(x)+str('01'))
 membership.to_sql(name='membership',con=engine,if_exists='append',index=False)
 
+
+
 tr.columns = ['Company','ReceiptNum','HCategory','MCategory','LCategory','Custid','StoreCode','OrderDate','OrderTime','Mount']
-tr[:1000000].to_sql(name='orders',con=engine,if_exists='append',index=False)
+tr = tr[tr['Company']=="D"]
+tr.to_sql(name='order_robs',con=engine,if_exists='append',index=False)
+
+zip_code.columns = ['ZIP','City','Gu']
+zip_code.to_sql(name='zipcode',con=engine,if_exists='append',index=False)
 
 conn.close()
 
