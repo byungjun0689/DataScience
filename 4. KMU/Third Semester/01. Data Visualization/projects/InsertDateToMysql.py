@@ -27,7 +27,7 @@ print(tr.head(1))
 
 # connection 
 
-conn = pymysql.connect(host='localhost', user='lbj', password='wjddks', db='kmu') 
+conn = pymysql.connect(host='localhost', user='lbj', password='password', db='kmu') 
 
 # Connection 으로부터 Cursor 생성
 curs = conn.cursor()
@@ -75,7 +75,7 @@ from sqlalchemy import create_engine
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
-engine = create_engine("mysql+mysqldb://lbj:"+"wjddks"+"@localhost/kmu?charset=utf8", encoding='utf-8')
+engine = create_engine("mysql+mysqldb://lbj:"+"password"+"@localhost/kmu?charset=utf8", encoding='utf-8')
 conn = engine.connect()
 #customer.columns = ['Custid','Sex','Age','Resident']
 #customer.to_sql(name='Customer',con=engine,if_exists='append',index =False)
