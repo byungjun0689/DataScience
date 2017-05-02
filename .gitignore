@@ -157,3 +157,7 @@ access_log_sample
 8. Kaggle/10. Homicide Report(1980-2014)/data/database.csv
 VS14MORT.txt.gz
 3. Python/05. Python for Data Anlaysis/ch09/P00000001-ALL.csv
+5. Machine Learning/DeepLearningfromScratch/dataset/t10k-images-idx3-ubyte.gz
+5. Machine Learning/DeepLearningfromScratch/dataset/t10k-labels-idx1-ubyte.gz
+5. Machine Learning/DeepLearningfromScratch/dataset/train-images-idx3-ubyte.gz
+5. Machine Learning/DeepLearningfromScratch/dataset/train-labels-idx1-ubyte.gz
