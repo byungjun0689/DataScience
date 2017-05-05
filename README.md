@@ -13,7 +13,6 @@
    - Hadoop System (Ecosystem & Hive, HDFS)
  ### Ⅲ. 2017 03. Spring Semester
    - Visualization. (Tableau + GIS Data)
-   - CRM
    - BigData Analysis and strategy 
    - Unstructured Data Analysis with Python 
    - Data Science with Real Business 
