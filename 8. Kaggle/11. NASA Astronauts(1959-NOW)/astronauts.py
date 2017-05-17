@@ -32,3 +32,7 @@ plt.xticks(rotation=90)
 
 df2 = df.copy()
 df2['Military Branch'].apply(lambda x:replace(x," (Retired)"))
+
+Temp_df = df[["Space Flights","Space Flight (hr)"]]
+Temp_df.head()
+Temp_df[["Space Flights","Space Flight (hr)"]].head(2).apply(lambda x:x[1]/x[0], axis=1)
