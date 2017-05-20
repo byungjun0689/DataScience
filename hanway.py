@@ -3,15 +3,20 @@
 Created on Fri May 19 20:21:01 2017
 
 @author: byungjun
-"""
 
+Title : Crawling Groupware web site to get notice & board infomation 
+"""
+import pandas as pd
+import sqlite3
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import re
 import time
+import sys
 # 62938
-#driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
-driver = webdriver.PhantomJS(executable_path=r'F:\DataScience\Phantomjs.exe')
+driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
+#driver = webdriver.PhantomJS(executable_path=r'D:\DataScience\Phantomjs.exe')
+con = sqlite3.connect("hanway.db")
 
 def login(id='',passwd=''):
     print("login hanway")
@@ -21,7 +26,7 @@ def login(id='',passwd=''):
     driver.find_element_by_id('UserID').send_keys(id)
     driver.find_element_by_id('UserPWD').send_keys(passwd)
     driver.find_element_by_css_selector('.btn_login').click()
-    driver.get("https://hanway.hist.co.kr/default.aspx")
+    #driver.get("https://hanway.hist.co.kr/default.aspx")
 
 # Version 1 한웨이 메인 게시판만 긁기.
 #url = "https://hanway.hist.co.kr/HanJin/Common/Template/Bulletin/SelectBulletin.aspx?MenuID=1073&TemplateID=207&BulletinID={number}"
@@ -81,6 +86,13 @@ def detailGet():
         print("조회수 :", td_list[5].text)
 
 if __name__ == '__main__':
-    login(id='',passwd='')
+    if len(sys.argv) != 3:
+        print("Needs hanway id & passwd")
+        exit()
+    if sys.argv[1] == 'help':
+        print("argv[0] : id ")
+        print("argv[1] : passwd")
+        exit()
+    login(id=sys.argv[1],passwd=sys.argv[2])
     getMainList()
     detailGet()
