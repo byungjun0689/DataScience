@@ -3,10 +3,10 @@
   <title></title>
   <layer-tree-group expanded="1" checked="Qt::PartiallyChecked" name="">
     <customproperties/>
-    <layer-tree-layer expanded="1" checked="Qt::Checked" id="A04_Seoul_Block_Card_Data_Point20170520101651734" name="A04_Seoul_Block_Card_Data_Point">
+    <layer-tree-layer expanded="1" checked="Qt::Unchecked" id="A04_Seoul_Block_Card_Data_Point20170520101651734" name="A04_Seoul_Block_Card_Data_Point">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" checked="Qt::Checked" id="A03_Seoul_Block_Polygon20170520101918418" name="A03_Seoul_Block_Polygon">
+    <layer-tree-layer expanded="1" checked="Qt::Unchecked" id="A03_Seoul_Block_Polygon20170520101918418" name="A03_Seoul_Block_Polygon">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="0" checked="Qt::Unchecked" id="A01_Telecom_Flow_2012_Sample_Yeonsei_Region20170520100201430" name="A01_Telecom_Flow_2012_Sample_Yeonsei_Region">
@@ -21,7 +21,7 @@
     <layer-tree-layer expanded="1" checked="Qt::Unchecked" id="Admin_seoul_dong20170520094532422" name="Admin_seoul_dong">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" checked="Qt::Checked" id="OpenLayers_plugin_layer20170520094054952" name="Daum Street">
+    <layer-tree-layer expanded="1" checked="Qt::Checked" id="OpenLayers_plugin_layer20170521214909645" name="Daum Street">
       <customproperties/>
     </layer-tree-layer>
   </layer-tree-group>
@@ -51,28 +51,29 @@
     <rendermaptile>0</rendermaptile>
     <layer_coordinate_transform_info>
       <layer_coordinate_transform destAuthId="EPSG:5181" srcAuthId="EPSG:5181" srcDatumTransform="-1" destDatumTransform="-1" layerid="OpenLayers_plugin_layer20170520094054952"/>
+      <layer_coordinate_transform destAuthId="EPSG:5181" srcAuthId="EPSG:5181" srcDatumTransform="-1" destDatumTransform="-1" layerid="OpenLayers_plugin_layer20170521214909645"/>
     </layer_coordinate_transform_info>
   </mapcanvas>
   <layer-tree-canvas>
     <custom-order enabled="0">
-      <item>OpenLayers_plugin_layer20170520094054952</item>
       <item>Admin_seoul_dong20170520094532422</item>
       <item>Census_2010_Household_Seoul_518120170520094619310</item>
       <item>dong_2010_house20170520095530741</item>
       <item>A01_Telecom_Flow_2012_Sample_Yeonsei_Region20170520100201430</item>
       <item>A04_Seoul_Block_Card_Data_Point20170520101651734</item>
       <item>A03_Seoul_Block_Polygon20170520101918418</item>
+      <item>OpenLayers_plugin_layer20170521214909645</item>
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="A04_Seoul_Block_Card_Data_Point" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="A04_Seoul_Block_Card_Data_Point" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="A04_Seoul_Block_Card_Data_Point20170520101651734" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="A04_Seoul_Block_Card_Data_Point20170520101651734" visible="0"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="A03_Seoul_Block_Polygon" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="A03_Seoul_Block_Polygon" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="A03_Seoul_Block_Polygon20170520101918418" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="A03_Seoul_Block_Polygon20170520101918418" visible="0"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="A01_Telecom_Flow_2012_Sample_Yeonsei_Region" showFeatureCount="0">
@@ -97,7 +98,7 @@
     </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="Daum Street" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="OpenLayers_plugin_layer20170520094054952" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="OpenLayers_plugin_layer20170521214909645" visible="1"/>
       </filegroup>
     </legendlayer>
   </legend>
@@ -110,7 +111,7 @@
         <ymax>451624.19967486360110343</ymax>
       </extent>
       <id>A01_Telecom_Flow_2012_Sample_Yeonsei_Region20170520100201430</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0520/A01_Telecom_Flow_2012_Sample_Yeonsei_Region.shp</datasource>
+      <datasource>../vector/0520/A01_Telecom_Flow_2012_Sample_Yeonsei_Region.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -524,17 +525,18 @@
       <SingleCategoryDiagramRenderer diagramType="Pie">
         <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" sizeType="MM" minScaleDenominator="-4.65661e-10">
           <fontProperties description="Gulim,9,-1,5,50,0,0,0,0,0" style=""/>
+          <attribute field="" color="#000000" label=""/>
         </DiagramCategory>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" linePlacementFlags="10" placement="0" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS forms can have a Python function that is called when the form is
@@ -568,7 +570,7 @@ def my_form_open(dialog, layer, feature):
         <ymax>466554.89708076778333634</ymax>
       </extent>
       <id>A03_Seoul_Block_Polygon20170520101918418</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0520/A03_Seoul_Block_Polygon.shp</datasource>
+      <datasource>../vector/0520/A03_Seoul_Block_Polygon.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -809,17 +811,18 @@ def my_form_open(dialog, layer, feature):
       <SingleCategoryDiagramRenderer diagramType="Pie">
         <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" sizeType="MM" minScaleDenominator="-4.65661e-10">
           <fontProperties description="Gulim,9,-1,5,50,0,0,0,0,0" style=""/>
+          <attribute field="" color="#000000" label=""/>
         </DiagramCategory>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" linePlacementFlags="10" placement="0" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS forms can have a Python function that is called when the form is
@@ -853,7 +856,7 @@ def my_form_open(dialog, layer, feature):
         <ymax>465494.23578085156623274</ymax>
       </extent>
       <id>A04_Seoul_Block_Card_Data_Point20170520101651734</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0520/A04_Seoul_Block_Card_Data_Point.shp</datasource>
+      <datasource>../vector/0520/A04_Seoul_Block_Card_Data_Point.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -1285,14 +1288,14 @@ def my_form_open(dialog, layer, feature):
         <multilineenabled fieldname="" on=""/>
         <selectedonly on=""/>
       </labelattributes>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
       <editorlayout>generatedlayout</editorlayout>
@@ -1310,7 +1313,7 @@ def my_form_open(dialog, layer, feature):
         <ymax>466847.98552595102228224</ymax>
       </extent>
       <id>Admin_seoul_dong20170520094532422</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0506/Admin_seoul_dong.shp</datasource>
+      <datasource>../vector/0506/Admin_seoul_dong.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -1575,17 +1578,18 @@ def my_form_open(dialog, layer, feature):
       <SingleCategoryDiagramRenderer diagramType="Pie">
         <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" sizeType="MM" minScaleDenominator="-4.65661e-10">
           <fontProperties description="Gulim,9,-1,5,50,0,0,0,0,0" style=""/>
+          <attribute field="" color="#000000" label=""/>
         </DiagramCategory>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" linePlacementFlags="10" placement="0" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS forms can have a Python function that is called when the form is
@@ -1619,7 +1623,7 @@ def my_form_open(dialog, layer, feature):
         <ymax>465609.63524621375836432</ymax>
       </extent>
       <id>Census_2010_Household_Seoul_518120170520094619310</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0506/Census_2010_Household_Seoul_5181.shp</datasource>
+      <datasource>../vector/0506/Census_2010_Household_Seoul_5181.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -1742,14 +1746,14 @@ def my_form_open(dialog, layer, feature):
         <multilineenabled fieldname="" on=""/>
         <selectedonly on=""/>
       </labelattributes>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
       <editorlayout>generatedlayout</editorlayout>
@@ -1766,7 +1770,7 @@ def my_form_open(dialog, layer, feature):
         <xmax>494288</xmax>
         <ymax>988576</ymax>
       </extent>
-      <id>OpenLayers_plugin_layer20170520094054952</id>
+      <id>OpenLayers_plugin_layer20170521214909645</id>
       <datasource></datasource>
       <keywordList>
         <value></value>
@@ -1796,7 +1800,7 @@ def my_form_open(dialog, layer, feature):
         <ymax>466847.98552595102228224</ymax>
       </extent>
       <id>dong_2010_house20170520095530741</id>
-      <datasource>D:/DataScience/4. KMU/Third Semester/01. Data Visualization/GIS/vector/0520/dong_2010_house.shp</datasource>
+      <datasource>../vector/0520/dong_2010_house.shp</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -2222,17 +2226,18 @@ def my_form_open(dialog, layer, feature):
       <SingleCategoryDiagramRenderer diagramType="Pie">
         <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" sizeType="MM" minScaleDenominator="0">
           <fontProperties description="Gulim,9,-1,5,50,0,0,0,0,0" style=""/>
+          <attribute field="" color="#000000" label=""/>
         </DiagramCategory>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" linePlacementFlags="10" placement="0" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions/>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS forms can have a Python function that is called when the form is
@@ -2284,13 +2289,15 @@ def my_form_open(dialog, layer, feature):
     <Digitizing>
       <DefaultSnapToleranceUnit type="int">2</DefaultSnapToleranceUnit>
       <LayerSnappingList type="QStringList">
+        <value>A01_Telecom_Flow_2012_Sample_Yeonsei_Region20170520100201430</value>
+        <value>A03_Seoul_Block_Polygon20170520101918418</value>
+        <value>A04_Seoul_Block_Card_Data_Point20170520101651734</value>
         <value>Admin_seoul_dong20170520094532422</value>
         <value>Census_2010_Household_Seoul_518120170520094619310</value>
         <value>dong_2010_house20170520095530741</value>
-        <value>A01_Telecom_Flow_2012_Sample_Yeonsei_Region20170520100201430</value>
-        <value>A04_Seoul_Block_Card_Data_Point20170520101651734</value>
       </LayerSnappingList>
       <LayerSnappingEnabledList type="QStringList">
+        <value>disabled</value>
         <value>disabled</value>
         <value>disabled</value>
         <value>disabled</value>
@@ -2305,8 +2312,10 @@ def my_form_open(dialog, layer, feature):
         <value>2</value>
         <value>2</value>
         <value>2</value>
+        <value>2</value>
       </LayerSnappingToleranceUnitList>
       <LayerSnapToList type="QStringList">
+        <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
@@ -2316,6 +2325,7 @@ def my_form_open(dialog, layer, feature):
       <DefaultSnapType type="QString">off</DefaultSnapType>
       <DefaultSnapTolerance type="double">0</DefaultSnapTolerance>
       <LayerSnappingToleranceList type="QStringList">
+        <value>0.000000</value>
         <value>0.000000</value>
         <value>0.000000</value>
         <value>0.000000</value>
