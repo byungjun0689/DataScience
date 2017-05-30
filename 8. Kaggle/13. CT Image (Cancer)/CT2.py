@@ -5,7 +5,6 @@ Created on Tue May 30 08:05:30 2017
 @author: BYUNGJUN
 """
 
-from PIL import Image
 import numpy as np # matrix tools
 import matplotlib.pyplot as plt # for basic plots
 import seaborn as sns # for nicer plots
@@ -14,16 +13,11 @@ from glob import glob
 import re
 from skimage.io import imread
 import os
-import itertools
 import keras
 
 img_list = glob('Data/tiff_images/*.tif')
 img_list = [x.replace('\\','/') for x in img_list]
 check_id = re.compile(r'data\/tiff_images/ID_([\d]+)_AGE_([\d]+)_CONTRAST_([\d])_CT.tif')
-
-with np.load('data/full_archive.npz') as im_data:
-    # make a dictionary of the data vs idx
-    full_image_dict = dict(zip(im_data['idx'], im_data['image']))
     
     
 full_image_dict.keys()
@@ -54,7 +48,14 @@ BASE_IMAGE_PATH = os.path.join("data","tiff_images")
 all_images_list = glob(os.path.join(BASE_IMAGE_PATH,"*.tif"))
 all_images_list
 
-jimread = lambda x: np.expand_dims(imread(x)[::4,::4],0)
+# np.expand_dims -> Expand the shape of an array.
+# Insert a new axis, corresponding to a given position in the array shape.
+
+imread(all_images_list[0]).shape
+#np.expand_dims(imread(all_images_list[0])[::4,::4],0).shape
+np.expand_dims(imread(all_images_list[0]),0).shape
+#jimread = lambda x: np.expand_dims(imread(x)[::4,::4],0)
+jimread = lambda x: np.expand_dims(imread(x),0)
 
 test_image = jimread(all_images_list[0])
 plt.imshow(test_image[0])
