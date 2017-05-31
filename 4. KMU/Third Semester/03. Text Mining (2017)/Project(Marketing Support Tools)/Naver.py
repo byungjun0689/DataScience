@@ -1,29 +1,17 @@
-'''
-	Project Name : WAI (Where Am i?)
-	Description : 기업 또는 어떠한 항목이던 자신의 위치 즉, Brand 평가?(현재) 인식 등 알아보는 프로젝트
-	Version : v1.0
-	Date : 2017-05-20
-	WorkFlow : 
-	  	1. User Typing Brand Or Product
-	  	2. Crawling NewsData, SNS Data, Community Board Data(Clien.net)
-	  	3. Making WordCloud, Rating from NewsData(Like, Dislike)
-'''
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 31 20:42:20 2017
+
+@author: byung
+"""
 
 import urllib.request
 from urllib.parse import quote_plus
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
-from konlpy.tag import Komoran
-from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
-
-from selenium import webdriver
 import time
- 
-
-driver = webdriver.Chrome(executable_path=r'F:\DataScience\chromedriver.exe')
-#driver = webdriver.PhantomJS(executable_path=r'D:\DataScience\Phantomjs.exe') 실제적으로 할때는 팬텀 사용.
 
 def searchNaverNews(search,frdate,todate):
     compare_days = pd.to_datetime(todate) - pd.to_datetime(frdate)
@@ -61,41 +49,10 @@ def searchNaverNews(search,frdate,todate):
                         naver_href = naver_list[0]['href']    
                         title_list.append(article_title)
                         naver_url_list.append(naver_href)
-    return pd.DataFrame({'titles':title_list,'url':naver_url_list})
+    
+    tmp_df = pd.DataFrame({'titles':title_list,'url':naver_url_list})
+    return tmp_df
 
-
-# 다음 전체 건수 나누기 하는 걸찾아서 해야된다. 
-def searchDaumNews(search,frdate,todate):
-    frdate = frdate.replace("-","")+"000000"
-    todate = todate.replace("-","")+"235959"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)'}
-    search_url = "http://search.daum.net/search?w=news&sort=recency&q={query}&cluster=n&DA=STC&s=NS&a=STCF&dc=STC&pg=1&r=1&p=1&rc=1&at=more&sd={start}&ed={end}&period=u"
-    query = quote_plus(search.encode('utf-8'))    
-    url = url = search_url.format(query=query,page=1,start=frdate,end=todate)
-    req = urllib.request.Request(url, headers=headers)
-    status = urllib.request.urlopen(req).status
-    if status==200:
-        html = urllib.request.urlopen(req).read().decode('utf-8')
-        soup = BeautifulSoup(html,'html.parser')
-        article_list = soup.select('ul#newsResultUL li div.cont_inner')
-        for article in article_list:
-            daum_news_list = article.select('a.f_nb')
-            if len(daum_news_list) > 0:
-                article_title = article.select('a.f_link_b')[0].text
-                daum_href=daum_news_list[0]['href']
-                print(article_title)
-                print(daum_href)
-                
-
-searchDaumNews("갤럭시","2017-05-22","2017-05-24")
-
-headers = {'User-Agent': 'Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)'}
-url ="http://search.daum.net/search?w=news&sort=recency&q=%EA%B0%A4%EB%9F%AD%EC%8B%9C&cluster=n&DA=STC&s=NS&a=STCF&dc=STC&pg=1&r=1&p=1&rc=1&at=more&sd=20170522000000&ed=20170524235959&period=u"
-req = urllib.request.Request(url, headers=headers)
-status = urllib.request.urlopen(req).status
-if status==200:
-    html = urllib.request.urlopen(req).read().decode('utf-8')
-    soup = BeautifulSoup(html,'html.parser')
 
 def getContents(contents_url):
     print("getContents")
@@ -134,9 +91,19 @@ def getContents(contents_url):
         return contents
     else:
         return ''
-    
 
-def getUnderComments(contents_url):
+
+def drop_duplidata(data):
+    data['contents'] = data['url'].apply(lambda x:getContents(x))
+    data = data[data['contents']!='']
+    data = data.drop_duplicates(['titles'])
+    data = data.reset_index()
+    del data['index']    
+    data['contents'] = data['contents'].apply(lambda x:re.sub(r'^\[[\s\w가-힣\=]*\]','',x).strip())    
+    return data
+
+    
+def getNaverUnderComments(contents_url,driver):
     driver.get(contents_url)
     time.sleep(2)
     tmp_cnt = driver.find_element_by_xpath("//span[@class='u_cbox_count']").text
@@ -171,21 +138,4 @@ def getUnderComments(contents_url):
             T_unlike.append(comment_unlike)
             T_like.append(comment_like)
     return pd.DataFrame({'url':contents_url,'comment':T_comment,'recom_cnt':T_recomment_cnt,'unlike':T_unlike,'like':T_like})
-            
-   
-data = searchNaverNews('갤럭시8','2017-05-22','2017-05-23')
-
-getUnderComments("http://entertain.naver.com/topic/999390/999390/read?oid=108&aid=0002618861")
-
-def drop_duplidata(data):
-    data['contents'] = data['url'].apply(lambda x:getContents(x))
-    data = data[data['contents']!='']
-    data = data.drop_duplicates(['titles'])
-    data = data.reset_index()
-    del data['index']    
-    data['contents'] = data['contents'].apply(lambda x:re.sub(r'^\[[\s\w가-힣\=]*\]','',x).strip())    
-    return data
-
-data = drop_duplidata(data)
-
 

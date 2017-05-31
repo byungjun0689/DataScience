@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 31 21:10:30 2017
+
+@author: byung
+"""
+from konlpy.tag import Komoran
+from sklearn.feature_extraction.text import CountVectorizer
+import numpy as np
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+def get_noun(text):
+    tagger = Komoran() # 형태소 분석기
+    nouns = tagger.nouns(text)
+    return [n for n in nouns if len(n) > 1] # 2글자 이상만
+
+def makeTDM(text):
+   cv = CountVectorizer(tokenizer=get_noun, max_features=1000) # 1000개의 단어를 2자 이상 단어 명사만 추출.
+   tdm = cv.fit_transform(text)
+   return tdm,cv
+
+
+tdm,cv = makeTDM(data['contents'])
+
+
+def makeWordFrequency(tdm,cv):
+    # 단어 빈도
+    words = cv.get_feature_names()
+    count_mat = tdm.sum(axis=0)
+    count = np.squeeze(np.asarray(count_mat))
+    word_count = list(zip(words,count))
+    word_count = sorted(word_count,key=lambda x:x[1],reverse=True)
+    print(word_count[:10])
+    return word_count
+
+word_count = makeWordFrequency(tdm,cv)
+
+
+
+wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
+cloud = wc.generate_from_frequencies(dict(word_count[:100]))
+plt.figure(figsize=(15,12))
+plt.imshow(cloud)
+
+
+# LDA를 이용 해서 주제 파악을 해봐야겠다.
+
+url = "http://news.naver.com/main/read.nhn?mode=LSD&mid=shm&sid1=105&oid=293&aid=0000019884"
+req = urllib.request.Request(url)
+html = urllib.request.urlopen(req).read()
+soup = BeautifulSoup(html,'html.parser')
+
+soup.select('div#cbox_module')
