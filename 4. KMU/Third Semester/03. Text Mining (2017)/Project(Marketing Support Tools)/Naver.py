@@ -12,6 +12,7 @@ import pandas as pd
 import re
 import numpy as np
 import time
+from selenium import webdriver
 
 def searchNaverNews(search,frdate,todate):
     compare_days = pd.to_datetime(todate) - pd.to_datetime(frdate)
@@ -139,3 +140,14 @@ def getNaverUnderComments(contents_url,driver):
             T_like.append(comment_like)
     return pd.DataFrame({'url':contents_url,'comment':T_comment,'recom_cnt':T_recomment_cnt,'unlike':T_unlike,'like':T_like})
 
+def getAllUnderComment(data):
+    driver = webdriver.PhantomJS(executable_path=r'D:\DataScience\Phantomjs.exe') #실제적으로 할때는 팬텀 사용.
+    under_comment = pd.DataFrame()
+    for i in range(len(data)):
+        try:
+            tmp = getNaverUnderComments(data.ix[i,"url"],driver)
+            if len(tmp) > 0:
+                under_comment = under_comment.append(tmp)
+        except:
+            print("오잉")
+    return under_comment

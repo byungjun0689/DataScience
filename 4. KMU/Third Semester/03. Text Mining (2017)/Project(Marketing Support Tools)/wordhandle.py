@@ -16,13 +16,9 @@ def get_noun(text):
     return [n for n in nouns if len(n) > 1] # 2글자 이상만
 
 def makeTDM(text):
-   cv = CountVectorizer(tokenizer=get_noun, max_features=1000) # 1000개의 단어를 2자 이상 단어 명사만 추출.
+   cv = CountVectorizer(tokenizer=get_noun, max_features=500) # 1000개의 단어를 2자 이상 단어 명사만 추출.
    tdm = cv.fit_transform(text)
    return tdm,cv
-
-
-tdm,cv = makeTDM(data['contents'])
-
 
 def makeWordFrequency(tdm,cv):
     # 단어 빈도
@@ -34,21 +30,13 @@ def makeWordFrequency(tdm,cv):
     print(word_count[:10])
     return word_count
 
-word_count = makeWordFrequency(tdm,cv)
+def makeWordCloud(tdm,cv):
+    word_count = makeWordFrequency(tdm,cv)
+    
+    wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
+    cloud = wc.generate_from_frequencies(dict(word_count[:100]))
+    plt.figure(figsize=(15,12))
+    plt.imshow(cloud)
 
 
 
-wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
-cloud = wc.generate_from_frequencies(dict(word_count[:100]))
-plt.figure(figsize=(15,12))
-plt.imshow(cloud)
-
-
-# LDA를 이용 해서 주제 파악을 해봐야겠다.
-
-url = "http://news.naver.com/main/read.nhn?mode=LSD&mid=shm&sid1=105&oid=293&aid=0000019884"
-req = urllib.request.Request(url)
-html = urllib.request.urlopen(req).read()
-soup = BeautifulSoup(html,'html.parser')
-
-soup.select('div#cbox_module')
