@@ -19,20 +19,30 @@ import wordhandle
 
 # searchNaverNews(search,frdate,todate)
 
-data = naver.searchNaverNews("롯데월드","2017-05-15","2017-05-20")
+data = naver.searchNaverNews("롯데월드","2017-05-25","2017-06-01")
 data = naver.drop_duplidata(data)
 data.head()
 
-data2 = data.copy()
+#data2 = data.copy()
 
-data.to_csv("news.csv",index=False)
-data = pd.read_csv("news.csv",encoding='cp949')
+#data.to_csv("news.csv",index=False, encoding='utf8')
+data = pd.read_csv("news.csv")
 
-under_comment = naver.getAllUnderComment(data)
-under_comment.to_csv("under_comment.csv",index=False)
-
+#under_comment = naver.getAllUnderComment(data)
+#under_comment.to_csv("under_comment.csv",index=False, encoding='utf8')
+under_comment = pd.read_csv("under_comment.csv")
 under_comment = under_comment.sort_values(by='like', ascending = False)
+
+
 tdm, cv = wordhandle.makeTDM(data['contents'])
+
+np.savez('news_tdm.npz',tdm)
+
+import json
+with open('news_tdm.json',"w", encoding='utf8') as f:
+    json.dump(cv.get_feature_names(),f)
+
+    
 wordcount = wordhandle.makeWordCloud(tdm,cv)
 
 from sklearn.decomposition import TruncatedSVD
