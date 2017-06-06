@@ -21,6 +21,7 @@ def searchNaverNews(search,frdate,todate):
         print("30일 이상 결과를 가지고 올 수 없습니다.(오래걸림)")
     if compare_days < 0:
         print("from, to Date를 제대로 설정하세요. ")
+        exit
         
     search_url = 'http://news.naver.com/main/search/search.nhn?ie=MS949&query={query}&startDate={start}&endDate={end}&page={page}'
     query = quote_plus(search.encode('euc-kr'))
@@ -35,7 +36,9 @@ def searchNaverNews(search,frdate,todate):
         total_page = int(int(pageNumChk.findall(soup.select('span.result_num')[0].text)[0].replace(",","")) / 10)
         title_list = []
         naver_url_list = []
+        print("총 페이지" + str(total_page))
         for page_num in range(2,total_page):
+            print(str(page_num) + " 페이지")
             url = search_url.format(query=query,page=page_num,start=frdate,end=todate)
             req = urllib.request.Request(url)
             status = urllib.request.urlopen(req).status
@@ -106,7 +109,8 @@ def drop_duplidata(data):
     
 def getNaverUnderComments(contents_url,driver):
     driver.get(contents_url)
-    time.sleep(2)
+    time.sleep(1)
+    print("댓글 GET")
     tmp_cnt = driver.find_element_by_xpath("//span[@class='u_cbox_count']").text
     comments_count = int(0 if tmp_cnt == "" else tmp_cnt)
     T_comment = []
@@ -115,7 +119,7 @@ def getNaverUnderComments(contents_url,driver):
     T_like = []
     if comments_count > 0:
         driver.find_element_by_xpath("//a[@data-param='favorite']").click() # 호감순 클릭.
-        time.sleep(2)
+        time.sleep(1)
         if comments_count > 9:
             try:
                 driver.find_element_by_xpath("//span[@class='u_cbox_in_view_comment']").click()
@@ -151,3 +155,18 @@ def getAllUnderComment(data):
         except:
             print("오잉")
     return under_comment
+
+
+def getAllUnderComment2(url):
+    driver = webdriver.PhantomJS(executable_path=r'F:\DataScience\Phantomjs.exe') #실제적으로 할때는 팬텀 사용.
+    under_comment = pd.DataFrame()
+    for i in range(len(data)):
+        try:
+            tmp = getNaverUnderComments(data.ix[i,"url"],driver)
+            if len(tmp) > 0:
+                under_comment = under_comment.append(tmp)
+        except:
+            print("오잉")
+    num = int(np.random.rand(1) * 100000000)
+    under_comment.to_csv('under/' + str(num) + ".csv",index=False,encoding='utf8')
+    

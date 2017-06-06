@@ -13,24 +13,26 @@ import numpy as np
 import naver
 from selenium import webdriver
 import wordhandle
- 
+import gevent
+from gevent import monkey
 #driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
 #driver = webdriver.PhantomJS(executable_path=r'D:\DataScience\Phantomjs.exe') 실제적으로 할때는 팬텀 사용.
 
 # searchNaverNews(search,frdate,todate)
 
-data = naver.searchNaverNews("롯데월드","2017-05-25","2017-06-01")
+data = naver.searchNaverNews("갤럭시s8","2017-05-01","2017-06-01")
 data = naver.drop_duplidata(data)
 data.head()
 
 #data2 = data.copy()
 
-#data.to_csv("news.csv",index=False, encoding='utf8')
-data = pd.read_csv("news.csv")
+#data.to_csv("news_samsung.csv",index=False, encoding='utf8')
 
-#under_comment = naver.getAllUnderComment(data)
-#under_comment.to_csv("under_comment.csv",index=False, encoding='utf8')
-under_comment = pd.read_csv("under_comment.csv")
+
+
+under_comment = naver.getAllUnderComment(data)
+under_comment.to_csv("under_comment_samsung.csv",index=False, encoding='utf8')
+under_comment = pd.read_csv("under_comment_samsung.csv")
 under_comment = under_comment.sort_values(by='like', ascending = False)
 
 
