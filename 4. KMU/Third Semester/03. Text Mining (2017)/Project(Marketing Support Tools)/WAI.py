@@ -13,8 +13,7 @@ import numpy as np
 import naver
 from selenium import webdriver
 import wordhandle
-import gevent
-from gevent import monkey
+
 #driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
 #driver = webdriver.PhantomJS(executable_path=r'D:\DataScience\Phantomjs.exe') 실제적으로 할때는 팬텀 사용.
 
@@ -27,7 +26,7 @@ data.head()
 #data2 = data.copy()
 
 #data.to_csv("news_samsung.csv",index=False, encoding='utf8')
-
+data = pd.read_csv("news_samsung.csv")
 
 
 under_comment = naver.getAllUnderComment(data)

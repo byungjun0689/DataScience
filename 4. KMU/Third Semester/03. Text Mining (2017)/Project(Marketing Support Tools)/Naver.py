@@ -130,6 +130,7 @@ def getNaverUnderComments(contents_url,driver):
                 print("페이지가 더 없다.")
         comments = driver.find_elements_by_xpath("//div[@class='u_cbox_content_wrap']/ul[@class='u_cbox_list']/li[@*]")
         for comment in comments:
+            print("댓글 리스트 가져오는 중...")
             comment_text = comment.find_element_by_class_name("u_cbox_contents").text
             under_comment_box = comment.find_element_by_class_name("u_cbox_tool")
             comment_like = under_comment_box.find_element_by_class_name('u_cbox_cnt_recomm').text
@@ -149,6 +150,7 @@ def getAllUnderComment(data):
     under_comment = pd.DataFrame()
     for i in range(len(data)):
         try:
+            print(str(i) + "번째")
             tmp = getNaverUnderComments(data.ix[i,"url"],driver)
             if len(tmp) > 0:
                 under_comment = under_comment.append(tmp)
@@ -157,16 +159,4 @@ def getAllUnderComment(data):
     return under_comment
 
 
-def getAllUnderComment2(url):
-    driver = webdriver.PhantomJS(executable_path=r'F:\DataScience\Phantomjs.exe') #실제적으로 할때는 팬텀 사용.
-    under_comment = pd.DataFrame()
-    for i in range(len(data)):
-        try:
-            tmp = getNaverUnderComments(data.ix[i,"url"],driver)
-            if len(tmp) > 0:
-                under_comment = under_comment.append(tmp)
-        except:
-            print("오잉")
-    num = int(np.random.rand(1) * 100000000)
-    under_comment.to_csv('under/' + str(num) + ".csv",index=False,encoding='utf8')
     
