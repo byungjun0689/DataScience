@@ -15,8 +15,8 @@ def get_noun(text):
     nouns = tagger.nouns(text)
     return [n for n in nouns if len(n) > 1] # 2글자 이상만
 
-def makeTDM(text):
-   cv = CountVectorizer(tokenizer=get_noun, max_features=500) # 1000개의 단어를 2자 이상 단어 명사만 추출.
+def makeTDM(text, max_feature):
+   cv = CountVectorizer(tokenizer=get_noun, max_features=max_feature) # 1000개의 단어를 2자 이상 단어 명사만 추출.
    tdm = cv.fit_transform(text)
    return tdm,cv
 
