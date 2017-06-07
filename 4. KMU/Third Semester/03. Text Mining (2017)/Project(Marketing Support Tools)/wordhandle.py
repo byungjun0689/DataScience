@@ -32,11 +32,12 @@ def makeWordFrequency(tdm,cv):
 
 def makeWordCloud(tdm,cv):
     word_count = makeWordFrequency(tdm,cv)
-    
+
     wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
     cloud = wc.generate_from_frequencies(dict(word_count[:100]))
     plt.figure(figsize=(15,12))
     plt.imshow(cloud)
+    return word_count
 
 
 

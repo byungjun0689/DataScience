@@ -13,6 +13,8 @@ import re
 import numpy as np
 import time
 from selenium import webdriver
+import requests
+import json
 
 def searchNaverNews(search,frdate,todate):
     compare_days = pd.to_datetime(todate) - pd.to_datetime(frdate)
@@ -22,14 +24,14 @@ def searchNaverNews(search,frdate,todate):
     if compare_days < 0:
         print("from, to Date를 제대로 설정하세요. ")
         exit
-        
+
     search_url = 'http://news.naver.com/main/search/search.nhn?ie=MS949&query={query}&startDate={start}&endDate={end}&page={page}'
     query = quote_plus(search.encode('euc-kr'))
     pageNumChk = re.compile(r'\([\d\,]+ ~ [\d\,]+ \/ ([\d\,]+)건\)')
     url = search_url.format(query=query,page=1,start=frdate,end=todate)
     req = urllib.request.Request(url)
     status = urllib.request.urlopen(req).status
-    
+
     if status == 200:
         html = urllib.request.urlopen(req).read()
         soup = BeautifulSoup(html,'html.parser')
@@ -50,10 +52,10 @@ def searchNaverNews(search,frdate,todate):
                     article_title = article.select('div.ct a.tit')[0].text
                     naver_list = article.select('div.ct div.info a.go_naver')
                     if len(naver_list) > 0:
-                        naver_href = naver_list[0]['href']    
+                        naver_href = naver_list[0]['href']
                         title_list.append(article_title)
                         naver_url_list.append(naver_href)
-    
+
     tmp_df = pd.DataFrame({'titles':title_list,'url':naver_url_list})
     return tmp_df
 
@@ -71,8 +73,8 @@ def getContents(contents_url):
             if len(contents_body) > 0:
                 contents = contents_body[0].text
                 contents = re.sub(r'|'.join(map(re.escape, replace_list)), '', contents)
-                contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)    
-                contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)    
+                contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)
+                contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)
                 contents = re.sub(r'\[[\s]+바로가기\]','',contents)
                 contents = re.sub(r'\[[\s]+\]','',contents)
                 contents = re.sub(r'\<[\w\s\©가-힣\-]+\>','',contents)
@@ -84,8 +86,8 @@ def getContents(contents_url):
                 if len(contents_body) > 0:
                     contents = contents_body[0].text
                     contents = re.sub(r'|'.join(map(re.escape, replace_list)), '', contents)
-                    contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)    
-                    contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)    
+                    contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)
+                    contents = re.sub(r'[\w\d]+@[\w\d.]+','',contents)
                     contents = re.sub(r'\[[\s]+바로가기\]','',contents)
                     contents = re.sub(r'\[[\s]+\]','',contents)
                     contents = re.sub(r'\<[\w\s\©가-힣\-]+\>','',contents)
@@ -96,17 +98,70 @@ def getContents(contents_url):
     else:
         return ''
 
-
 def drop_duplidata(data):
     data['contents'] = data['url'].apply(lambda x:getContents(x))
     data = data[data['contents']!='']
     data = data.drop_duplicates(['titles'])
     data = data.reset_index()
-    del data['index']    
-    data['contents'] = data['contents'].apply(lambda x:re.sub(r'^\[[\s\w가-힣\=]*\]','',x).strip())    
+    del data['index']
+    data['contents'] = data['contents'].apply(lambda x:re.sub(r'^\[[\s\w가-힣\=]*\]','',x).strip())
     return data
 
-    
+def getComment_json(data,keyword):
+    find_news = re.compile(r'oid=([\d]+)&aid=([\d]+)')
+    comments_df = pd.DataFrame()
+    for i in range(len(data)):
+        origin_url = data.ix[i,'url']
+        
+        ticket = "news"
+        news_id  = str(find_news.findall(origin_url)[0][0])
+        aid = str(find_news.findall(origin_url)[0][1])
+
+        input_news = "news" + news_id
+        objectId =  input_news + "," + aid
+        objectId = quote_plus(objectId)
+
+        comment_url = ('https://apis.naver.com/commentBox/cbox/web_neo_list_jsonp.json?'
+                       'ticket={ticket}&templateId=default_it&pool=cbox5&_callback=jQuery1709951719079191433_1496387548832&'
+                       'lang=ko&country=KR&objectId={objectId}&categoryId=&pageSize=20&indexSize=10&groupId=&'
+                       'listType=OBJECT&page={page}&initialize=true&userType=&useAltSort=true&replyPageSize=20&moveTo=&'
+                       'sort=reply&_=1496387549604')
+
+        tmp_url = comment_url.format(ticket=ticket, objectId = objectId, page = 1)
+        print(tmp_url)
+        res = requests.get(tmp_url, headers = {'referer':origin_url})
+
+        if res.status_code == 200:
+            start = len(res.text[:100].split("(")[0]) + 1
+            end = len(');')
+            print(start)
+            try:
+                comment = json.loads(res.text[start:-end])
+                #print(comment['result']['commentList'][0])
+                T_comment = []
+                T_recomment_cnt = []
+                T_unlike = []
+                T_like = []
+                for comment_data in comment['result']['commentList']:
+                    T_recomment_cnt.append(comment_data['replyCount'])
+                    T_like.append(comment_data['sympathyCount'])
+                    T_unlike.append(comment_data['antipathyCount'])
+                    T_comment.append(comment_data['contents'])
+                
+                tmp_df = pd.DataFrame({'url':origin_url,'comment':T_comment,'recom_cnt': T_recomment_cnt,'unlike':T_unlike,'like':T_like})
+
+                if len(tmp_df) > 0:
+                    comments_df = comments_df.append(tmp_df)
+                    print(tmp_df)
+
+            except Exception as e: 
+                print(str(e))
+                print("없다")
+
+    comments_df.to_csv(keyword+"_comments.csv",index=False, encoding='utf8')
+    return comments_df
+
+# Selenium 으로 할 경우 시간이 너무 오래 걸린다.
 def getNaverUnderComments(contents_url,driver):
     driver.get(contents_url)
     time.sleep(1)
@@ -159,4 +214,3 @@ def getAllUnderComment(data):
     return under_comment
 
 
-    
