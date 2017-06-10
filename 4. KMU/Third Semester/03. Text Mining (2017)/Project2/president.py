@@ -6,16 +6,11 @@ Created on Sat Jun 10 13:48:50 2017
 """
 import pandas as pd
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import requests
 import re
 from urllib.parse import parse_qs, urlparse
 import wordhandle
 
-
-driver = webdriver.Chrome(executable_path=r'D:\DataScience\chromedriver.exe')
-
-url = "http://www.pa.go.kr/research/contents/speech/index.jsp"
 
 def get_president_speech(president):
     getstatus = re.compile(r"([\d]+)")
