@@ -1,9 +1,0 @@
-[0408/132900.152:ERROR:process_reader_win.cc(114)] NtOpenThread: {액세스 거부} 프로세스가 개체에 액세스를 요구했지만 액세스 권한이 없습니다.  (0xc0000022)
-[0408/132900.155:ERROR:exception_snapshot_win.cc(87)] thread ID 9224 not found in process
-[0408/132900.155:WARNING:crash_report_exception_handler.cc(60)] ProcessSnapshotWin::Initialize failed
-[0426/121814.941:ERROR:process_info.cc(343)] VirtualQueryEx: 액세스가 거부되었습니다. (0x5)
-[0426/121814.942:ERROR:process_info.cc(564)] ReadMemoryInfo failed
-[0426/121814.942:ERROR:process_reader_win.cc(233)] ReadMemory at 0x5be47dc8 of 12 bytes failed: ReadProcessMemory 또는 WriteProcessMemory의 일부 작업만을 마쳤습니다. (0x12B)
-[0426/121814.942:WARNING:process_snapshot_win.cc(68)] ReadMemory ExceptionInformation failed
-[0426/121814.942:WARNING:crash_report_exception_handler.cc(60)] ProcessSnapshotWin::Initialize failed
-[0426/121814.942:ERROR:scoped_process_suspend.cc(38)] NtResumeProcess: 기존 프로세스에 액세스하려고 했습니다.  (0xc000010a)
