@@ -20,9 +20,9 @@ def makeTDM(text, max_feature):
    tdm = cv.fit_transform(text)
    return tdm,cv
 
-def makeWordFrequency(tdm,cv):
+def makeWordFrequency(tdm,words):
     # 단어 빈도
-    words = cv.get_feature_names()
+    #words = cv.get_feature_names()
     count_mat = tdm.sum(axis=0)
     count = np.squeeze(np.asarray(count_mat))
     word_count = list(zip(words,count))
@@ -30,8 +30,8 @@ def makeWordFrequency(tdm,cv):
     print(word_count[:10])
     return word_count
 
-def makeWordCloud(tdm,cv):
-    word_count = makeWordFrequency(tdm,cv)
+def makeWordCloud(tdm,words):
+    word_count = makeWordFrequency(tdm,words)
 
     wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
     cloud = wc.generate_from_frequencies(dict(word_count[:100]))

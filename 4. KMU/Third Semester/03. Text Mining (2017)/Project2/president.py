@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Sat Jun 10 13:48:50 2017
@@ -12,6 +13,15 @@ from urllib.parse import parse_qs, urlparse
 import wordhandle
 import numpy as np
 import json
+from sklearn.feature_extraction.text import TfidfTransformer
+import matplotlib.pyplot as plt # for basic plots
+import seaborn as sns # for nicer plots
+
+from matplotlib import font_manager, rc
+font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
+rc('font', family=font_name)
+
+
 
 # http://geference.blogspot.kr/2011/12/blog-post.html
 # http://statkclee.github.io/politics/text-mb-gh.html
@@ -133,20 +143,74 @@ no_pre[no_pre['category']=='외교/통상']['contents']
 lee_pre[lee_pre['category']=='외교/통상']['contents']
 
 tdm, cv = wordhandle.makeTDM(no_pre[no_pre['category']=='외교/통상']['contents'],500)
-
 np.savez('tdm_외교_노무현.npz',tdm)
 with open('tdm_외교_노무현_.json',"w", encoding='utf8') as f:
     json.dump(cv.get_feature_names(),f)
-    
-tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['category']=='외교/통상']['contents'],500)
 
+tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['category']=='외교/통상']['contents'],500)
 np.savez('tdm_외교_이명박.npz',tdm2)
 with open('tdm_외교_이명박_.json',"w", encoding='utf8') as f:
     json.dump(cv2.get_feature_names(),f)
+
+
     
     
 wordcount = wordhandle.makeWordCloud(tdm,cv)
 wordcount2 = wordhandle.makeWordCloud(tdm2,cv2)
+
+
+## 외교
+
+tdm = np.load("tdm_외교_노무현.npz")
+tdm = tdm['arr_0'].item()
+tdm
+
+with open('tdm_외교_노무현_.json', encoding='utf8') as f:
+    words = json.load(f)
+    
+
+tdm2 = np.load("tdm_외교_이명박.npz")
+tdm2 = tdm2['arr_0'].item()
+tdm2
+
+with open('tdm_외교_이명박_.json', encoding='utf8') as f:
+    words2 = json.load(f)
+    
+    
+wordcount = wordhandle.makeWordCloud(tdm,words)
+wordcount2 = wordhandle.makeWordCloud(tdm2,words2)
+
+word = [ word for word,cnt in wordcount]
+cnt = [ cnt for word,cnt in wordcount]
+wordcount_df = pd.DataFrame({'word':word, 'cnt':cnt})
+
+word2 = [ word for word,cnt in wordcount2]
+cnt2 = [ cnt for word,cnt in wordcount2]
+wordcount2_df = pd.DataFrame({'word':word2, 'cnt':cnt2})
+
+
+df = pd.merge(wordcount_df,wordcount2_df,how='inner',on='word')    
+df['total'] = df['cnt_x'] + df['cnt_y']
+df = df.sort_values(by='total', ascending=False)
+
+len(df[df['total']>300])
+
+
+plt.figure(figsize=(10,7))
+sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>130) & (df['cnt_y']>180)], color='blue',alpha=.5, label='노무현')
+sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>130) & (df['cnt_y']>180)], color='red',alpha=.5, label='이명박')
+plt.xticks(rotation=90)
+plt.legend()
+plt.xlabel("단어",fontsize=25)
+plt.ylabel("합계",fontsize=25)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+
+
+plt.figure(figsize=(10,7))
+sns.barplot(y='cnt_x',x='word',data=df[df['total']>300], color='blue',alpha=.5)
+sns.barplot(y='cnt_y',x='word',data=df[df['total']>300], color='red',alpha=.5)
+plt.xticks(rotation=90)
 
 
 sub_cate_list = no_pre['sub_category'].unique()
@@ -167,7 +231,55 @@ np.savez('tdm_취임사_이명박.npz',tdm2)
 with open('tdm_취임사_이명박_.json',"w", encoding='utf8') as f:
     json.dump(cv2.get_feature_names(),f)
     
-wordcount = wordhandle.makeWordCloud(tdm,cv)
-wordcount2 = wordhandle.makeWordCloud(tdm2,cv2)
-wordcount
-wordcount2[:100]
+    
+wordcount = wordhandle.makeWordCloud(tdm,cv.get_feature_names())
+wordcount2 = wordhandle.makeWordCloud(tdm2,cv2.get_feature_names())
+
+word = [ word for word,cnt in wordcount]
+cnt = [ cnt for word,cnt in wordcount]
+wordcount_df = pd.DataFrame({'word':word, 'cnt':cnt})
+
+word2 = [ word for word,cnt in wordcount2]
+cnt2 = [ cnt for word,cnt in wordcount2]
+wordcount2_df = pd.DataFrame({'word':word2, 'cnt':cnt2})
+
+
+df = pd.merge(wordcount_df,wordcount2_df,how='inner',on='word')    
+df['total'] = df['cnt_x'] + df['cnt_y']
+df = df.sort_values(by='total', ascending=False)
+
+
+
+## 취임사
+## 확실히 이명박의 경우 나라의 역할 나라, 정부의 주도의 행동을 강조하는 듯하는 모습을 보인다.
+## 이와 반대적으로 노무현 대통령의 경우 대한민국, 정부 단어 언급보다는 시대적,평화 등 한번도 평화에 대한 언급이 많았다. 대화, 지리 등 한반도 정세에 대한 언급이 많다.
+
+plt.figure(figsize=(10,7))
+sns.barplot(y='cnt_x',x='word',data=df[df['total']>7], color='blue',alpha=.5)
+sns.barplot(y='cnt_y',x='word',data=df[df['total']>7], color='red',alpha=.5)
+plt.xticks(rotation=90)
+
+
+
+### TF-IDF
+
+
+no_pre  = pd.read_csv('노무현_contents.csv')
+lee_pre = pd.read_csv('이명박_contents.csv')
+
+no_pre[no_pre['category']=='외교/통상']['contents']
+lee_pre[lee_pre['category']=='외교/통상']['contents']
+
+tdm = np.load("tdm_외교_노무현.npz")
+tdm = tdm['arr_0'].item()
+tdm
+
+with open('tdm_외교_노무현_.json', encoding='utf8') as f:
+    words = json.load(f)
+    
+tf = TfidfTransformer(smooth_idf=False)
+tf
+tfidf = tf.fit_transform(tdm.toarray())
+
+tfidf.toarray()[0]
+
