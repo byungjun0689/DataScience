@@ -10,7 +10,12 @@ import requests
 import re
 from urllib.parse import parse_qs, urlparse
 import wordhandle
+import numpy as np
+import json
 
+# http://geference.blogspot.kr/2011/12/blog-post.html
+# http://statkclee.github.io/politics/text-mb-gh.html
+# http://slownews.kr/60919
 
 def get_president_speech(president):
     getstatus = re.compile(r"([\d]+)")
@@ -22,7 +27,14 @@ def get_president_speech(president):
     title_list = []
     href_list = []
     date_list = []
-    for page in range(1,1000):
+    f_header = {'User-Agent':':Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36','Origin':'http://www.pa.go.kr'}
+    f_data = {'pageIndex': '1', 'damPst': '김대중', 'pageUnit':20}
+    f_data['damPst'] = president  
+    res = requests.post(url, data=f_data, headers=f_header)
+    soup = BeautifulSoup(res.text,'html.parser')
+    max_count = int(re.findall(r'([\d]+)',soup.find("p",class_="boardCount").text)[0])
+    pages = int(max_count / 20) + 1
+    for page in range(1,pages):
         print(page)
         header = {'User-Agent':':Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36','Origin':'http://www.pa.go.kr'}
         data = {'pageIndex': '1', 'damPst': '김대중', 'pageUnit':20}
@@ -56,33 +68,33 @@ def get_president_speech(president):
         else:
             print("빠잉")
             
-    return pd.DataFrame({'number':number_list, 'president':president_list, 'categroy':category_list, 'sub_category':sub_category_list,'title':title_list,'href':href_list,'date':date_list})
-            
-data = get_president_speech("김대중")
+    return pd.DataFrame({'number':number_list, 'president':president_list, 'category':category_list, 'sub_category':sub_category_list,'title':title_list,'href':href_list,'date':date_list})
 
-data.to_csv("김대중.csv",index=False)
-data = pd.read_csv("김대중.csv", encoding='cp949')
-
-get_speech_view(data.ix[0,'href'], '김대중')
 
 def get_speech_view(view_url,president):
     #print(view_url)
-    getstatus = re.compile(r"([\d]+)")
-    header = {'User-Agent':':Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36','Origin':'http://www.pa.go.kr'}
-    view_url = 'http://www.pa.go.kr/research/contents/speech/index.jsp' + view_url
-    url = 'http://www.pa.go.kr/research/contents/speech/index.jsp'
-    result = urlparse(view_url)
-    qs = parse_qs(result.query)
-    view_data = {'spMode': qs['spMode'][0], 'artid': qs['artid'][0], 'catid':qs['catid'][0], 'pageIndex':1, 'damPst':president,'damPst0':president,'pageUnit':20}
-    view_res = requests.post(url, data=view_data, headers=header)
-    if int(getstatus.findall(str(view_res))[0]) == 200: 
-        soup = BeautifulSoup(view_res.text,'html.parser')
-        speech_body = soup.find("div",class_='boardView')
-        speech_content = speech_body.find('div',class_='conTxt').text
-    
-    return speech_content
+    try:
+        getstatus = re.compile(r"([\d]+)")
+        header = {'User-Agent':':Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36','Origin':'http://www.pa.go.kr'}
+        view_url = 'http://www.pa.go.kr/research/contents/speech/index.jsp' + view_url
+        url = 'http://www.pa.go.kr/research/contents/speech/index.jsp'
+        result = urlparse(view_url)
+        qs = parse_qs(result.query)
+        view_data = {'spMode': qs['spMode'][0], 'artid': qs['artid'][0], 'catid':qs['catid'][0], 'pageIndex':1, 'damPst':president,'damPst0':president,'pageUnit':20}
+        view_res = requests.post(url, data=view_data, headers=header)
+        if int(getstatus.findall(str(view_res))[0]) == 200: 
+            soup = BeautifulSoup(view_res.text,'html.parser')
+            speech_body = soup.find("div",class_='boardView')
+            speech_content = speech_body.find('div',class_='conTxt').text
+        
+        return speech_content
+    except:
+        return []
 
-#data['contents'] = data.apply(lambda x:get_speech_view(data['href'],data['president']), axis=1)
+
+data = get_president_speech("노무현")
+data.to_csv("노무현.csv",index=False, encoding='utf8')
+data = pd.read_csv("노무현.csv")
 
 contents_list = []
 for i in range(len(data)):
@@ -91,7 +103,71 @@ for i in range(len(data)):
     contents_list.append(contents)
 
 data['contents'] = contents_list
+data.to_csv("노무현_contents.csv",index=False, encoding='utf8')
+data['categroy'].unique()
 
-data.to_csv("김대중_contents.csv",index=False, encoding='utf8')
+# 이명박
 
-tdm, cv = wordhandle.makeTDM(data['contents'],500)
+data = get_president_speech("이명박")
+data.to_csv("이명박.csv",index=False, encoding='utf8')
+data = pd.read_csv("이명박.csv")
+
+contents_list = []
+for i in range(len(data)):
+    print(data.ix[i,'href'])
+    contents = get_speech_view(data.ix[i,'href'],data.ix[i,'president'])
+    contents_list.append(contents)
+
+data['contents'] = contents_list
+data.to_csv("이명박_contents.csv",index=False, encoding='utf8')
+
+
+
+no_pre  = pd.read_csv('노무현_contents.csv')
+lee_pre = pd.read_csv('이명박_contents.csv')
+
+cate_list = no_pre['category'].unique()
+cate_list
+
+no_pre[no_pre['category']=='외교/통상']['contents']
+lee_pre[lee_pre['category']=='외교/통상']['contents']
+
+tdm, cv = wordhandle.makeTDM(no_pre[no_pre['category']=='외교/통상']['contents'],500)
+
+np.savez('tdm_외교_노무현.npz',tdm)
+with open('tdm_외교_노무현_.json',"w", encoding='utf8') as f:
+    json.dump(cv.get_feature_names(),f)
+    
+tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['category']=='외교/통상']['contents'],500)
+
+np.savez('tdm_외교_이명박.npz',tdm2)
+with open('tdm_외교_이명박_.json',"w", encoding='utf8') as f:
+    json.dump(cv2.get_feature_names(),f)
+    
+    
+wordcount = wordhandle.makeWordCloud(tdm,cv)
+wordcount2 = wordhandle.makeWordCloud(tdm2,cv2)
+
+
+sub_cate_list = no_pre['sub_category'].unique()
+sub_cate_list
+
+no_pre[no_pre['sub_category']=='취임사']
+lee_pre[lee_pre['sub_category']=='취임사']
+
+tdm, cv = wordhandle.makeTDM(no_pre[no_pre['sub_category']=='취임사']['contents'],500)
+
+np.savez('tdm_취임사_노무현.npz',tdm)
+with open('tdm_취임사_노무현_.json',"w", encoding='utf8') as f:
+    json.dump(cv.get_feature_names(),f)
+    
+tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['sub_category']=='취임사']['contents'],500)
+
+np.savez('tdm_취임사_이명박.npz',tdm2)
+with open('tdm_취임사_이명박_.json',"w", encoding='utf8') as f:
+    json.dump(cv2.get_feature_names(),f)
+    
+wordcount = wordhandle.makeWordCloud(tdm,cv)
+wordcount2 = wordhandle.makeWordCloud(tdm2,cv2)
+wordcount
+wordcount2[:100]
