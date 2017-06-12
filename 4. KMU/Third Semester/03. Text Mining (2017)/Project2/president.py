@@ -77,8 +77,11 @@ def get_president_speech(president):
                     pass
         else:
             print("빠잉")
-            
-    return pd.DataFrame({'number':number_list, 'president':president_list, 'category':category_list, 'sub_category':sub_category_list,'title':title_list,'href':href_list,'date':date_list})
+    
+    tmp_df = pd.DataFrame({'number':number_list, 'president':president_list, 'category':category_list, 'sub_category':sub_category_list,'title':title_list,'href':href_list,'date':date_list})       
+    file_name = president + "_speech.csv"
+    tmp_df.to_csv(file_name, index=False, encoding='utf8')
+    return tmp_df
 
 
 def get_speech_view(view_url,president):
@@ -102,184 +105,77 @@ def get_speech_view(view_url,president):
         return []
 
 
-data = get_president_speech("노무현")
-data.to_csv("노무현.csv",index=False, encoding='utf8')
-data = pd.read_csv("노무현.csv")
-
-contents_list = []
-for i in range(len(data)):
-    print(data.ix[i,'href'])
-    contents = get_speech_view(data.ix[i,'href'],data.ix[i,'president'])
-    contents_list.append(contents)
-
-data['contents'] = contents_list
-data.to_csv("노무현_contents.csv",index=False, encoding='utf8')
-data['categroy'].unique()
-
-# 이명박
-
-data = get_president_speech("이명박")
-data.to_csv("이명박.csv",index=False, encoding='utf8')
-data = pd.read_csv("이명박.csv")
-
-contents_list = []
-for i in range(len(data)):
-    print(data.ix[i,'href'])
-    contents = get_speech_view(data.ix[i,'href'],data.ix[i,'president'])
-    contents_list.append(contents)
-
-data['contents'] = contents_list
-data.to_csv("이명박_contents.csv",index=False, encoding='utf8')
+def get_speech_view_list(data,president):
+    
+    contents_list = []
+    for i in range(len(data)):
+        print(data.ix[i,'href'])
+        contents = get_speech_view(data.ix[i,'href'],data.ix[i,'president'])
+        contents_list.append(contents)
+    
+    data['contents'] = contents_list
+    file_name = president+"_contents.csv"
+    data.to_csv(file_name,index=False, encoding='utf8')
+    return data
 
 
+def get_speech_category(data):
+    return data['category'].unique()
 
-no_pre  = pd.read_csv('노무현_contents.csv')
-lee_pre = pd.read_csv('이명박_contents.csv')
-
-cate_list = no_pre['category'].unique()
-cate_list
-
-no_pre[no_pre['category']=='외교/통상']['contents']
-lee_pre[lee_pre['category']=='외교/통상']['contents']
-
-tdm, cv = wordhandle.makeTDM(no_pre[no_pre['category']=='외교/통상']['contents'],500)
-np.savez('tdm_외교_노무현.npz',tdm)
-with open('tdm_외교_노무현_.json',"w", encoding='utf8') as f:
-    json.dump(cv.get_feature_names(),f)
-
-tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['category']=='외교/통상']['contents'],500)
-np.savez('tdm_외교_이명박.npz',tdm2)
-with open('tdm_외교_이명박_.json',"w", encoding='utf8') as f:
-    json.dump(cv2.get_feature_names(),f)
+def get_speech_subcategory(data):
+    return data['sub_category'].unique()
 
 
+def get_president_tdm(data,category,maximum):
+    if len(data[data['category']==category]) < 1:
+        print("Category 또는 데이터 이상.")
+        exit 
+    else:
+        tdm, cv = wordhandle.makeTDM(data[data['category']==category]['contents'],maximum)
+        president_name = data['president'].unique()[0]
+        
+        file_name = npz_file_name = "tdm_" + category + "_" + president_name
+        npz_file_name = file_name + ".npz"
+        np.savez(npz_file_name,tdm)
+        json_file_name = file_name + ".json"
+        with open(json_file_name,"w", encoding='utf8') as f:
+            json.dump(cv.get_feature_names(),f)
+        
+    return tdm, cv
+
+def two_wordcount_df(wordcount1, wordcount2):
+    word = [ word for word,cnt in wordcount1]
+    cnt = [ cnt for word,cnt in wordcount1]
+    wordcount_df = pd.DataFrame({'word':word, 'cnt':cnt})
+    
+    word2 = [ word for word,cnt in wordcount2]
+    cnt2 = [ cnt for word,cnt in wordcount2]
+    wordcount2_df = pd.DataFrame({'word':word2, 'cnt':cnt2})
     
     
-wordcount = wordhandle.makeWordCloud(tdm,cv)
-wordcount2 = wordhandle.makeWordCloud(tdm2,cv2)
-
-
-## 외교
-
-tdm = np.load("tdm_외교_노무현.npz")
-tdm = tdm['arr_0'].item()
-tdm
-
-with open('tdm_외교_노무현_.json', encoding='utf8') as f:
-    words = json.load(f)
+    df = pd.merge(wordcount_df,wordcount2_df,how='inner',on='word')    
+    df['total'] = df['cnt_x'] + df['cnt_y']
+    df = df.sort_values(by='total', ascending=False)
     
+    return df
 
-tdm2 = np.load("tdm_외교_이명박.npz")
-tdm2 = tdm2['arr_0'].item()
-tdm2
 
-with open('tdm_외교_이명박_.json', encoding='utf8') as f:
-    words2 = json.load(f)
+def get_compare_words_view(df,label_x,label_y,category):
+    if category=="취임사":
+        df_x_quantail = df['cnt_x'].describe()[5]
+        df_y_quantail = df['cnt_y'].describe()[5]
+    else:
+        df_x_quantail = df['cnt_x'].describe()[6]
+        df_y_quantail = df['cnt_y'].describe()[6]
     
+    plt.figure(figsize=(15,9))
+    sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>df_x_quantail) & (df['cnt_y']>df_y_quantail)], color='blue',alpha=.5, label=label_x)
+    sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>df_x_quantail) & (df['cnt_y']>df_y_quantail)], color='red',alpha=.5, label=label_y)
+    plt.xticks(rotation=90)
+    plt.legend()
+    plt.xlabel("단어",fontsize=25)
+    plt.ylabel("합계",fontsize=25)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)    
+    plt.title("연설문 : " + category, fontsize=35)
     
-wordcount = wordhandle.makeWordCloud(tdm,words)
-wordcount2 = wordhandle.makeWordCloud(tdm2,words2)
-
-word = [ word for word,cnt in wordcount]
-cnt = [ cnt for word,cnt in wordcount]
-wordcount_df = pd.DataFrame({'word':word, 'cnt':cnt})
-
-word2 = [ word for word,cnt in wordcount2]
-cnt2 = [ cnt for word,cnt in wordcount2]
-wordcount2_df = pd.DataFrame({'word':word2, 'cnt':cnt2})
-
-
-df = pd.merge(wordcount_df,wordcount2_df,how='inner',on='word')    
-df['total'] = df['cnt_x'] + df['cnt_y']
-df = df.sort_values(by='total', ascending=False)
-
-len(df[df['total']>300])
-
-
-plt.figure(figsize=(10,7))
-sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>130) & (df['cnt_y']>180)], color='blue',alpha=.5, label='노무현')
-sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>130) & (df['cnt_y']>180)], color='red',alpha=.5, label='이명박')
-plt.xticks(rotation=90)
-plt.legend()
-plt.xlabel("단어",fontsize=25)
-plt.ylabel("합계",fontsize=25)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-
-
-plt.figure(figsize=(10,7))
-sns.barplot(y='cnt_x',x='word',data=df[df['total']>300], color='blue',alpha=.5)
-sns.barplot(y='cnt_y',x='word',data=df[df['total']>300], color='red',alpha=.5)
-plt.xticks(rotation=90)
-
-
-sub_cate_list = no_pre['sub_category'].unique()
-sub_cate_list
-
-no_pre[no_pre['sub_category']=='취임사']
-lee_pre[lee_pre['sub_category']=='취임사']
-
-tdm, cv = wordhandle.makeTDM(no_pre[no_pre['sub_category']=='취임사']['contents'],500)
-
-np.savez('tdm_취임사_노무현.npz',tdm)
-with open('tdm_취임사_노무현_.json',"w", encoding='utf8') as f:
-    json.dump(cv.get_feature_names(),f)
-    
-tdm2, cv2 = wordhandle.makeTDM(lee_pre[lee_pre['sub_category']=='취임사']['contents'],500)
-
-np.savez('tdm_취임사_이명박.npz',tdm2)
-with open('tdm_취임사_이명박_.json',"w", encoding='utf8') as f:
-    json.dump(cv2.get_feature_names(),f)
-    
-    
-wordcount = wordhandle.makeWordCloud(tdm,cv.get_feature_names())
-wordcount2 = wordhandle.makeWordCloud(tdm2,cv2.get_feature_names())
-
-word = [ word for word,cnt in wordcount]
-cnt = [ cnt for word,cnt in wordcount]
-wordcount_df = pd.DataFrame({'word':word, 'cnt':cnt})
-
-word2 = [ word for word,cnt in wordcount2]
-cnt2 = [ cnt for word,cnt in wordcount2]
-wordcount2_df = pd.DataFrame({'word':word2, 'cnt':cnt2})
-
-
-df = pd.merge(wordcount_df,wordcount2_df,how='inner',on='word')    
-df['total'] = df['cnt_x'] + df['cnt_y']
-df = df.sort_values(by='total', ascending=False)
-
-
-
-## 취임사
-## 확실히 이명박의 경우 나라의 역할 나라, 정부의 주도의 행동을 강조하는 듯하는 모습을 보인다.
-## 이와 반대적으로 노무현 대통령의 경우 대한민국, 정부 단어 언급보다는 시대적,평화 등 한번도 평화에 대한 언급이 많았다. 대화, 지리 등 한반도 정세에 대한 언급이 많다.
-
-plt.figure(figsize=(10,7))
-sns.barplot(y='cnt_x',x='word',data=df[df['total']>7], color='blue',alpha=.5)
-sns.barplot(y='cnt_y',x='word',data=df[df['total']>7], color='red',alpha=.5)
-plt.xticks(rotation=90)
-
-
-
-### TF-IDF
-
-
-no_pre  = pd.read_csv('노무현_contents.csv')
-lee_pre = pd.read_csv('이명박_contents.csv')
-
-no_pre[no_pre['category']=='외교/통상']['contents']
-lee_pre[lee_pre['category']=='외교/통상']['contents']
-
-tdm = np.load("tdm_외교_노무현.npz")
-tdm = tdm['arr_0'].item()
-tdm
-
-with open('tdm_외교_노무현_.json', encoding='utf8') as f:
-    words = json.load(f)
-    
-tf = TfidfTransformer(smooth_idf=False)
-tf
-tfidf = tf.fit_transform(tdm.toarray())
-
-tfidf.toarray()[0]
-
