@@ -16,6 +16,10 @@ import json
 from sklearn.feature_extraction.text import TfidfTransformer
 import matplotlib.pyplot as plt # for basic plots
 import seaborn as sns # for nicer plots
+from gensim.matutils import Sparse2Corpus
+from gensim.models.ldamodel import LdaModel
+from collections import Counter
+    
 
 from matplotlib import font_manager, rc
 font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
@@ -143,6 +147,23 @@ def get_president_tdm(data,category,maximum):
         
     return tdm, cv
 
+def get_president_sub_tdm(data,sub_category,maximum):
+    if len(data[data['sub_category']==sub_category]) < 1:
+        print("sub_category 또는 데이터 이상.")
+        exit 
+    else:
+        tdm, cv = wordhandle.makeTDM(data[data['sub_category']==sub_category]['contents'],maximum)
+        president_name = data['president'].unique()[0]
+        
+        file_name = npz_file_name = "tdm_sub_" + sub_category + "_" + president_name
+        npz_file_name = file_name + ".npz"
+        np.savez(npz_file_name,tdm)
+        json_file_name = file_name + ".json"
+        with open(json_file_name,"w", encoding='utf8') as f:
+            json.dump(cv.get_feature_names(),f)
+        
+    return tdm, cv
+
 def two_wordcount_df(wordcount1, wordcount2):
     word = [ word for word,cnt in wordcount1]
     cnt = [ cnt for word,cnt in wordcount1]
@@ -169,8 +190,8 @@ def get_compare_words_view(df,label_x,label_y,category):
         df_y_quantail = df['cnt_y'].describe()[6]
     
     plt.figure(figsize=(15,9))
-    sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>df_x_quantail) & (df['cnt_y']>df_y_quantail)], color='blue',alpha=.5, label=label_x)
-    sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>df_x_quantail) & (df['cnt_y']>df_y_quantail)], color='red',alpha=.5, label=label_y)
+    sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>df_x_quantail) | (df['cnt_y']>df_y_quantail)], color='blue',alpha=.5, label=label_x)
+    sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>df_x_quantail) | (df['cnt_y']>df_y_quantail)], color='red',alpha=.5, label=label_y)
     plt.xticks(rotation=90)
     plt.legend()
     plt.xlabel("단어",fontsize=25)
@@ -178,4 +199,19 @@ def get_compare_words_view(df,label_x,label_y,category):
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)    
     plt.title("연설문 : " + category, fontsize=35)
+ 
+def get_lda_topic(tdm, words,num_topics):
+    corpus = Sparse2Corpus(tdm.T)
+    lda = LdaModel(corpus=corpus, num_topics=num_topics,id2word=dict(enumerate(words)), random_state=1234)
+    total = Counter()
+    num = tdm.shape[0]
+    words_num = tdm.shape[1]
+    for n in range(num):
+        doc = [(i, tdm[n,i]) for i in range(words_num)]
+        topics = lda.get_document_topics(doc)
+        for topic,ratio in topics:
+            total[topic] += ratio
     
+    total = sorted(total.items(), key=lambda x:x[1], reverse=True)
+    
+    return lda, total

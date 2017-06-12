@@ -57,12 +57,30 @@ tdm2 = tdm2['arr_0'].item()
 with open('tdm_교육_이명박.json', encoding='utf8') as f:
     words2 = json.load(f)
 
+
+dae_pre = pd.read_csv("김대중_contents.csv")
+tdm3, cv3 = president.get_president_tdm(dae_pre,"교육",500)
+
 wordcount = wordhandle.makeWordCloud(tdm,words)
 wordcount2 = wordhandle.makeWordCloud(tdm2,words2)
+wordcount3 = wordhandle.makeWordCloud(tdm3,cv3.get_feature_names())
 
 df = president.two_wordcount_df(wordcount, wordcount2)
+df2 = president.two_wordcount_df(wordcount, wordcount3)
 
 president.get_compare_words_view(df,"노무현","이명박","교육")
+president.get_compare_words_view(df2,"노무현","김대중","교육")
+
+
+lda, topics = president.get_lda_topic(tdm,words,20)
+topics
+lda.show_topic(3)
+lda.show_topic(9)
+
+lda2, topics2 = president.get_lda_topic(tdm2,words2,20)
+topics2
+lda2.show_topic(6)
+
 
 ## 외교
 
@@ -115,6 +133,45 @@ sns.barplot(y='cnt_x',x='word',data=df[df['total']>7], color='blue',alpha=.5)
 sns.barplot(y='cnt_y',x='word',data=df[df['total']>7], color='red',alpha=.5)
 plt.xticks(rotation=90)
 
+
+# 국회연설
+
+len(no_pre[no_pre['sub_category']=='국회연설'])
+len(lee_pre[lee_pre['sub_category']=='국회연설'])
+
+tdm, cv = president.get_president_sub_tdm(no_pre,"국회연설",500)
+tdm2, cv2 = president.get_president_sub_tdm(lee_pre,"국회연설",500)
+
+wordcount = wordhandle.makeWordCloud(tdm,cv.get_feature_names())
+wordcount2 = wordhandle.makeWordCloud(tdm2,cv2.get_feature_names())
+
+df = president.two_wordcount_df(wordcount,wordcount2)
+president.get_compare_words_view(df,"노무현","이명박","국정연설")
+
+lda, topics = president.get_lda_topic(tdm,cv.get_feature_names(),10)
+topics
+lda.show_topic(5)
+lda.show_topic(3)
+
+lda2, topics2 = president.get_lda_topic(tdm2,cv2.get_feature_names(),10)
+lda2.show_topic(5)
+
+
+from PIL import Image
+from wordcloud import ImageColorGenerator
+from wordcloud import WordCloud
+
+moon_coloring = np.array(Image.open('korea_mask.jpg'))
+moon_image_colors = ImageColorGenerator(moon_coloring)
+
+wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white',mask=moon_coloring, 
+               min_font_size=1, max_font_size=40, random_state=42, relative_scaling=0.2)
+cloud = wc.generate_from_frequencies(dict(wordcount))
+plt.figure(figsize=(12,12))
+plt.imshow(cloud.recolor(color_func=moon_image_colors),interpolation='bilinear')
+plt.axis("off")
+plt.show()
+
 ### TF-IDF
 
 no_pre  = pd.read_csv('노무현_contents.csv')
@@ -129,6 +186,10 @@ with open('tdm_외교_노무현_.json', encoding='utf8') as f:
     
 tf = TfidfTransformer(smooth_idf=False)
 tfidf = tf.fit_transform(tdm.toarray())
+
+
+
+
 
 
 ### LSA Clustering
