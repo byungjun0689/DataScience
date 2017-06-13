@@ -186,10 +186,10 @@ def get_compare_words_view(df,label_x,label_y,category):
         df_x_quantail = df['cnt_x'].describe()[5]
         df_y_quantail = df['cnt_y'].describe()[5]
     else:
-        df_x_quantail = df['cnt_x'].describe()[6]
-        df_y_quantail = df['cnt_y'].describe()[6]
+        df_x_quantail = df['cnt_x'].describe()[6] + (df['cnt_x'].describe()[1] // 2)
+        df_y_quantail = df['cnt_y'].describe()[6] + (df['cnt_y'].describe()[1] // 2)
     
-    plt.figure(figsize=(15,9))
+    plt.figure(figsize=(14,9))
     sns.barplot(y='cnt_x',x='word',data=df[(df['cnt_x']>df_x_quantail) | (df['cnt_y']>df_y_quantail)], color='blue',alpha=.5, label=label_x)
     sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>df_x_quantail) | (df['cnt_y']>df_y_quantail)], color='red',alpha=.5, label=label_y)
     plt.xticks(rotation=90)
@@ -199,6 +199,7 @@ def get_compare_words_view(df,label_x,label_y,category):
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)    
     plt.title("연설문 : " + category, fontsize=30)
+    
  
 def get_lda_topic(tdm, words,num_topics):
     corpus = Sparse2Corpus(tdm.T)
