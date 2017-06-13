@@ -35,7 +35,7 @@ def makeWordCloud(tdm,words):
 
     wc = WordCloud(font_path='C:\\Windows\\Fonts\\malgun.ttf', background_color='white', width=800, height=500)
     cloud = wc.generate_from_frequencies(dict(word_count[:100]))
-    plt.figure(figsize=(15,12))
+    plt.figure(figsize=(10,8))
     plt.imshow(cloud)
     return word_count
 

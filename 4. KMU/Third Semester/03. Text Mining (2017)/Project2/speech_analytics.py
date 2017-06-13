@@ -40,6 +40,18 @@ sub_cate_list = president.get_speech_subcategory(no_pre)
 sub_cate_list
 
 
+# 전체 단어 비교 
+tdm, cv = wordhandle.makeTDM(no_pre['contents'],500)
+tdm2, cv2 = wordhandle.makeTDM(lee_pre['contents'],500)
+
+np.savez("tdm_전체_노무현.npz",tdm)
+with open("tdm_전체_노무현.json","w", encoding='utf8') as f:
+            json.dump(cv.get_feature_names(),f)
+
+np.savez("tdm_전체_이명박.npz",tdm2)
+with open("tdm_전체_이명박.json","w", encoding='utf8') as f:
+            json.dump(cv2.get_feature_names(),f)
+
 # 교육
 
 #tdm, cv = president.get_president_tdm(no_pre,"교육",500)

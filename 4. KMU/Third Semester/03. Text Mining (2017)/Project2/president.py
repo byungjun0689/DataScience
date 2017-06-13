@@ -194,11 +194,11 @@ def get_compare_words_view(df,label_x,label_y,category):
     sns.barplot(y='cnt_y',x='word',data=df[(df['cnt_x']>df_x_quantail) | (df['cnt_y']>df_y_quantail)], color='red',alpha=.5, label=label_y)
     plt.xticks(rotation=90)
     plt.legend()
-    plt.xlabel("단어",fontsize=25)
-    plt.ylabel("합계",fontsize=25)
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)    
-    plt.title("연설문 : " + category, fontsize=35)
+    plt.xlabel("단어",fontsize=20)
+    plt.ylabel("합계",fontsize=20)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)    
+    plt.title("연설문 : " + category, fontsize=30)
  
 def get_lda_topic(tdm, words,num_topics):
     corpus = Sparse2Corpus(tdm.T)
