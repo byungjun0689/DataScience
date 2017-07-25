@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example Website</title>
+    <link>http://www.example.com/</link>
+    <generator>Sitemap Generator</generator>
+    <lastBuildDate>Tue, 19 Apr 2006 22:28:20 GMT</lastBuildDate>
+    <item>
+      <title>Example | Apps and Games</title>
+      <link>http://www.example.com/category?item_id=23&desc=apps_and_games</link>
+    </item>
+    <item>
+      <title>Example | Computers</title>
+      <link>http://www.example.com/category?item_id=54&desc=computers</link>
+    </item>
+    <item>
+      <title>Example | Movies and TV</title>
+      <link>http://www.example.com/category?item_id=11&desc=movies_and_tv</link>
+    </item>
+    <item>
+      <title>Example | Wine</title>
+      <link>http://www.example.com/category?item_id=91&desc=wine</link>
+    </item>
+  </channel>
+</rss>

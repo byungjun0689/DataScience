@@ -1,0 +1,24 @@
+-- Query 1
+SELECT name, altitude
+  FROM cities
+  WHERE altitude > 500;
+
+-- Results 1
+ name    | altitude
+-----------+----------
+ Las Vegas |     2174
+ Mariposa  |     1953
+ Madison   |      845
+(3 rows)
+
+-- Query 2
+SELECT name, altitude
+  FROM ONLY cities
+  WHERE altitude > 500;
+
+-- Results 2
+ name    | altitude
+-----------+----------
+ Las Vegas |     2174
+ Mariposa  |     1953
+(2 rows)

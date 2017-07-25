@@ -1,0 +1,5 @@
+User-agent: *
+Crawl-delay: 10
+Allow: /directory1/myfile.html
+Disallow: /directory1/
+sitemap:www.example.com/sitemap.xml

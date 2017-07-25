@@ -1,0 +1,14 @@
+HEADERS
+  - END_STREAM
+  + END_HEADERS
+  :method = POST
+  :scheme = https
+  :path = /3/device/00fc13adff785122b4ad28809a3420982341241421348097878e577c991de8f0
+  host = api.development.push.apple.com
+  apns-id = eabeae54-14a8-11e5-b60b-1697f925ec7b
+  apns-expiration = 0
+  apns-priority = 10
+  apns-topic = <MyAppTopic> 
+DATA
+  + END_STREAM
+    { "aps" : { "alert" : "Hello" } } 

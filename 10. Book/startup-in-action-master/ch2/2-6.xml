@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+      <loc>http://www.example.com/</loc>
+      <lastmod>2006-04-19</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+   </url>
+   <url>
+    <loc>http://www.example.com/category?item_id=23&desc=apps_&amp;_games</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://www.example.com/category?item_id=54&desc=computers</loc>
+      <lastmod>2016-03-21</lastmod>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://www.example.com/category?item_id=11&desc=movies_and_tv</loc>
+      <lastmod>2016-02-18T13:00:15+09:00</lastmod>
+      <priority>0.3</priority>
+   </url>
+   <url>
+      <loc>http://www.example.com/category?item_id=91&desc=wine</loc>
+      <lastmod>2016-04-10</lastmod>
+   </url>
+</urlset> 

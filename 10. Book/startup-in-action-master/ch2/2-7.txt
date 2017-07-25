@@ -1,0 +1,5 @@
+http://www.example.com/
+http://www.example.com/category?item_id=23&desc=apps_and_games
+http://www.example.com/category?item_id=54&desc=computers
+http://www.example.com/category?item_id=11&desc=movies_and_tv
+http://www.example.com/category?item_id=91&desc=wine
