@@ -7,11 +7,12 @@ data_list = []
 
 def search(dirname,findstr):
     dirlist = os.listdir(dirname)
-    for i in dirlist:
+    gen = (x for x in dirlist if x not in ".svn")
+    for i in gen:
         spath = os.path.join(dirname,i)
         if os.path.isfile(spath):
             ext = os.path.splitext(spath)[-1]
-            if ext.upper() == ".FRM" or ext.upper() == ".BAS" or ext.upper() == ".CLS":
+            if ext.upper() == ".FRM" or ext.upper() == ".BAS" or ext.upper() == ".CLS" or ext.upper() == ".PHP" or ext.upper() == ".HTML":
                 try:
                     #print(path)
                     if findstr in open(spath,'r').read():
