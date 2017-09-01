@@ -1,9 +1,6 @@
-# 클라우드 개발을 위한 가상화와 Docker 1 
+# 클라우드 개발을 위한 가상화와 Docker 1
 
 - Credu (회사 내 이러닝) 을 통한 학습.
-- 강사 : 하석재 박사
-
-
 
 # 1. 클라우드의 개념 및 종류
 
@@ -34,23 +31,23 @@
     - 플렛폼과 소프트웨어 사이의 인터페이스 정의
     - API보다 낮은 레벨
     - API는 유지되면서 ABI는 변경되는 경우, 코드는 유지하면서 재컴파일
-    - 하드웨어보다는 낮은 레벨의 가상화 
+    - 하드웨어보다는 낮은 레벨의 가상화
       - API 사용법은 동일하나 안에 구조만 달라졌을 경우 -> 재컴파일만 하면 된다.
   - **ISA(Instruction Set Architecture)**
-    - 하드웨어와 소프트웨어 사이의 인터페이스 정의 
+    - 하드웨어와 소프트웨어 사이의 인터페이스 정의
     - 하드웨어 자체를 가상화 -> CPU를 가상화 했다고 생각하면 된다. (예, 에뮬레이션)
 
 ![vr](./image/ch1/2.png)
 
 
 
-### 가상화 예 
+### 가상화 예
 
 ----
 
 ![vr_ex](./image/ch1/3.png)
 
-### 방식 
+### 방식
 
 ----
 
@@ -60,7 +57,7 @@
 
 # 3. 적용 사례
 
-- 아마존 AWS 
+- 아마존 AWS
   - EC2/EMR/S3/RDS
   - Elastic Computing Cloud/Elastic MapReduce
   - Simple Storage Service, Relational Database Service
