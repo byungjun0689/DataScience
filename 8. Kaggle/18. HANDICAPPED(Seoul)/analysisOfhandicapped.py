@@ -37,13 +37,29 @@ df2 = df[['AGE','SEX','TYPE','WK0609','WK0912','WK1215','WK1518','WK1821','WK212
 
 df2.to_csv("re_saved_data.csv", encoding='utf-8')
 
-df2.head()
+# ================================
+# ===== After renewal data =======
+# ================================
+
+df = df.iloc[:,1:]
+df.to_csv("re_saved_data.csv",index=False)
+df = pd.read_csv("./re_saved_data.csv")
+
+df.head()
 
 # 성비별 비교
 # 여성이 
-df2['SEX'] = df2['SEX'].map({1:'male',2:'female'})
+df['SEX'] = df['SEX'].map({1:'male',2:'female'})
 
-sns.factorplot(data=df2, x='SEX', kind='count')
-sns.countplot(data=df2, x='AGE')
+sns.factorplot(data=df, x='SEX', kind='count', size=7)
+sns.countplot(data=df, x='AGE')
 plt.xticks(rotation=45)
+
+sns.countplot(data=df, x='TYPE') # 지체장애인의 비율이 훨씬 더 많다.
+
+type_A_df = df[df['TYPE']=='A']
+type_B_df = df[df['TYPE']=='B']
+type_C_df = df[df['TYPE']=='C']
+
+
 
