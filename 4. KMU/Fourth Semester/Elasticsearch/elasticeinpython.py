@@ -40,7 +40,7 @@ type(docs)
 for doc in docs['docs']:
     print(doc['_source']['firstname'])
     
-    
+        
 docs = es_client.search(index = 'bank',
                        doc_type = 'account',
                        body = {
@@ -53,3 +53,5 @@ docs = es_client.search(index = 'bank',
     
     
 print(json.dumps(docs,indent=2))
+
+
